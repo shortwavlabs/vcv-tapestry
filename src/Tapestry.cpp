@@ -943,7 +943,7 @@ TapestryWidget::TapestryWidget(Tapestry* module)
   this->module = module;
 
   // 20HP panel
-  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Tapestry.svg")));
+  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Tapestry_paths.svg")));
 
   // Screws
   addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
