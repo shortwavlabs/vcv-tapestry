@@ -257,7 +257,7 @@ A: Yes! TapestryExpander must be placed directly to the right of Tapestry. The c
 **Q: Can I use just the filter or just the bit crusher?**  
 A: Yes! Set the mix knob to 0% for any effect you don't want. Each effect can be used independently.
 
-**Q: Does o sound when I press play?**  
+**Q: Why is there no sound when I press play?**  
 A: Check that varispeed is not at center (stopped). Turn it right for forward playback.
 
 **Q: How do I clear the recording?**  
