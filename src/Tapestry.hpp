@@ -330,10 +330,30 @@ struct TapestryWidget : ModuleWidget
 struct ReelDisplay : OpaqueWidget
 {
   Tapestry* module = nullptr;
+  
+  // Mouse interaction state
+  float hoverX = -1.0f;           // X position of hover cursor (-1 if not hovering)
+  bool isHovering = false;        // Whether mouse is currently over the widget
+  int hoveredSpliceIndex = -1;    // Index of splice marker being hovered (-1 if none)
+  
+  // Constants for splice marker hit detection
+  static constexpr float kSpliceHitWidth = 6.0f;  // Pixels on each side of marker for hit detection
 
   void draw(const DrawArgs& args) override;
   void drawWaveform(const DrawArgs& args);
   void drawSpliceMarkers(const DrawArgs& args);
   void drawPlayhead(const DrawArgs& args);
   void drawGeneWindow(const DrawArgs& args);
+  void drawHoverIndicator(const DrawArgs& args);
+  
+  // Mouse event handlers
+  void onButton(const ButtonEvent& e) override;
+  void onHover(const HoverEvent& e) override;
+  void onLeave(const LeaveEvent& e) override;
+  void onDragHover(const DragHoverEvent& e) override;
+  
+  // Helper methods
+  size_t xPositionToFrame(float x) const;
+  float frameToXPosition(size_t frame) const;
+  int getSpliceIndexAtPosition(float x) const;
 };

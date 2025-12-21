@@ -33,10 +33,17 @@
 ### 3. Create Splices
 Splices are markers that divide your recording into segments:
 
+**Method 1: Click on Waveform** (easiest)
+1. **Left-click** anywhere on the waveform to create a splice at that position
+2. A green vertical line appears as you hover, showing where the splice will be created
+3. Blue vertical lines mark your created splices
+4. **Right-click** on an existing marker to delete it (red highlight shows deletion)
+5. **Left-click** on an existing marker to select/jump to that splice
+
+**Method 2: Button/Gate** (while playing)
 1. While audio is playing, press **SPLICE** button to mark the current position
-2. Blue vertical lines appear in the display showing splice markers
-3. Create 3-4 splices to divide your audio into sections
-4. Press **SHIFT** button to jump between splices
+2. Or send a gate to the **SPLICE** input for automated marking
+3. Press **SHIFT** button to jump between splices
 
 ### 4. Explore Granular Sounds
 1. Adjust **MORPH** knob clockwise:
@@ -147,12 +154,15 @@ Splices are markers that divide your recording into segments:
 - **Gray waveform**: Your recorded audio
 - **Red cursor**: Current playhead position
 - **Blue lines**: Splice markers
-- **Green highlight**: Current splice boundaries
+- **Green hover line**: Shows where new splice will be created (when hovering)
+- **Red hover line**: Shows marker that will be deleted (when hovering over existing splice)
 
-### Zoom Controls
-- **+** button: Zoom in for detail
-- **−** button: Zoom out for overview
-- Click and drag on waveform to jump to position (when stopped)
+### Waveform Interaction
+- **Left-click**: Create new splice at click position
+- **Left-click on marker**: Select/jump to that splice
+- **Right-click on marker**: Delete that splice marker
+- **Hover**: See green preview for new splice or red highlight for deletion
+- **Visual feedback**: Triangle indicator at top shows exact click position
 
 ### Context Menu (right-click)
 - **Clear Tape**: Erase all audio

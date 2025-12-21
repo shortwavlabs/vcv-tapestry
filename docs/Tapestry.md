@@ -171,10 +171,12 @@ The module integrates three core DSP components:
 - **Behavior**:
   - Button press or gate rising edge → insert new splice
   - Splice created at current grain playhead position (includes slide offset)
+  - **Alternative**: Left-click on waveform display to create splice at any position
   - Maximum 64 splices supported
   - Only active in Normal mode (not while recording)
   - Visual feedback: new marker appears in waveform display
 - **Use Case**: Marking interesting moments, creating rhythmic divisions
+- **Note**: Waveform clicking provides more precise control than button/gate for manual splice creation
 
 #### CLEAR_SPLICES_BUTTON (Range: 0-1)
 - **Type**: Momentary button with LED indicator
@@ -261,12 +263,16 @@ The module integrates three core DSP components:
   - Real-time waveform rendering with automatic zoom
   - Red playhead cursor showing current position
   - Blue splice markers (vertical lines)
-  - Green line indicating current splice boundaries
+  - Interactive hover feedback with visual indicators
   - Grayscale waveform with peak detection
 - **Interaction**:
-  - Click on waveform → jump to position
-  - Click near splice marker → select that splice
-  - Drag to scrub through audio (when stopped)
+  - **Left-click on waveform** → create new splice at click position
+  - **Left-click on splice marker** → select/jump to that splice
+  - **Right-click on splice marker** → delete that marker
+  - **Hover over waveform** → green line preview shows where splice will be created
+  - **Hover over marker** → red line highlight indicates marker can be deleted
+  - **Triangle indicator** → appears at top of hover line showing exact position
+  - **Hit detection** → 6-pixel tolerance on each side of markers for easy clicking
 
 ### Zoom Controls
 - **Zoom In** (+): Increase waveform magnification
@@ -296,8 +302,10 @@ The module integrates three core DSP components:
 3. Play audio into **AUDIO L/R** inputs
 4. First audio creates initial splice automatically
 5. Press **RECORD** again to stop
-6. Turn **VARISPEED** right to play forward
-7. Adjust **SLIDE** to explore different positions
+6. **Click on waveform** to create additional splice markers at interesting points
+7. Turn **VARISPEED** right to play forward
+8. Adjust **SLIDE** to explore different positions
+9. **Right-click markers** to remove unwanted splices
 
 ### Live Looping with Overdubs
 1. Record initial phrase with **OVERDUB** toggle OFF (replace mode)
@@ -435,9 +443,12 @@ The module integrates three core DSP components:
 - If using old version: restart playback or shift to new splice
 
 ### Splices Not Creating
-- Ensure not in record mode when using splice trigger
+- **Try clicking directly on waveform** - most reliable method
+- Ensure not in record mode when using splice trigger button/gate
 - Check that playhead position is valid (within buffer)
 - Maximum 64 splices - clear some if full
+- When hovering, green line should appear showing where splice will be created
+- Cannot create splice at frame 0 (beginning) - this is always a splice marker
 
 ### Audio Glitches/Clicks
 - Increase gene size for smoother playback

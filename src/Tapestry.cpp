@@ -791,6 +791,7 @@ void ReelDisplay::draw(const DrawArgs& args)
   drawSpliceMarkers(args);
   drawGeneWindow(args);
   drawPlayhead(args);
+  drawHoverIndicator(args);
 }
 
 void ReelDisplay::drawWaveform(const DrawArgs& args)
@@ -815,9 +816,8 @@ void ReelDisplay::drawWaveform(const DrawArgs& args)
   int numBars = static_cast<int>(box.size.x / barSpacing);
   if (numBars <= 0) return;
   
-  // Get mouse position for hover effect (if available)
-  // Note: In VCV Rack context, we'll approximate hover based on module state
-  float hoverX = -1.0f; // TODO: Implement proper hover tracking via widget events
+  // Use member variable hoverX for hover effect (set by onHover)
+  float currentHoverX = isHovering ? this->hoverX : -1.0f;
   
   // Pre-compute peak values for each bar
   std::vector<float> peaks(numBars, 0.0f);
@@ -850,7 +850,7 @@ void ReelDisplay::drawWaveform(const DrawArgs& args)
     barHeight = std::max(barHeight, 2.0f); // Minimum bar height
     
     // Check if bar is under hover
-    bool isHovered = (hoverX >= x && hoverX < x + barWidth);
+    bool isBarHovered = (currentHoverX >= x && currentHoverX < x + barSpacing);
     
     // Draw drop shadow for depth
     nvgBeginPath(args.vg);
@@ -863,8 +863,8 @@ void ReelDisplay::drawWaveform(const DrawArgs& args)
     NVGpaint gradient = nvgLinearGradient(args.vg, 
                                           x, centerY - barHeight,
                                           x, centerY + barHeight,
-                                          nvgRGBA(51, 153, 255, isHovered ? 255 : 200),   // Blue
-                                          nvgRGBA(0, 204, 204, isHovered ? 255 : 180));   // Teal
+                                          nvgRGBA(51, 153, 255, isBarHovered ? 255 : 200),   // Blue
+                                          nvgRGBA(0, 204, 204, isBarHovered ? 255 : 180));   // Teal
     
     // Draw top bar (positive amplitude)
     nvgBeginPath(args.vg);
@@ -879,7 +879,7 @@ void ReelDisplay::drawWaveform(const DrawArgs& args)
     nvgFill(args.vg);
     
     // Add subtle highlight on hover
-    if (isHovered)
+    if (isBarHovered)
     {
       nvgBeginPath(args.vg);
       nvgRoundedRect(args.vg, x, centerY - barHeight, barWidth, barHeight * 2.0f, cornerRadius);
@@ -894,13 +894,13 @@ void ReelDisplay::drawWaveform(const DrawArgs& args)
       // Top cap
       nvgBeginPath(args.vg);
       nvgCircle(args.vg, x + barWidth * 0.5f, centerY - barHeight, barWidth * 0.5f);
-      nvgFillColor(args.vg, nvgRGBA(51, 153, 255, isHovered ? 255 : 220));
+      nvgFillColor(args.vg, nvgRGBA(51, 153, 255, isBarHovered ? 255 : 220));
       nvgFill(args.vg);
       
       // Bottom cap
       nvgBeginPath(args.vg);
       nvgCircle(args.vg, x + barWidth * 0.5f, centerY + barHeight, barWidth * 0.5f);
-      nvgFillColor(args.vg, nvgRGBA(0, 204, 204, isHovered ? 255 : 200));
+      nvgFillColor(args.vg, nvgRGBA(0, 204, 204, isBarHovered ? 255 : 200));
       nvgFill(args.vg);
     }
   }
@@ -982,6 +982,212 @@ void ReelDisplay::drawGeneWindow(const DrawArgs& args)
 
   // TODO: Get gene window bounds from grain engine
   // For now, just draw a placeholder based on gene size param
+}
+
+void ReelDisplay::drawHoverIndicator(const DrawArgs& args)
+{
+  if (!isHovering || hoverX < 0)
+    return;
+
+  const auto& buffer = module->dsp.getBuffer();
+  if (buffer.isEmpty())
+    return;
+
+  // Draw hover indicator line
+  nvgBeginPath(args.vg);
+  nvgMoveTo(args.vg, hoverX, 0);
+  nvgLineTo(args.vg, hoverX, box.size.y);
+  
+  if (hoveredSpliceIndex >= 0)
+  {
+    // Hovering over existing splice marker - show red indicator for deletion
+    nvgStrokeColor(args.vg, nvgRGBA(255, 100, 100, 180));
+    nvgStrokeWidth(args.vg, 3.0f);
+  }
+  else
+  {
+    // Hovering over waveform - show green indicator for new splice
+    nvgStrokeColor(args.vg, nvgRGBA(100, 255, 100, 150));
+    nvgStrokeWidth(args.vg, 2.0f);
+  }
+  nvgStroke(args.vg);
+
+  // Draw a small triangle at the top to indicate click position
+  float triSize = 5.0f;
+  nvgBeginPath(args.vg);
+  nvgMoveTo(args.vg, hoverX, 0);
+  nvgLineTo(args.vg, hoverX - triSize, -triSize);
+  nvgLineTo(args.vg, hoverX + triSize, -triSize);
+  nvgClosePath(args.vg);
+  
+  if (hoveredSpliceIndex >= 0)
+  {
+    nvgFillColor(args.vg, nvgRGBA(255, 100, 100, 200));
+  }
+  else
+  {
+    nvgFillColor(args.vg, nvgRGBA(100, 255, 100, 200));
+  }
+  nvgFill(args.vg);
+}
+
+//------------------------------------------------------------------------------
+// Mouse Event Handlers
+//------------------------------------------------------------------------------
+
+void ReelDisplay::onButton(const ButtonEvent& e)
+{
+  OpaqueWidget::onButton(e);
+  
+  if (!module)
+    return;
+
+  const auto& buffer = module->dsp.getBuffer();
+  if (buffer.isEmpty())
+    return;
+
+  // Only handle press events (not release)
+  if (e.action != GLFW_PRESS)
+    return;
+
+  // Left click: Create splice at position OR select existing splice
+  if (e.button == GLFW_MOUSE_BUTTON_LEFT)
+  {
+    int spliceIdx = getSpliceIndexAtPosition(e.pos.x);
+    
+    if (spliceIdx >= 0)
+    {
+      // Clicked on existing splice marker - select it
+      module->dsp.getSpliceManager().setCurrentIndex(spliceIdx);
+    }
+    else
+    {
+      // Create new splice at click position
+      size_t frame = xPositionToFrame(e.pos.x);
+      module->dsp.onSpliceTrigger(frame);
+    }
+    e.consume(this);
+  }
+  // Right click: Delete splice marker if hovering over one
+  else if (e.button == GLFW_MOUSE_BUTTON_RIGHT)
+  {
+    int spliceIdx = getSpliceIndexAtPosition(e.pos.x);
+    
+    if (spliceIdx >= 0)
+    {
+      // Select the splice first, then delete it
+      module->dsp.getSpliceManager().setCurrentIndex(spliceIdx);
+      module->dsp.deleteCurrentMarker();
+    }
+    e.consume(this);
+  }
+}
+
+void ReelDisplay::onHover(const HoverEvent& e)
+{
+  OpaqueWidget::onHover(e);
+  
+  isHovering = true;
+  hoverX = e.pos.x;
+  
+  // Check if hovering over a splice marker
+  hoveredSpliceIndex = getSpliceIndexAtPosition(e.pos.x);
+  
+  e.consume(this);
+}
+
+void ReelDisplay::onLeave(const LeaveEvent& e)
+{
+  OpaqueWidget::onLeave(e);
+  
+  isHovering = false;
+  hoverX = -1.0f;
+  hoveredSpliceIndex = -1;
+}
+
+void ReelDisplay::onDragHover(const DragHoverEvent& e)
+{
+  OpaqueWidget::onDragHover(e);
+  
+  // Update hover position during drag operations
+  isHovering = true;
+  hoverX = e.pos.x;
+  hoveredSpliceIndex = getSpliceIndexAtPosition(e.pos.x);
+}
+
+//------------------------------------------------------------------------------
+// Helper Methods
+//------------------------------------------------------------------------------
+
+size_t ReelDisplay::xPositionToFrame(float x) const
+{
+  if (!module)
+    return 0;
+
+  const auto& buffer = module->dsp.getBuffer();
+  if (buffer.isEmpty())
+    return 0;
+
+  size_t usedFrames = buffer.getUsedFrames();
+  
+  // Clamp x to valid range
+  x = std::max(0.0f, std::min(x, box.size.x));
+  
+  // Convert x position to frame
+  float normalized = x / box.size.x;
+  return static_cast<size_t>(normalized * usedFrames);
+}
+
+float ReelDisplay::frameToXPosition(size_t frame) const
+{
+  if (!module)
+    return 0.0f;
+
+  const auto& buffer = module->dsp.getBuffer();
+  if (buffer.isEmpty())
+    return 0.0f;
+
+  size_t usedFrames = buffer.getUsedFrames();
+  if (usedFrames == 0)
+    return 0.0f;
+
+  float normalized = static_cast<float>(frame) / static_cast<float>(usedFrames);
+  return normalized * box.size.x;
+}
+
+int ReelDisplay::getSpliceIndexAtPosition(float x) const
+{
+  if (!module)
+    return -1;
+
+  const auto& buffer = module->dsp.getBuffer();
+  if (buffer.isEmpty())
+    return -1;
+
+  const auto& spliceManager = module->dsp.getSpliceManager();
+  const auto& splices = spliceManager.getAllSplices();
+  
+  if (splices.empty())
+    return -1;
+
+  size_t usedFrames = buffer.getUsedFrames();
+
+  // Check each splice marker to see if x is within hit range
+  for (size_t i = 0; i < splices.size(); i++)
+  {
+    // Skip first splice at frame 0 (can't delete start of buffer)
+    if (splices[i].startFrame == 0)
+      continue;
+      
+    float markerX = static_cast<float>(splices[i].startFrame) / usedFrames * box.size.x;
+    
+    if (std::fabs(x - markerX) <= kSpliceHitWidth)
+    {
+      return static_cast<int>(i);
+    }
+  }
+
+  return -1;
 }
 
 //------------------------------------------------------------------------------
