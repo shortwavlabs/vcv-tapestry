@@ -122,9 +122,38 @@ void Tapestry::process(const ProcessArgs& args)
   // Process DSP
   ShortwavDSP::TapestryDSP::ProcessResult result = dsp.process(audioInL, audioInR);
 
-  // Write audio outputs
-  outputs[AUDIO_OUT_L].setVoltage(result.audioOutL * 5.0f);
-  outputs[AUDIO_OUT_R].setVoltage(result.audioOutR * 5.0f);
+  // Start with Tapestry's output
+  float finalOutL = result.audioOutL;
+  float finalOutR = result.audioOutR;
+
+  // Check for TapestryExpander on the right
+  if (rightExpander.module && rightExpander.module->model == modelTapestryExpander)
+  {
+    // Write audio to producer message for expander to read next frame
+    TapestryExpanderMessage* outMsg =
+        static_cast<TapestryExpanderMessage*>(rightExpander.producerMessage);
+    outMsg->audioL = result.audioOutL;
+    outMsg->audioR = result.audioOutR;
+    outMsg->sampleRate = APP->engine->getSampleRate();
+
+    // Read processed audio from consumer message (what expander wrote last frame)
+    TapestryExpanderMessage* inMsg =
+        static_cast<TapestryExpanderMessage*>(rightExpander.consumerMessage);
+
+    // Only use expander output if it has actually processed and returned audio
+    if (inMsg->expanderConnected)
+    {
+      finalOutL = inMsg->processedL;
+      finalOutR = inMsg->processedR;
+    }
+
+    // Request message flip for next frame
+    rightExpander.requestMessageFlip();
+  }
+
+  // Write audio outputs (always write both channels)
+  outputs[AUDIO_OUT_L].setVoltage(finalOutL * 5.0f);
+  outputs[AUDIO_OUT_R].setVoltage(finalOutR * 5.0f);
 
   // Write CV output
   outputs[CV_OUTPUT].setVoltage(result.cvOut);
