@@ -607,7 +607,7 @@ All parameters have dedicated CV inputs with the following scaling:
 - **BitCrusher**: Digital distortion effect (not in Morphagene)
 - **Moog VCF**: Software emulation of classic filter
 - **Independent Mix**: Separate dry/wet for each effect
-- **CV Control**: All parameters voltage-controllabl
+- **CV Control**: All parameters voltage-controllable
 - Varispeed playback (forward/reverse)
 - Effects DSP**: BitCrusher and Moog VCF emulation (TapestryExpander)  
 **UI/Display**: NanoVG waveform rendering  
