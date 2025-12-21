@@ -608,9 +608,9 @@ All parameters have dedicated CV inputs with the following scaling:
 - **Moog VCF**: Software emulation of classic filter
 - **Independent Mix**: Separate dry/wet for each effect
 - **CV Control**: All parameters voltage-controllable
-- Varispeed playback (forward/reverse)
-- Effects DSP**: BitCrusher and Moog VCF emulation (TapestryExpander)  
-**UI/Display**: NanoVG waveform rendering  
+- **Varispeed Playback**: Forward and reverse operation
+- **Effects DSP**: BitCrusher and Moog VCF emulation (TapestryExpander)
+- **UI/Display**: NanoVG waveform rendering
 
 ---
 
