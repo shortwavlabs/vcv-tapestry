@@ -129,34 +129,27 @@ void Tapestry::process(const ProcessArgs& args)
   // Check for TapestryExpander on the right
   if (rightExpander.module && rightExpander.module->model == modelTapestryExpander)
   {
-    // Read processed audio from consumer message (what expander wrote last frame)
-    TapestryExpanderMessage* inMsg =
-        static_cast<TapestryExpanderMessage*>(rightExpander.consumerMessage);
+    // Use the single shared message buffer
+    // Write our audio for expander to read
+    expanderMessage->audioL = result.audioOutL;
+    expanderMessage->audioR = result.audioOutR;
+    expanderMessage->sampleRate = APP->engine->getSampleRate();
 
     // Debug: log expander connection status
     static int debugCounter = 0;
     if (++debugCounter > 48000) {
       debugCounter = 0;
       DEBUG("Tapestry: expanderConnected=%d, processedL=%.3f, audioOutL=%.3f", 
-            inMsg->expanderConnected, inMsg->processedL, result.audioOutL);
+            expanderMessage->expanderConnected, expanderMessage->processedL, result.audioOutL);
     }
 
-    // Only use expander output if it has actually processed and returned audio
-    if (inMsg->expanderConnected)
+    // Read processed audio from the same shared buffer
+    // The expander will have written to this during its process() call
+    if (expanderMessage->expanderConnected)
     {
-      finalOutL = inMsg->processedL;
-      finalOutR = inMsg->processedR;
+      finalOutL = expanderMessage->processedL;
+      finalOutR = expanderMessage->processedR;
     }
-
-    // Write audio to producer message for expander to read next frame
-    TapestryExpanderMessage* outMsg =
-        static_cast<TapestryExpanderMessage*>(rightExpander.producerMessage);
-    outMsg->audioL = result.audioOutL;
-    outMsg->audioR = result.audioOutR;
-    outMsg->sampleRate = APP->engine->getSampleRate();
-
-    // Request message flip for next frame
-    rightExpander.requestMessageFlip();
   }
 
   // Write audio outputs (always write both channels)

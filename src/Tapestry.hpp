@@ -248,17 +248,21 @@ struct Tapestry : Module
     configBypass(AUDIO_IN_L, AUDIO_OUT_L);
     configBypass(AUDIO_IN_R, AUDIO_OUT_R);
 
-    // Set up right expander message buffers
-    rightExpander.producerMessage = new TapestryExpanderMessage();
-    rightExpander.consumerMessage = new TapestryExpanderMessage();
+    // Set up single shared expander message buffer
+    // Both producer and consumer point to the same struct for same-frame communication
+    expanderMessage = new TapestryExpanderMessage();
+    rightExpander.producerMessage = expanderMessage;
+    rightExpander.consumerMessage = expanderMessage;
 
     onSampleRateChange();
   }
 
   ~Tapestry() {
-    delete static_cast<TapestryExpanderMessage*>(rightExpander.producerMessage);
-    delete static_cast<TapestryExpanderMessage*>(rightExpander.consumerMessage);
+    delete expanderMessage;
   }
+
+  // Shared expander message
+  TapestryExpanderMessage* expanderMessage = nullptr;
 
   //--------------------------------------------------------------------------
   // Sample Rate Change

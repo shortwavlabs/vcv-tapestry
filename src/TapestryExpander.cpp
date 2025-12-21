@@ -1,4 +1,5 @@
 #include "TapestryExpander.hpp"
+#include "Tapestry.hpp"  // For Tapestry class and expanderMessage access
 
 //------------------------------------------------------------------------------
 // Constructor / Destructor
@@ -26,17 +27,15 @@ TapestryExpander::TapestryExpander()
     configInput(FILTER_RESO_CV_INPUT, "Resonance CV");
     configInput(FILTER_MIX_CV_INPUT, "Filter Mix CV");
     
-    // Set up left expander message buffers
-    leftExpander.producerMessage = new TapestryExpanderMessage();
-    leftExpander.consumerMessage = new TapestryExpanderMessage();
+    // Note: We don't allocate our own message buffers.
+    // We'll access Tapestry's rightExpander buffers directly.
     
     // Initialize sample rate
     onSampleRateChange();
 }
 
 TapestryExpander::~TapestryExpander() {
-    delete static_cast<TapestryExpanderMessage*>(leftExpander.producerMessage);
-    delete static_cast<TapestryExpanderMessage*>(leftExpander.consumerMessage);
+    // Nothing to delete - we use Tapestry's buffers
 }
 
 //------------------------------------------------------------------------------
@@ -115,32 +114,28 @@ void TapestryExpander::process(const ProcessArgs& args)
     float inputL = 0.0f;
     float inputR = 0.0f;
     
+    Module* tapestryModule = leftExpander.module;
+    TapestryExpanderMessage* sharedMsg = nullptr;
+    
     // Check if left module is Tapestry
-    if (leftExpander.module && leftExpander.module->model == modelTapestry) {
-        connected = true;
+    if (tapestryModule && tapestryModule->model == modelTapestry) {
+        // Access the shared message buffer via Tapestry's expanderMessage pointer
+        Tapestry* tapestry = static_cast<Tapestry*>(tapestryModule);
+        sharedMsg = tapestry->expanderMessage;
         
-        // Read from consumer message (what Tapestry wrote last frame)
-        TapestryExpanderMessage* msg = 
-            static_cast<TapestryExpanderMessage*>(leftExpander.consumerMessage);
-        
-        inputL = msg->audioL;
-        inputR = msg->audioR;
-        sampleRate_ = msg->sampleRate;
+        if (sharedMsg) {
+            connected = true;
+            inputL = sharedMsg->audioL;
+            inputR = sharedMsg->audioR;
+            sampleRate_ = sharedMsg->sampleRate;
+        }
     }
     
     // Update connection LED
     lights[CONNECTED_LIGHT].setBrightness(connected ? 1.0f : 0.0f);
     
-    // Get producer message - we'll write to it even if not connected
-    TapestryExpanderMessage* outMsg = 
-        static_cast<TapestryExpanderMessage*>(leftExpander.producerMessage);
-    
-    // If not connected, mark as disconnected and return
-    if (!connected) {
-        outMsg->expanderConnected = false;
-        outMsg->processedL = 0.0f;
-        outMsg->processedR = 0.0f;
-        // Don't request flip - let Tapestry handle it
+    // If not connected, nothing to do
+    if (!connected || !sharedMsg) {
         return;
     }
     
@@ -241,12 +236,12 @@ void TapestryExpander::process(const ProcessArgs& args)
     outputR = clamp(outputR, -1.5f, 1.5f);
     
     //--------------------------------------------------------------------------
-    // Write processed audio back to producer message (for Tapestry to read)
+    // Write processed audio back to the shared message buffer
     //--------------------------------------------------------------------------
     
-    outMsg->processedL = outputL;
-    outMsg->processedR = outputR;
-    outMsg->expanderConnected = true;
+    sharedMsg->processedL = outputL;
+    sharedMsg->processedR = outputR;
+    sharedMsg->expanderConnected = true;
     
     // Debug: verify we're writing the flag
     static int writeCounter = 0;
@@ -255,9 +250,6 @@ void TapestryExpander::process(const ProcessArgs& args)
         DEBUG("Expander WRITING: expanderConnected=1, processedL=%.3f, inputL=%.3f",
               outputL, inputL);
     }
-    
-    // Request message flip
-    leftExpander.requestMessageFlip();
 }
 
 //------------------------------------------------------------------------------
