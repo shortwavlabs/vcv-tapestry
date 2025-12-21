@@ -204,9 +204,9 @@ void TapestryExpander::process(const ProcessArgs& args)
     float crushedL, crushedR;
     bitCrusher_.processStereo(blockedInL, blockedInR, crushedL, crushedR);
     
-    // Dry/Wet mix for bit crusher
-    float stage1L = inputL * (1.0f - crushMix) + crushedL * crushMix;
-    float stage1R = inputR * (1.0f - crushMix) + crushedR * crushMix;
+    // Dry/Wet mix for bit crusher (use DC-blocked input for consistency)
+    float stage1L = blockedInL * (1.0f - crushMix) + crushedL * crushMix;
+    float stage1R = blockedInR * (1.0f - crushMix) + crushedR * crushMix;
     
     //--------------------------------------------------------------------------
     // Stage 2: Moog VCF
