@@ -77,7 +77,6 @@ public:
     
     void reset() {
         stage_[0] = stage_[1] = stage_[2] = stage_[3] = 0.0f;
-        delay_[0] = delay_[1] = delay_[2] = delay_[3] = 0.0f;
     }
     
     void setParams(float cutoffNorm, float resonance, float sampleRate) {
@@ -134,5 +133,4 @@ private:
     
     // Filter state (4 poles)
     float stage_[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-    float delay_[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 };
