@@ -119,7 +119,7 @@ public:
         
         // Denormal protection
         for (int i = 0; i < 4; i++) {
-            if (!std::isfinite(stage_[i]) || std::fabs(stage_[i]) < 1e-15f) {
+            if (!std::isfinite(stage_[i]) || std::fabs(stage_[i]) < 1e-30f) {
                 stage_[i] = 0.0f;
             }
         }
