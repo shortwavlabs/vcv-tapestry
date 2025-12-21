@@ -1,7 +1,7 @@
 #pragma once
 
 #include "plugin.hpp"
-// #include <cmath>
+#include <cmath>
 
 #include "dsp/tapestry-effects.h"
 /*
