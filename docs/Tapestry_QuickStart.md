@@ -30,7 +30,25 @@
 2. You should hear your recorded audio playing
 3. The red playhead cursor shows current position
 
-### 3. Create Splices
+### 3. Add Effects with TapestryExpander (Optional)
+**TapestryExpander** is a separate 4HP module that adds bit crusher and Moog VCF effects:
+
+1. Place **TapestryExpander** to the **right** of Tapestry (must be adjacent)
+2. Connection LED turns on when properly connected
+3. **BitCrusher Section**:
+   - **Bits**: Reduce bit depth (1-16 bits) for digital distortion
+   - **Rate**: Sample rate reduction for lo-fi effect
+   - **Mix**: Blend dry/crushed signal (0-100%)
+4. **Moog VCF Section**:
+   - **Cutoff**: Low-pass filter frequency
+   - **Reso**: Resonance amount for emphasis at cutoff
+   - **Mix**: Blend dry/filtered signal (0-100%)
+5. All parameters have CV inputs for modulation
+6. Effects are processed in series: Tapestry → BitCrusher → Filter → Output
+
+**Tip**: Start with mix knobs at 0% and gradually turn them up to hear the effects!
+
+### 4. Create Splices
 Splices are markers that divide your recording into segments:
 
 **Method 1: Click on Waveform** (easiest)
@@ -45,7 +63,7 @@ Splices are markers that divide your recording into segments:
 2. Or send a gate to the **SPLICE** input for automated marking
 3. Press **SHIFT** button to jump between splices
 
-### 4. Explore Granular Sounds
+### 5. Explore Granular Sounds
 1. Adjust **MORPH** knob clockwise:
    - 0.0-0.3 = 1 voice (clean playback)
    - 0.3-0.7 = 2 voices (gentle overlap)
@@ -124,8 +142,18 @@ Splices are markers that divide your recording into segments:
 5. Adjust **SLIDE** to explore the recording
 6. Result: atmospheric, evolving textures
 
+**With TapestryExpander**:
+- Add subtle filter movement with slow LFO to **Cutoff CV**
+- Use bit crushing sparingly (12-14 bits) for character
+- High resonance creates singing, harmonic clouds
+
 ### Rhythmic Slicing
 1. Record drums or rhythmic material
+**With TapestryExpander**:
+- Use bit crushing (6-10 bits) for harsh, digital drums
+- Fast filter modulation for rhythmic emphasis
+- Low-pass filter to remove high-end for darker sound
+
 2. Use **SPLICE** trigger to mark each hit
 3. Connect clock/sequencer to **SHIFT** gate
 4. Each clock pulse jumps to next slice
@@ -137,6 +165,13 @@ Splices are markers that divide your recording into segments:
 - Connect LFO to **VARISPEED CV** for oscillating playback
 - Slow LFO = breathing effect
 - Fast LFO = vibrato/tremolo
+
+### TapestryExpander CV Modulation
+- **Filter Cutoff + LFO**: Wobble bass, rhythmic filtering
+- **Resonance + Envelope**: Emphasize transients, add character
+- **Bit Depth + Random**: Unpredictable digital glitches
+- **Rate + Sequencer**: Stepped lo-fi reduction
+- **Mix controls + Envelope**: Fade effects in/out dynamically
 
 ### Triggered Playback
 - Connect sequencer gates to **PLAY** input
@@ -170,12 +205,16 @@ Splices are markers that divide your recording into segments:
 - **Remove Last Splice**: Undo last splice
 - **Tape Info**: View buffer status
 
+**With Expander**: Add subtle filter (cutoff=0.7, mix=30%) for darker ambience
+
 **Tip**: Use the dedicated **CLEAR SPLICES** button for quick access!
 
 ## Quick Patch Ideas
 
 ### Ambient Drone Generator
 ```
+**With Expander**: Bit crush at 4-8 bits, rate=50%, filter cutoff modulation
+
 Audio Source → Tapestry L/R Inputs
 Slow LFO → Tapestry Varispeed CV
 Tapestry L/R → Reverb → Output
@@ -187,12 +226,16 @@ Settings: Morph=0.9, Gene=2.0s, Slide=0.5
 Drum Loop → Tapestry (record)
 Fast Clock → Shift Input
 Random CV → Organize Knob
+**With Expander**: Add resonant filter for tonal reverse echoes
+
 Settings: Morph=0.2, Gene=0.1s, create 8 splices
 ```
 
 ### Reverse Echo
 ```
 Audio → Tapestry (record short phrase)
+**With Expander**: Use filter cutoff tracking varispeed for pitch-follow effect
+
 Tapestry L/R → Delay → Output
 Settings: Varispeed=-0.3 (slow reverse), Gene=1.0s
 Trigger: Press Play button to restart
@@ -208,7 +251,13 @@ Settings: Morph=0.6, Gene=0.2s, Slide=variable
 
 ## Common Questions
 
-**Q: Why no sound when I press play?**  
+**Q: Why nthe expander need to be on the right side?**  
+A: Yes! TapestryExpander must be placed directly to the right of Tapestry. The connection LED will light up when properly connected.
+
+**Q: Can I use just the filter or just the bit crusher?**  
+A: Yes! Set the mix knob to 0% for any effect you don't want. Each effect can be used independently.
+
+**Q: Does o sound when I press play?**  
 A: Check that varispeed is not at center (stopped). Turn it right for forward playback.
 
 **Q: How do I clear the recording?**  

@@ -177,14 +177,6 @@ void TapestryExpander::process(const ProcessArgs& args)
     float reso = smoothReso_.process();
     float filterMix = smoothFilterMix_.process();
     
-    // Debug: log parameter values occasionally
-    static int debugCounter = 0;
-    if (++debugCounter > 48000) {  // Once per second at 48kHz
-        debugCounter = 0;
-        DEBUG("Expander: crushMix=%.2f filterMix=%.2f bits=%.1f cutoff=%.2f", 
-              crushMix, filterMix, bits, cutoff);
-    }
-    
     //--------------------------------------------------------------------------
     // Update DSP parameters
     //--------------------------------------------------------------------------
@@ -242,14 +234,6 @@ void TapestryExpander::process(const ProcessArgs& args)
     sharedMsg->processedL = outputL;
     sharedMsg->processedR = outputR;
     sharedMsg->expanderConnected = true;
-    
-    // Debug: verify we're writing the flag
-    static int writeCounter = 0;
-    if (++writeCounter > 48000) {
-        writeCounter = 0;
-        DEBUG("Expander WRITING: expanderConnected=1, processedL=%.3f, inputL=%.3f",
-              outputL, inputL);
-    }
 }
 
 //------------------------------------------------------------------------------

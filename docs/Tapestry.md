@@ -4,6 +4,8 @@
 
 **Tapestry** is a granular sampler module for VCV Rack inspired by the Make Noise Morphagene. It provides sound-on-sound recording, splice-based navigation, and advanced granular synthesis with 4-voice overlapping grains. Perfect for creating evolving textures, rhythmic variations, and experimental soundscapes.
 
+**TapestryExpander** is an optional companion module that adds BitCrusher and Moog VCF effects to the Tapestry signal path.
+
 ---
 
 ## Architecture
@@ -23,6 +25,119 @@ The module integrates three core DSP components:
 - 2 outputs: stereo audio (L/R)
 - Custom waveform display with zoom controls and splice management
 - JSON state persistence with tape buffer serialization
+- Expander support for optional effects processing (BitCrusher, Moog VCF)
+
+---
+
+## TapestryExpander Module
+
+### Overview
+**TapestryExpander** is a 4HP companion module that adds two effects to Tapestry's audio output:
+- **BitCrusher**: Bit depth reduction (1-16 bits) and sample rate reduction for digital distortion
+- **Moog VCF**: 4-pole 24dB/octave resonant low-pass filter
+
+The expander must be placed **directly to the right** of Tapestry. A connection LED indicates when properly connected.
+
+### Architecture
+- **Signal Flow**: Tapestry → BitCrusher → Moog VCF → Output
+- **Processing**: Stereo throughout (independent L/R channels for filter)
+- **Message Passing**: Single shared buffer for zero-latency communication
+- **Parameter Smoothing**: 5ms smoothing on all parameters to prevent zipper noise
+- **DC Blocking**: High-pass filter at ~20Hz on input to prevent clicks
+
+### Parameters
+
+#### BitCrusher Section
+- **CRUSH_BITS_PARAM** (1-16 bits, default 16): Bit depth quantization
+  - 16 bits = clean (no effect)
+  - 8 bits = lo-fi character
+  - 4 bits = harsh digital distortion
+  - 1 bit = extreme, square-wave-like
+- **CRUSH_RATE_PARAM** (0-100%, default 0%): Sample rate reduction
+  - 0% = no reduction (full sample rate)
+  - 50% = half sample rate (aliasing begins)
+  - 100% = maximum reduction (extreme lo-fi)
+- **CRUSH_MIX_PARAM** (0-100%, default 0%): Dry/wet blend
+  - 0% = bypass (clean signal)
+  - 100% = fully crushed signal
+
+#### Moog VCF Section
+- **FILTER_CUTOFF_PARAM** (0-1, default 1.0): Filter cutoff frequency
+  - Exponential mapping: 20Hz to 20kHz
+  - 0.0 = ~20Hz (removes almost everything)
+  - 0.5 = ~632Hz (telephone-like)
+  - 1.0 = 20kHz (fully open, no filtering)
+- **FILTER_RESO_PARAM** (0-100%, default 0%): Resonance amount
+  - 0% = flat response (no emphasis)
+  - 50% = moderate resonance
+  - 100% = self-oscillation (ringing)
+- **FILTER_MIX_PARAM** (0-100%, default 0%): Dry/wet blend
+  - 0% = bypass (unfiltered signal)
+  - 100% = fully filtered signal
+
+### CV Inputs
+All parameters have dedicated CV inputs with the following scaling:
+- **CRUSH_BITS_CV**: 1V → +1.5 bits offset
+- **CRUSH_RATE_CV**: 1V → +10% rate offset
+- **CRUSH_MIX_CV**: 1V → +10% mix offset
+- **FILTER_CUTOFF_CV**: 1V → +10% cutoff offset
+- **FILTER_RESO_CV**: 1V → +10% resonance offset
+- **FILTER_MIX_CV**: 1V → +10% mix offset
+
+### Connection LED
+- **Brightness**: 1.0 when connected to Tapestry, 0.0 when disconnected
+- **Location**: Top center of panel
+- **Purpose**: Visual confirmation of proper expander connection
+
+### DSP Details
+
+#### BitCrusher Algorithm
+1. **Sample-and-Hold**: Holds input for N samples based on rate parameter
+2. **Bit Quantization**: Reduces bit depth using `floor((x * scale) + 0.5) / scale`
+3. **Output**: Quantized signal with aliasing artifacts from rate reduction
+
+#### Moog VCF Algorithm
+- **Topology**: 4-pole cascade (four 1-pole filters in series)
+- **Formula per stage**: `y = y + cutoff * (x - y)`
+- **Resonance**: Feedback from output to input with scaling
+- **Response**: 24dB/octave rolloff (6dB per pole)
+- **Stereo**: Independent left/right filter instances
+
+#### Parameter Smoothing
+- **Time Constant**: 5ms (adjusts to sample rate)
+- **Method**: Exponential smoothing
+- **Purpose**: Eliminate zipper noise from parameter changes
+- **All Parameters**: Bits, rate, crush mix, cutoff, resonance, filter mix
+
+#### Soft Clipping
+- **Function**: `tanh(x * 0.5) * 2.0`
+- **Purpose**: Gentle saturation to prevent harsh peaks
+- **Hard Limit**: `clamp(x, -1.5, 1.5)` as safety
+
+### Usage Tips
+
+#### BitCrusher
+- **Subtle Character**: 12-14 bits with low rate reduction
+- **Lo-Fi Aesthetic**: 8 bits with 30-50% rate reduction
+- **Harsh Digital**: 4-6 bits with 70%+ rate reduction
+- **Extreme Glitch**: 1-2 bits with maximum rate
+
+#### Moog VCF
+- **Warm Low-Pass**: Cutoff 0.3-0.5, resonance 20-40%
+- **Resonant Sweep**: Modulate cutoff with LFO, resonance 60-80%
+- **Self-Oscillation**: Cutoff 0.1-0.3, resonance 90-100%
+- **Subtle Tone**: High cutoff (0.7-0.9), mix 30-50%
+
+#### Combined Effects
+- **BitCrush → Filter**: Tame harsh digital artifacts with low-pass
+- **Filter → BitCrush**: Smooth first, then add digital character
+- **Modulated Sweep**: Both cutoff and bits via CV for evolving textures
+- **Mix Automation**: Fade effects in/out with envelopes
+
+### Performance
+- **CPU Usage**: Low (simple DSP algorithms)
+- **Latency**: Zero (same-frame processing via shared buffer)
+- **Voice Count**: Stereo processing (2 channels)
 
 ---
 
@@ -309,6 +424,13 @@ The module integrates three core DSP components:
 
 ### Live Looping with Overdubs
 1. Record initial phrase with **OVERDUB** toggle OFF (replace mode)
+### Expander + Modulation
+- **Filter Sweep**: LFO to cutoff, resonance at 70%, mix 100%
+- **Rhythmic Crushing**: Clock-synced envelope to rate and bits
+- **Random Glitch**: Random CV to bit depth, S&H to rate
+- **Dynamic Mix**: Envelope follower to both mix parameters
+- **Pitch-Follow Filter**: Varispeed CV mult to filter cutoff (via attenuator)
+
 2. Toggle **OVERDUB** switch ON (up position) to enable layering
 3. Press **PLAY** to return to start
 4. Turn **VARISPEED** to play back loop
@@ -448,6 +570,21 @@ The module integrates three core DSP components:
 - Check that playhead position is valid (within buffer)
 - Maximum 64 splices - clear some if full
 - When hovering, green line should appear showing where splice will be created
+- **TapestryExpander**: DC blocking should prevent most clicks
+
+### Expander Not Connecting
+- Ensure TapestryExpander is placed **directly to right** of Tapestry
+- No space between modules (must be adjacent)
+- Connection LED should light up when properly connected
+- Restart VCV Rack if connection fails
+- Check that both modules are latest version
+
+### Effects Not Audible
+- Verify mix knobs are turned up (start at 50-100%)
+- Check that effect parameters are set (not at default bypass values)
+- BitCrusher: needs bits < 16 or rate > 0 to hear effect
+- Filter: needs cutoff < 1.0 to hear filtering
+- Connection LED must be lit for expander to work
 - Cannot create splice at frame 0 (beginning) - this is always a splice marker
 
 ### Audio Glitches/Clicks
@@ -455,21 +592,42 @@ The module integrates three core DSP components:
 - Raise morph value for more overlap
 - Check CPU usage (lower voice count if needed)
 - Ensure varispeed changes are gradual
+ (Tapestry)
+- **Digital**: Pure software implementation (no tape saturation/character)
+- **Stereo I/O**: Full stereo recording and playback paths
+- **Visual Feedback**: Real-time waveform display with splice markers
+- **Longer Buffer**: 300 seconds vs hardware limitations
+- **CV Inputs**: More extensive CV control options
+- **No Vari-Tone**: Pitch shifting not implemented separately
+- **No SC Mode**: Simplified to normal playback mode only
+- **4 Voices Max**: Hardware may have different voice architecture
+
+### Key Differences (TapestryExpander)
+- **Optional Module**: Separate 4HP expander vs built-in effects
+- **BitCrusher**: Digital distortion effect (not in Morphagene)
+- **Moog VCF**: Software emulation of classic filter
+- **Independent Mix**: Separate dry/wet for each effect
+- **CV Control**: All parameters voltage-controllabl
+- Varispeed playback (forward/reverse)
+- Effects DSP**: BitCrusher and Moog VCF emulation (TapestryExpander)  
+**UI/Display**: NanoVG waveform rendering  
 
 ---
 
-## Differences from Morphagene
+## Version History
 
-While inspired by the Morphagene, **Tapestry** has some differences:
-
-### Similarities
-- Sound-on-sound recording with splice management
-- Varispeed playback (forward/reverse)
-- Gene size control for granular windowing
-- Slide parameter for position offset
-- Morph for voice overlap
-- Organize for splice navigation
-
+### v2.0.0 (2025-12-21)
+- **TapestryExpander module added**: BitCrusher and Moog VCF effects
+- Expander features:
+  - Bit depth reduction (1-16 bits) with sample rate reduction
+  - 4-pole resonant low-pass filter (Moog emulation)
+  - Independent dry/wet mix controls for each effect
+  - Full CV control over all parameters
+  - Parameter smoothing to prevent zipper noise
+  - DC blocking to prevent clicks
+  - Zero-latency processing via shared message buffer
+- Bug fixes and stability improvements
+- Documentation updates
 ### Key Differences
 - **Digital**: Pure software implementation (no tape saturation/character)
 - **Stereo I/O**: Full stereo recording and playback paths

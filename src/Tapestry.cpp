@@ -135,14 +135,6 @@ void Tapestry::process(const ProcessArgs& args)
     expanderMessage->audioR = result.audioOutR;
     expanderMessage->sampleRate = APP->engine->getSampleRate();
 
-    // Debug: log expander connection status
-    static int debugCounter = 0;
-    if (++debugCounter > 48000) {
-      debugCounter = 0;
-      DEBUG("Tapestry: expanderConnected=%d, processedL=%.3f, audioOutL=%.3f", 
-            expanderMessage->expanderConnected, expanderMessage->processedL, result.audioOutL);
-    }
-
     // Read processed audio from the same shared buffer
     // The expander will have written to this during its process() call
     if (expanderMessage->expanderConnected)
