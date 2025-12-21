@@ -802,64 +802,115 @@ void ReelDisplay::drawWaveform(const DrawArgs& args)
   size_t usedFrames = buffer.getUsedFrames();
   const float* data = buffer.data();
 
-  nvgBeginPath(args.vg);
-  nvgStrokeColor(args.vg, nvgRGB(80, 180, 80));
-  nvgStrokeWidth(args.vg, 1.0f);
-
   float centerY = box.size.y * 0.5f;
-  float amplitude = box.size.y * 0.4f;
-
-  for (int x = 0; x < static_cast<int>(box.size.x); x++)
+  float maxBarHeight = box.size.y * 0.45f;
+  
+  // SoundCloud-style bar settings
+  const float barWidth = 2.5f;
+  const float barGap = 1.0f;
+  const float barSpacing = barWidth + barGap;
+  const float cornerRadius = 1.0f;
+  
+  // Calculate number of bars that fit in display
+  int numBars = static_cast<int>(box.size.x / barSpacing);
+  if (numBars <= 0) return;
+  
+  // Get mouse position for hover effect (if available)
+  // Note: In VCV Rack context, we'll approximate hover based on module state
+  float hoverX = -1.0f; // TODO: Implement proper hover tracking via widget events
+  
+  // Pre-compute peak values for each bar
+  std::vector<float> peaks(numBars, 0.0f);
+  for (int barIdx = 0; barIdx < numBars; barIdx++)
   {
-    size_t sampleIdx = static_cast<size_t>(x * usedFrames / box.size.x);
-    if (sampleIdx >= usedFrames)
-      continue;
-
-    // Get peak in this pixel column
-    size_t startIdx = sampleIdx;
-    size_t endIdx = static_cast<size_t>((x + 1) * usedFrames / box.size.x);
-    endIdx = std::min(endIdx, usedFrames);
-
+    size_t startFrame = static_cast<size_t>(barIdx * usedFrames / numBars);
+    size_t endFrame = static_cast<size_t>((barIdx + 1) * usedFrames / numBars);
+    endFrame = std::min(endFrame, usedFrames);
+    
     float peak = 0.0f;
-    for (size_t i = startIdx; i < endIdx; i++)
+    for (size_t i = startFrame; i < endFrame; i++)
     {
-      float sample = std::fabs(data[i * 2]); // Left channel
+      // Average L+R channels for mono visualization
+      float sampleL = std::fabs(data[i * 2]);
+      float sampleR = std::fabs(data[i * 2 + 1]);
+      float sample = (sampleL + sampleR) * 0.5f;
       peak = std::max(peak, sample);
     }
-
-    float y = centerY - peak * amplitude;
-    if (x == 0)
-      nvgMoveTo(args.vg, static_cast<float>(x), y);
-    else
-      nvgLineTo(args.vg, static_cast<float>(x), y);
+    peaks[barIdx] = peak;
   }
-  nvgStroke(args.vg);
-
-  // Draw bottom half (mirror)
+  
+  // Draw each bar with SoundCloud-style appearance
+  for (int barIdx = 0; barIdx < numBars; barIdx++)
+  {
+    float x = barIdx * barSpacing;
+    float peak = peaks[barIdx];
+    
+    // Apply logarithmic scaling for better visual distribution
+    float barHeight = std::pow(peak, 0.7f) * maxBarHeight;
+    barHeight = std::max(barHeight, 2.0f); // Minimum bar height
+    
+    // Check if bar is under hover
+    bool isHovered = (hoverX >= x && hoverX < x + barWidth);
+    
+    // Draw drop shadow for depth
+    nvgBeginPath(args.vg);
+    nvgRoundedRect(args.vg, x + 0.5f, centerY - barHeight + 0.5f, 
+                   barWidth, barHeight * 2.0f, cornerRadius);
+    nvgFillColor(args.vg, nvgRGBA(0, 0, 0, 20));
+    nvgFill(args.vg);
+    
+    // Create blue-to-teal gradient
+    NVGpaint gradient = nvgLinearGradient(args.vg, 
+                                          x, centerY - barHeight,
+                                          x, centerY + barHeight,
+                                          nvgRGBA(51, 153, 255, isHovered ? 255 : 200),   // Blue
+                                          nvgRGBA(0, 204, 204, isHovered ? 255 : 180));   // Teal
+    
+    // Draw top bar (positive amplitude)
+    nvgBeginPath(args.vg);
+    nvgRoundedRect(args.vg, x, centerY - barHeight, barWidth, barHeight, cornerRadius);
+    nvgFillPaint(args.vg, gradient);
+    nvgFill(args.vg);
+    
+    // Draw bottom bar (negative amplitude - mirrored)
+    nvgBeginPath(args.vg);
+    nvgRoundedRect(args.vg, x, centerY, barWidth, barHeight, cornerRadius);
+    nvgFillPaint(args.vg, gradient);
+    nvgFill(args.vg);
+    
+    // Add subtle highlight on hover
+    if (isHovered)
+    {
+      nvgBeginPath(args.vg);
+      nvgRoundedRect(args.vg, x, centerY - barHeight, barWidth, barHeight * 2.0f, cornerRadius);
+      nvgStrokeColor(args.vg, nvgRGBA(255, 255, 255, 80));
+      nvgStrokeWidth(args.vg, 0.5f);
+      nvgStroke(args.vg);
+    }
+    
+    // Draw rounded caps for enhanced appearance
+    if (barHeight > 3.0f)
+    {
+      // Top cap
+      nvgBeginPath(args.vg);
+      nvgCircle(args.vg, x + barWidth * 0.5f, centerY - barHeight, barWidth * 0.5f);
+      nvgFillColor(args.vg, nvgRGBA(51, 153, 255, isHovered ? 255 : 220));
+      nvgFill(args.vg);
+      
+      // Bottom cap
+      nvgBeginPath(args.vg);
+      nvgCircle(args.vg, x + barWidth * 0.5f, centerY + barHeight, barWidth * 0.5f);
+      nvgFillColor(args.vg, nvgRGBA(0, 204, 204, isHovered ? 255 : 200));
+      nvgFill(args.vg);
+    }
+  }
+  
+  // Draw center line for reference
   nvgBeginPath(args.vg);
-  for (int x = 0; x < static_cast<int>(box.size.x); x++)
-  {
-    size_t sampleIdx = static_cast<size_t>(x * usedFrames / box.size.x);
-    if (sampleIdx >= usedFrames)
-      continue;
-
-    size_t startIdx = sampleIdx;
-    size_t endIdx = static_cast<size_t>((x + 1) * usedFrames / box.size.x);
-    endIdx = std::min(endIdx, usedFrames);
-
-    float peak = 0.0f;
-    for (size_t i = startIdx; i < endIdx; i++)
-    {
-      float sample = std::fabs(data[i * 2]);
-      peak = std::max(peak, sample);
-    }
-
-    float y = centerY + peak * amplitude;
-    if (x == 0)
-      nvgMoveTo(args.vg, static_cast<float>(x), y);
-    else
-      nvgLineTo(args.vg, static_cast<float>(x), y);
-  }
+  nvgMoveTo(args.vg, 0, centerY);
+  nvgLineTo(args.vg, box.size.x, centerY);
+  nvgStrokeColor(args.vg, nvgRGBA(100, 100, 120, 60));
+  nvgStrokeWidth(args.vg, 0.5f);
   nvgStroke(args.vg);
 }
 
