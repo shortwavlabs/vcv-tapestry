@@ -229,10 +229,6 @@ struct TapestryExpander : Module {
     };
     
     enum OutputIds {
-        // Direct outputs (for standalone use or alternative routing)
-        AUDIO_OUT_L,
-        AUDIO_OUT_R,
-        
         NUM_OUTPUTS
     };
     

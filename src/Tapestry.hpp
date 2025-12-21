@@ -248,34 +248,14 @@ struct Tapestry : Module
     configBypass(AUDIO_IN_L, AUDIO_OUT_L);
     configBypass(AUDIO_IN_R, AUDIO_OUT_R);
 
-    // Allocate and initialize expander message buffers for right expander (TapestryExpander)
-    TapestryExpanderMessage* prodMsg = new TapestryExpanderMessage();
-    TapestryExpanderMessage* consMsg = new TapestryExpanderMessage();
-    
-    // Initialize to safe defaults
-    prodMsg->expanderConnected = false;
-    prodMsg->audioL = prodMsg->audioR = 0.0f;
-    prodMsg->processedL = prodMsg->processedR = 0.0f;
-    prodMsg->sampleRate = 48000.0f;
-    
-    consMsg->expanderConnected = false;
-    consMsg->audioL = consMsg->audioR = 0.0f;
-    consMsg->processedL = consMsg->processedR = 0.0f;
-    consMsg->sampleRate = 48000.0f;
-    
-    rightExpander.producerMessage = prodMsg;
-    rightExpander.consumerMessage = consMsg;
+    // Set up right expander message buffers
+    rightExpander.producerMessage = new TapestryExpanderMessage();
+    rightExpander.consumerMessage = new TapestryExpanderMessage();
 
     onSampleRateChange();
   }
 
-  //--------------------------------------------------------------------------
-  // Destructor
-  //--------------------------------------------------------------------------
-
-  ~Tapestry()
-  {
-    // Clean up expander message buffers
+  ~Tapestry() {
     delete static_cast<TapestryExpanderMessage*>(rightExpander.producerMessage);
     delete static_cast<TapestryExpanderMessage*>(rightExpander.consumerMessage);
   }

@@ -26,32 +26,15 @@ TapestryExpander::TapestryExpander()
     configInput(FILTER_RESO_CV_INPUT, "Resonance CV");
     configInput(FILTER_MIX_CV_INPUT, "Filter Mix CV");
     
-    // Audio outputs
-    configOutput(AUDIO_OUT_L, "Audio L");
-    configOutput(AUDIO_OUT_R, "Audio R");
-    
-    // Allocate message buffers for expander communication
-    TapestryExpanderMessage* prodMsg = new TapestryExpanderMessage;
-    TapestryExpanderMessage* consMsg = new TapestryExpanderMessage;
-    
-    // Initialize both messages to zero/default state
-    prodMsg->expanderConnected = false;
-    prodMsg->audioL = prodMsg->audioR = 0.0f;
-    prodMsg->processedL = prodMsg->processedR = 0.0f;
-    
-    consMsg->expanderConnected = false;
-    consMsg->audioL = consMsg->audioR = 0.0f;
-    consMsg->processedL = consMsg->processedR = 0.0f;
-    
-    leftExpander.producerMessage = prodMsg;
-    leftExpander.consumerMessage = consMsg;
+    // Set up left expander message buffers
+    leftExpander.producerMessage = new TapestryExpanderMessage();
+    leftExpander.consumerMessage = new TapestryExpanderMessage();
     
     // Initialize sample rate
     onSampleRateChange();
 }
 
-TapestryExpander::~TapestryExpander()
-{
+TapestryExpander::~TapestryExpander() {
     delete static_cast<TapestryExpanderMessage*>(leftExpander.producerMessage);
     delete static_cast<TapestryExpanderMessage*>(leftExpander.consumerMessage);
 }
@@ -148,10 +131,16 @@ void TapestryExpander::process(const ProcessArgs& args)
     // Update connection LED
     lights[CONNECTED_LIGHT].setBrightness(connected ? 1.0f : 0.0f);
     
-    // If not connected, output silence
+    // Get producer message - we'll write to it even if not connected
+    TapestryExpanderMessage* outMsg = 
+        static_cast<TapestryExpanderMessage*>(leftExpander.producerMessage);
+    
+    // If not connected, mark as disconnected and return
     if (!connected) {
-        outputs[AUDIO_OUT_L].setVoltage(0.0f);
-        outputs[AUDIO_OUT_R].setVoltage(0.0f);
+        outMsg->expanderConnected = false;
+        outMsg->processedL = 0.0f;
+        outMsg->processedR = 0.0f;
+        // Don't request flip - let Tapestry handle it
         return;
     }
     
@@ -192,6 +181,14 @@ void TapestryExpander::process(const ProcessArgs& args)
     float cutoff = smoothCutoff_.process();
     float reso = smoothReso_.process();
     float filterMix = smoothFilterMix_.process();
+    
+    // Debug: log parameter values occasionally
+    static int debugCounter = 0;
+    if (++debugCounter > 48000) {  // Once per second at 48kHz
+        debugCounter = 0;
+        DEBUG("Expander: crushMix=%.2f filterMix=%.2f bits=%.1f cutoff=%.2f", 
+              crushMix, filterMix, bits, cutoff);
+    }
     
     //--------------------------------------------------------------------------
     // Update DSP parameters
@@ -247,21 +244,20 @@ void TapestryExpander::process(const ProcessArgs& args)
     // Write processed audio back to producer message (for Tapestry to read)
     //--------------------------------------------------------------------------
     
-    TapestryExpanderMessage* outMsg = 
-        static_cast<TapestryExpanderMessage*>(leftExpander.producerMessage);
     outMsg->processedL = outputL;
     outMsg->processedR = outputR;
     outMsg->expanderConnected = true;
     
-    // Request message flip at end of frame
+    // Debug: verify we're writing the flag
+    static int writeCounter = 0;
+    if (++writeCounter > 48000) {
+        writeCounter = 0;
+        DEBUG("Expander WRITING: expanderConnected=1, processedL=%.3f, inputL=%.3f",
+              outputL, inputL);
+    }
+    
+    // Request message flip
     leftExpander.requestMessageFlip();
-    
-    //--------------------------------------------------------------------------
-    // Set direct outputs (for standalone use or parallel routing)
-    //--------------------------------------------------------------------------
-    
-    outputs[AUDIO_OUT_L].setVoltage(outputL * 5.0f);
-    outputs[AUDIO_OUT_R].setVoltage(outputR * 5.0f);
 }
 
 //------------------------------------------------------------------------------
@@ -355,16 +351,6 @@ TapestryExpanderWidget::TapestryExpanderWidget(TapestryExpander* module)
     yPos = 295.0f;
     addInput(createInputCentered<PJ301MPort>(
         Vec(colCenter, yPos), module, TapestryExpander::FILTER_MIX_CV_INPUT));
-    
-    //--------------------------------------------------------------------------
-    // Audio Outputs (bottom)
-    //--------------------------------------------------------------------------
-    
-    yPos = 345.0f;
-    addOutput(createOutputCentered<PJ301MPort>(
-        Vec(colLeft + 5, yPos), module, TapestryExpander::AUDIO_OUT_L));
-    addOutput(createOutputCentered<PJ301MPort>(
-        Vec(colRight - 5, yPos), module, TapestryExpander::AUDIO_OUT_R));
 }
 
 //------------------------------------------------------------------------------
