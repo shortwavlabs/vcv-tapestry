@@ -592,16 +592,7 @@ All parameters have dedicated CV inputs with the following scaling:
 - Raise morph value for more overlap
 - Check CPU usage (lower voice count if needed)
 - Ensure varispeed changes are gradual
- (Tapestry)
-- **Digital**: Pure software implementation (no tape saturation/character)
-- **Stereo I/O**: Full stereo recording and playback paths
-- **Visual Feedback**: Real-time waveform display with splice markers
-- **Longer Buffer**: 300 seconds vs hardware limitations
-- **CV Inputs**: More extensive CV control options
-- **No Vari-Tone**: Pitch shifting not implemented separately
-- **No SC Mode**: Simplified to normal playback mode only
-- **4 Voices Max**: Hardware may have different voice architecture
----
+
 ### Key Differences (TapestryExpander)
 - **Optional Module**: Separate 4HP expander vs built-in effects
 - **BitCrusher**: Digital distortion effect (not in Morphagene)
