@@ -1073,13 +1073,14 @@ void ReelDisplay::onButton(const ButtonEvent& e)
   {
     int spliceIdx = getSpliceIndexAtPosition(e.pos.x);
     
-    if (spliceIdx >= 0)
+    if (spliceIdx > 0)  // Can't delete first splice (index 0)
     {
-      // Select the splice first, then delete it
-      module->dsp.getSpliceManager().setCurrentIndex(spliceIdx);
-      module->dsp.deleteCurrentMarker();
+      // Delete the marker at this specific index
+      module->dsp.getSpliceManager().deleteMarkerAtIndex(spliceIdx);
+      e.consume(this);
     }
-    e.consume(this);
+    // Don't consume the event if we didn't delete anything
+    // This allows the context menu to open
   }
 }
 

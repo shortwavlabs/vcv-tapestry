@@ -142,6 +142,39 @@ public:
   // Marker Deletion
   //--------------------------------------------------------------------------
 
+  // Delete splice marker at specific index (merge with previous splice)
+  // This removes the boundary at the START of the splice at the given index
+  // Returns true if marker was deleted
+  bool deleteMarkerAtIndex(int index) noexcept
+  {
+    if (splices_.size() <= 1)
+      return false;
+    
+    // Can't delete the first splice (frame 0 marker)
+    if (index <= 0 || index >= static_cast<int>(splices_.size()))
+      return false;
+
+    // Merge this splice with the previous one by extending the previous splice's end
+    int prevIdx = index - 1;
+    splices_[prevIdx].endFrame = splices_[index].endFrame;
+    
+    // Remove the splice at index
+    splices_.erase(splices_.begin() + index);
+
+    // Adjust current index if needed
+    if (currentIndex_ >= static_cast<int>(splices_.size()))
+    {
+      currentIndex_ = static_cast<int>(splices_.size()) - 1;
+    }
+    else if (currentIndex_ > index)
+    {
+      currentIndex_--;
+    }
+
+    pendingIndex_ = -1;
+    return true;
+  }
+
   // Delete current splice marker (merge with next)
   // Returns true if marker was deleted
   bool deleteCurrentMarker() noexcept
