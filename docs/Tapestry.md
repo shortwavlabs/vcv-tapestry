@@ -601,7 +601,7 @@ All parameters have dedicated CV inputs with the following scaling:
 - **No Vari-Tone**: Pitch shifting not implemented separately
 - **No SC Mode**: Simplified to normal playback mode only
 - **4 Voices Max**: Hardware may have different voice architecture
-
+---
 ### Key Differences (TapestryExpander)
 - **Optional Module**: Separate 4HP expander vs built-in effects
 - **BitCrusher**: Digital distortion effect (not in Morphagene)
