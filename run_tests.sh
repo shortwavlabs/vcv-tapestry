@@ -23,7 +23,7 @@ fi
 
 OUT_BIN="${OUT_DIR}/build_test_tapestry"
 
-"$CXX" -std=c++17 -O2 -Wall -Isrc -DSHORTWAV_DSP_RUN_TESTS -o "$OUT_BIN" src/tests/test_tapestry.cpp
+"$CXX" -std=c++17 -O2 -Wall -Isrc -I./dep/Rack-SDK/include -I./dep/Rack-SDK/dep/include -DSHORTWAV_DSP_RUN_TESTS -o "$OUT_BIN" src/tests/test_tapestry.cpp
 
 echo "Running tests..."
 if "$OUT_BIN"; then
