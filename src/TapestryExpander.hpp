@@ -135,6 +135,7 @@ struct TapestryExpander : Module {
     float dcBlockerInR_ = 0.0f;
     float dcBlockerOutL_ = 0.0f;
     float dcBlockerOutR_ = 0.0f;
+    float dcBlockCoeff_ = 0.995f;  // Calculated based on sample rate
     
     //--------------------------------------------------------------------------
     // Constructor

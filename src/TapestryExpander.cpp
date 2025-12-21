@@ -62,6 +62,11 @@ void TapestryExpander::onSampleRateChange()
     smoothCutoff_.setImmediate(params[FILTER_CUTOFF_PARAM].getValue());
     smoothReso_.setImmediate(params[FILTER_RESO_PARAM].getValue());
     smoothFilterMix_.setImmediate(params[FILTER_MIX_PARAM].getValue());
+    
+    // Calculate DC blocking coefficient for 20Hz cutoff
+    // Using the formula: coeff = exp(-2π * cutoffHz / sampleRate)
+    const float dcCutoffHz = 20.0f;
+    dcBlockCoeff_ = std::exp(-2.0f * M_PI * dcCutoffHz / sampleRate_);
 }
 
 //------------------------------------------------------------------------------
@@ -189,9 +194,8 @@ void TapestryExpander::process(const ProcessArgs& args)
     // DC Blocking on input (high-pass at ~20Hz to remove DC offset)
     //--------------------------------------------------------------------------
     
-    float dcCoeff = 0.995f;  // ~20Hz cutoff at 48kHz
-    float blockedInL = inputL - dcBlockerInL_ + dcCoeff * dcBlockerOutL_;
-    float blockedInR = inputR - dcBlockerInR_ + dcCoeff * dcBlockerOutR_;
+    float blockedInL = inputL - dcBlockerInL_ + dcBlockCoeff_ * dcBlockerOutL_;
+    float blockedInR = inputR - dcBlockerInR_ + dcBlockCoeff_ * dcBlockerOutR_;
     dcBlockerInL_ = inputL;
     dcBlockerInR_ = inputR;
     dcBlockerOutL_ = blockedInL;
