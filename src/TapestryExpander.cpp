@@ -249,7 +249,7 @@ TapestryExpanderWidget::TapestryExpanderWidget(TapestryExpander* module)
     
     // Screws
     addChild(createWidget<ScrewSilver>(Vec(0, 0)));
-    addChild(createWidget<ScrewSilver>(Vec(box.size.x - RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(createWidget<ScrewSilver>(Vec(box.size.x - RACK_GRID_WIDTH, box.size.y - RACK_GRID_WIDTH)));
     
     // Layout constants
     float colCenter = box.size.x / 2.0f;
