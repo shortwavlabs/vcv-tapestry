@@ -132,12 +132,14 @@ void Tapestry::process(const ProcessArgs& args)
     if (rightExpander.moduleId != lastRightExpanderModuleId_)
     {
       lastRightExpanderModuleId_ = rightExpander.moduleId;
-      if (rightExpander.consumerMessage)
+      // When a new expander is connected, clear the state in its producer buffer
+      // rather than writing to our read-only consumer buffer.
+      if (rightExpander.module->leftExpander.producerMessage)
       {
-        auto* fromExpander = static_cast<TapestryExpanderMessage*>(rightExpander.consumerMessage);
-        fromExpander->processedL = 0.0f;
-        fromExpander->processedR = 0.0f;
-        fromExpander->expanderConnected = false;
+        auto* initMsg = static_cast<TapestryExpanderMessage*>(rightExpander.module->leftExpander.producerMessage);
+        initMsg->processedL = 0.0f;
+        initMsg->processedR = 0.0f;
+        initMsg->expanderConnected = false;
       }
     }
 
