@@ -6,3 +6,4 @@
 /plugin.dll
 .DS_Store
 .vscodebuild_test_tapestry
+_codeql_detected_source_root
