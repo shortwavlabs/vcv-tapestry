@@ -16,6 +16,17 @@
         "Granular",
         "Recording"
       ]
+    },
+    {
+      "slug": "TapestryExpander",
+      "name": "Tapestry Expander",
+      "description": "Effects expander for Tapestry - adds Bit Crusher and Moog VCF 24dB/oct lowpass filter with CV control",
+      "tags": [
+        "Effect",
+        "Filter",
+        "Distortion",
+        "Expander"
+      ]
     }
   ]
 }

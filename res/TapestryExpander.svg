@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="60.96" height="380" 
+     viewBox="0 0 60.96 380">
+  
+  <!-- 4HP = 20.32mm * 3 = 60.96px at 3px/mm -->
+  
+  <!-- Background panel -->
+  <rect x="0" y="0" width="60.96" height="380" fill="#2a2a2a"/>
+  
+  <!-- Metallic border -->
+  <rect x="0" y="0" width="60.96" height="380" 
+        fill="none" stroke="#404040" stroke-width="1"/>
+  
+  <!-- Top label area -->
+  <rect x="5" y="8" width="50.96" height="30" 
+        fill="#1a1a1a" rx="3" ry="3"/>
+  
+  <!-- Title text -->
+  <text x="30.48" y="27" 
+        fill="#e0e0e0" 
+        font-family="Arial, sans-serif" 
+        font-size="9" 
+        font-weight="bold"
+        text-anchor="middle">EXPANDER</text>
+  
+  <!-- Connection indicator area -->
+  <circle cx="30.48" cy="50" r="4" fill="#1a1a1a" stroke="#505050" stroke-width="0.5"/>
+  <text x="30.48" y="62" 
+        fill="#808080" 
+        font-family="Arial, sans-serif" 
+        font-size="6" 
+        text-anchor="middle">LINK</text>
+  
+  <!-- Bit Crusher Section -->
+  <text x="30.48" y="82" 
+        fill="#ff6b35" 
+        font-family="Arial, sans-serif" 
+        font-size="7" 
+        font-weight="bold"
+        text-anchor="middle">CRUSHER</text>
+  
+  <!-- BITS label -->
+  <text x="16" y="100" 
+        fill="#a0a0a0" 
+        font-family="Arial, sans-serif" 
+        font-size="5" 
+        text-anchor="middle">BITS</text>
+  
+  <!-- RATE label -->
+  <text x="45" y="100" 
+        fill="#a0a0a0" 
+        font-family="Arial, sans-serif" 
+        font-size="5" 
+        text-anchor="middle">RATE</text>
+  
+  <!-- MIX label for crusher -->
+  <text x="30.48" y="155" 
+        fill="#a0a0a0" 
+        font-family="Arial, sans-serif" 
+        font-size="5" 
+        text-anchor="middle">MIX</text>
+  
+  <!-- Separator line -->
+  <line x1="8" y1="190" x2="53" y2="190" 
+        stroke="#505050" stroke-width="0.5"/>
+  
+  <!-- Moog VCF Section -->
+  <text x="30.48" y="208" 
+        fill="#4dabf7" 
+        font-family="Arial, sans-serif" 
+        font-size="7" 
+        font-weight="bold"
+        text-anchor="middle">MOOG VCF</text>
+  
+  <!-- CUTOFF label -->
+  <text x="16" y="226" 
+        fill="#a0a0a0" 
+        font-family="Arial, sans-serif" 
+        font-size="5" 
+        text-anchor="middle">CUTOFF</text>
+  
+  <!-- RESO label -->
+  <text x="45" y="226" 
+        fill="#a0a0a0" 
+        font-family="Arial, sans-serif" 
+        font-size="5" 
+        text-anchor="middle">RESO</text>
+  
+  <!-- MIX label for filter -->
+  <text x="30.48" y="282" 
+        fill="#a0a0a0" 
+        font-family="Arial, sans-serif" 
+        font-size="5" 
+        text-anchor="middle">MIX</text>
+  
+  <!-- Decorative corner accents -->
+  <path d="M 5,15 L 5,5 L 15,5" fill="none" stroke="#ff6b35" stroke-width="1"/>
+  <path d="M 46,5 L 56,5 L 56,15" fill="none" stroke="#ff6b35" stroke-width="1"/>
+  <path d="M 5,365 L 5,375 L 15,375" fill="none" stroke="#4dabf7" stroke-width="1"/>
+  <path d="M 46,375 L 56,375 L 56,365" fill="none" stroke="#4dabf7" stroke-width="1"/>
+  
+</svg>

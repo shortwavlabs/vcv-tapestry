@@ -5,4 +5,5 @@
 /plugin.dylib
 /plugin.dll
 .DS_Store
-.vscode
+.vscodebuild_test_tapestry
+_codeql_detected_source_root

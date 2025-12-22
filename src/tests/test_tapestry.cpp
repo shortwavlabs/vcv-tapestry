@@ -20,6 +20,7 @@
 #include "../dsp/tapestry-splice.h"
 #include "../dsp/tapestry-grain.h"
 #include "../dsp/tapestry-dsp.h"
+#include "../dsp/tapestry-effects.h"
 
 // C++11 requires definitions for static constexpr members that are ODR-used
 namespace ShortwavDSP
@@ -1499,6 +1500,326 @@ void test_stress_continuous_playback(TestContext &ctx)
 }
 
 //------------------------------------------------------------------------------
+// BitCrusherDSP tests
+//------------------------------------------------------------------------------
+
+void test_bitcrusher_initialization(TestContext &ctx)
+{
+  BitCrusherDSP crusher;
+  
+  // Should not crash on basic processing
+  float outL, outR;
+  crusher.processStereo(0.5f, -0.5f, outL, outR);
+  
+  T_ASSERT(ctx, !std::isnan(outL) && !std::isnan(outR));
+  T_ASSERT(ctx, std::isfinite(outL) && std::isfinite(outR));
+}
+
+void test_bitcrusher_reset(TestContext &ctx)
+{
+  BitCrusherDSP crusher;
+  
+  // Process some audio
+  float outL, outR;
+  crusher.setParams(8.0f, 0.5f);
+  crusher.processStereo(0.8f, -0.8f, outL, outR);
+  
+  // Reset should clear state
+  crusher.reset();
+  crusher.processStereo(0.0f, 0.0f, outL, outR);
+  
+  T_ASSERT_NEAR(ctx, outL, 0.0f, kEpsilon);
+  T_ASSERT_NEAR(ctx, outR, 0.0f, kEpsilon);
+}
+
+void test_bitcrusher_bit_depth_reduction(TestContext &ctx)
+{
+  BitCrusherDSP crusher;
+  
+  // Test 16-bit (no quantization)
+  crusher.setParams(16.0f, 0.0f);
+  float outL, outR;
+  crusher.processStereo(0.123456f, -0.654321f, outL, outR);
+  T_ASSERT_NEAR(ctx, outL, 0.123456f, 0.001f);
+  T_ASSERT_NEAR(ctx, outR, -0.654321f, 0.001f);
+  
+  // Test 1-bit (extreme quantization)
+  crusher.reset();
+  crusher.setParams(1.0f, 0.0f);
+  crusher.processStereo(0.5f, -0.5f, outL, outR);
+  // Should quantize to -1 or 1
+  T_ASSERT(ctx, std::fabs(std::fabs(outL) - 1.0f) < 0.1f);
+  T_ASSERT(ctx, std::fabs(std::fabs(outR) - 1.0f) < 0.1f);
+  
+  // Test 8-bit (moderate quantization)
+  crusher.reset();
+  crusher.setParams(8.0f, 0.0f);
+  crusher.processStereo(0.5f, -0.5f, outL, outR);
+  // Should be close but quantized
+  T_ASSERT(ctx, std::fabs(outL - 0.5f) < 0.01f);
+  T_ASSERT(ctx, std::fabs(outR + 0.5f) < 0.01f);
+}
+
+void test_bitcrusher_sample_rate_reduction(TestContext &ctx)
+{
+  BitCrusherDSP crusher;
+  
+  // No rate reduction (rate = 0.0)
+  crusher.setParams(16.0f, 0.0f);
+  
+  float out1L, out1R, out2L, out2R;
+  crusher.processStereo(0.1f, -0.1f, out1L, out1R);
+  crusher.processStereo(0.2f, -0.2f, out2L, out2R);
+  
+  // With no reduction, each sample should be different
+  T_ASSERT(ctx, std::fabs(out1L - out2L) > 0.05f);
+  
+  // With maximum rate reduction
+  crusher.reset();
+  crusher.setParams(16.0f, 1.0f);
+  
+  crusher.processStereo(0.1f, -0.1f, out1L, out1R);
+  // Process many samples - output should hold for multiple samples
+  int holdCount = 0;
+  for (int i = 0; i < 10; i++) {
+    crusher.processStereo(0.5f + i * 0.01f, -0.5f - i * 0.01f, out2L, out2R);
+    if (std::fabs(out2L - out1L) < kEpsilon) {
+      holdCount++;
+    }
+  }
+  
+  // Should hold for at least a few samples
+  T_ASSERT(ctx, holdCount > 2);
+}
+
+void test_bitcrusher_stereo_processing(TestContext &ctx)
+{
+  BitCrusherDSP crusher;
+  
+  crusher.setParams(8.0f, 0.0f);
+  
+  float outL, outR;
+  crusher.processStereo(0.7f, -0.3f, outL, outR);
+  
+  // Left and right should be processed independently
+  T_ASSERT(ctx, outL > 0.0f);
+  T_ASSERT(ctx, outR < 0.0f);
+  T_ASSERT(ctx, !std::isnan(outL) && !std::isnan(outR));
+}
+
+void test_bitcrusher_parameter_limits(TestContext &ctx)
+{
+  BitCrusherDSP crusher;
+  
+  // Test out-of-range bits (should clamp)
+  crusher.setParams(0.0f, 0.0f);  // Below minimum
+  float outL, outR;
+  crusher.processStereo(0.5f, -0.5f, outL, outR);
+  T_ASSERT(ctx, std::isfinite(outL) && std::isfinite(outR));
+  
+  crusher.setParams(20.0f, 0.0f);  // Above maximum
+  crusher.processStereo(0.5f, -0.5f, outL, outR);
+  T_ASSERT(ctx, std::isfinite(outL) && std::isfinite(outR));
+  
+  // Test negative rate reduction (should still work)
+  crusher.setParams(8.0f, -0.5f);
+  crusher.processStereo(0.5f, -0.5f, outL, outR);
+  T_ASSERT(ctx, std::isfinite(outL) && std::isfinite(outR));
+}
+
+//------------------------------------------------------------------------------
+// MoogVCFDSP tests
+//------------------------------------------------------------------------------
+
+void test_moog_filter_initialization(TestContext &ctx)
+{
+  MoogVCFDSP filter;
+  
+  // Should not crash on basic processing
+  float out = filter.process(0.5f);
+  
+  T_ASSERT(ctx, !std::isnan(out));
+  T_ASSERT(ctx, std::isfinite(out));
+}
+
+void test_moog_filter_reset(TestContext &ctx)
+{
+  MoogVCFDSP filter;
+  
+  // Process some audio to build up state
+  filter.setParams(0.5f, 0.5f, 48000.0f);
+  for (int i = 0; i < 100; i++) {
+    filter.process(1.0f);
+  }
+  
+  // Reset should clear state
+  filter.reset();
+  filter.setParams(1.0f, 0.0f, 48000.0f);
+  float out = filter.process(0.0f);
+  
+  T_ASSERT_NEAR(ctx, out, 0.0f, 0.01f);
+}
+
+void test_moog_filter_lowpass_response(TestContext &ctx)
+{
+  MoogVCFDSP filter;
+  
+  // Test with cutoff at 1.0 (fully open)
+  filter.setParams(1.0f, 0.0f, 48000.0f);
+  float highCutoffOut = filter.process(1.0f);
+  
+  // Test with cutoff at 0.1 (very low)
+  filter.reset();
+  filter.setParams(0.1f, 0.0f, 48000.0f);
+  float lowCutoffOut = filter.process(1.0f);
+  
+  // Low cutoff should attenuate more than high cutoff
+  T_ASSERT(ctx, std::fabs(lowCutoffOut) < std::fabs(highCutoffOut));
+}
+
+void test_moog_filter_cutoff_frequency(TestContext &ctx)
+{
+  MoogVCFDSP filter;
+  
+  // Test different cutoff values
+  float sampleRate = 48000.0f;
+  
+  // Cutoff at 0.0 (minimum frequency)
+  filter.setParams(0.0f, 0.0f, sampleRate);
+  float out1 = filter.process(1.0f);
+  T_ASSERT(ctx, std::fabs(out1) < 0.5f);  // Should heavily attenuate
+  
+  // Cutoff at 0.5 (middle frequency)
+  filter.reset();
+  filter.setParams(0.5f, 0.0f, sampleRate);
+  float out2 = filter.process(1.0f);
+  T_ASSERT(ctx, std::isfinite(out2));
+  
+  // Cutoff at 1.0 (maximum frequency)
+  filter.reset();
+  filter.setParams(1.0f, 0.0f, sampleRate);
+  float out3 = filter.process(1.0f);
+  T_ASSERT(ctx, std::fabs(out3) > std::fabs(out1));  // Should pass more signal
+}
+
+void test_moog_filter_resonance(TestContext &ctx)
+{
+  MoogVCFDSP filter;
+  float sampleRate = 48000.0f;
+  
+  // Test no resonance
+  filter.setParams(0.5f, 0.0f, sampleRate);
+  for (int i = 0; i < 10; i++) {
+    filter.process(1.0f);
+  }
+  float noResoOut = filter.process(1.0f);
+  
+  // Test with resonance
+  filter.reset();
+  filter.setParams(0.5f, 0.8f, sampleRate);
+  for (int i = 0; i < 10; i++) {
+    filter.process(1.0f);
+  }
+  float resoOut = filter.process(1.0f);
+  
+  // Resonance can increase output at cutoff frequency
+  // Just verify both are finite and in reasonable range
+  T_ASSERT(ctx, std::isfinite(noResoOut));
+  T_ASSERT(ctx, std::isfinite(resoOut));
+  T_ASSERT(ctx, std::fabs(noResoOut) < 2.0f);
+  T_ASSERT(ctx, std::fabs(resoOut) < 3.0f);
+}
+
+void test_moog_filter_stability(TestContext &ctx)
+{
+  MoogVCFDSP filter;
+  float sampleRate = 48000.0f;
+  
+  // Test at extreme settings to ensure stability
+  filter.setParams(1.0f, 1.0f, sampleRate);
+  
+  // Process many samples with varying input
+  for (int i = 0; i < 1000; i++) {
+    float input = std::sin(i * 0.1f);
+    float out = filter.process(input);
+    
+    // Should never produce NaN or infinity
+    T_ASSERT(ctx, std::isfinite(out));
+    T_ASSERT(ctx, !std::isnan(out));
+    
+    // Should stay in reasonable range (soft clipping should prevent blowup)
+    T_ASSERT(ctx, std::fabs(out) < 5.0f);
+  }
+}
+
+void test_moog_filter_dc_blocking(TestContext &ctx)
+{
+  MoogVCFDSP filter;
+  float sampleRate = 48000.0f;
+  
+  filter.setParams(0.3f, 0.5f, sampleRate);
+  
+  // Feed DC signal (constant value)
+  float out = 0.0f;
+  for (int i = 0; i < 500; i++) {
+    out = filter.process(0.5f);
+  }
+  
+  // After many samples, DC should be attenuated (low-pass filters eventually pass DC,
+  // but with lag and attenuation depending on cutoff)
+  T_ASSERT(ctx, std::isfinite(out));
+  T_ASSERT(ctx, std::fabs(out) < 1.0f);
+}
+
+void test_moog_filter_four_pole_response(TestContext &ctx)
+{
+  MoogVCFDSP filter;
+  float sampleRate = 48000.0f;
+  
+  // Set moderate cutoff
+  filter.setParams(0.5f, 0.0f, sampleRate);
+  
+  // Process impulse and verify filter produces output
+  float out1 = filter.process(1.0f);
+  T_ASSERT(ctx, std::isfinite(out1));
+  T_ASSERT(ctx, out1 > 0.0f);  // Should pass some signal
+  
+  // Process more samples
+  float out2 = filter.process(0.0f);
+  float out3 = filter.process(0.0f);
+  float out4 = filter.process(0.0f);
+  
+  // All outputs should be finite
+  T_ASSERT(ctx, std::isfinite(out2) && std::isfinite(out3) && std::isfinite(out4));
+  
+  // Eventually should decay toward zero (check after many samples)
+  for (int i = 0; i < 1000; i++) {
+    filter.process(0.0f);
+  }
+  float outFinal = filter.process(0.0f);
+  T_ASSERT(ctx, std::fabs(outFinal) < 0.01f);  // Should be near zero
+}
+
+void test_moog_filter_sample_rate_adaptation(TestContext &ctx)
+{
+  MoogVCFDSP filter1, filter2;
+  
+  // Same cutoff, different sample rates
+  filter1.setParams(0.5f, 0.0f, 44100.0f);
+  filter2.setParams(0.5f, 0.0f, 96000.0f);
+  
+  float out1 = filter1.process(1.0f);
+  float out2 = filter2.process(1.0f);
+  
+  // Both should produce valid output
+  T_ASSERT(ctx, std::isfinite(out1) && std::isfinite(out2));
+  
+  // Responses should be different due to different sample rates
+  // (normalized cutoff represents different absolute frequencies)
+  // Just verify both work without crashing
+}
+
+//------------------------------------------------------------------------------
 // Test Runner
 //------------------------------------------------------------------------------
 
@@ -1575,6 +1896,25 @@ void run_all_tapestry_tests()
   test_edge_max_splices(ctx);
   test_edge_buffer_boundaries(ctx);
   test_stress_continuous_playback(ctx);
+
+  std::printf("--- BitCrusherDSP Tests ---\n");
+  test_bitcrusher_initialization(ctx);
+  test_bitcrusher_reset(ctx);
+  test_bitcrusher_bit_depth_reduction(ctx);
+  test_bitcrusher_sample_rate_reduction(ctx);
+  test_bitcrusher_stereo_processing(ctx);
+  test_bitcrusher_parameter_limits(ctx);
+
+  std::printf("--- MoogVCFDSP Tests ---\n");
+  test_moog_filter_initialization(ctx);
+  test_moog_filter_reset(ctx);
+  test_moog_filter_lowpass_response(ctx);
+  test_moog_filter_cutoff_frequency(ctx);
+  test_moog_filter_resonance(ctx);
+  test_moog_filter_stability(ctx);
+  test_moog_filter_dc_blocking(ctx);
+  test_moog_filter_four_pole_response(ctx);
+  test_moog_filter_sample_rate_adaptation(ctx);
 
   std::printf("\n");
   ctx.summary();

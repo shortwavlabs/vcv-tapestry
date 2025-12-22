@@ -122,9 +122,57 @@ void Tapestry::process(const ProcessArgs& args)
   // Process DSP
   ShortwavDSP::TapestryDSP::ProcessResult result = dsp.process(audioInL, audioInR);
 
-  // Write audio outputs
-  outputs[AUDIO_OUT_L].setVoltage(result.audioOutL * 5.0f);
-  outputs[AUDIO_OUT_R].setVoltage(result.audioOutR * 5.0f);
+  // Start with Tapestry's output
+  float finalOutL = result.audioOutL;
+  float finalOutR = result.audioOutR;
+
+  // Check for TapestryExpander on the right
+  if (rightExpander.module && rightExpander.module->model == modelTapestryExpander)
+  {
+    if (rightExpander.moduleId != lastRightExpanderModuleId_)
+    {
+      lastRightExpanderModuleId_ = rightExpander.moduleId;
+      // When a new expander is connected, clear the state in its producer buffer
+      // rather than writing to our read-only consumer buffer.
+      if (rightExpander.module->leftExpander.producerMessage)
+      {
+        auto* initMsg = static_cast<TapestryExpanderMessage*>(rightExpander.module->leftExpander.producerMessage);
+        initMsg->processedL = 0.0f;
+        initMsg->processedR = 0.0f;
+        initMsg->expanderConnected = false;
+      }
+    }
+
+    // Send audio to the expander by writing into its leftExpander producer buffer.
+    // Messages are flipped by the engine, so this incurs 1-sample latency.
+    if (rightExpander.module->leftExpander.producerMessage)
+    {
+      auto* toExpander = static_cast<TapestryExpanderMessage*>(rightExpander.module->leftExpander.producerMessage);
+      toExpander->audioL = result.audioOutL;
+      toExpander->audioR = result.audioOutR;
+      toExpander->sampleRate = args.sampleRate;
+      rightExpander.module->leftExpander.messageFlipRequested = true;
+    }
+
+    // Receive processed audio from the expander via our consumer buffer.
+    if (rightExpander.consumerMessage)
+    {
+      auto* fromExpander = static_cast<TapestryExpanderMessage*>(rightExpander.consumerMessage);
+      if (fromExpander->expanderConnected)
+      {
+        finalOutL = fromExpander->processedL;
+        finalOutR = fromExpander->processedR;
+      }
+    }
+  }
+  else
+  {
+    lastRightExpanderModuleId_ = -1;
+  }
+
+  // Write audio outputs (always write both channels)
+  outputs[AUDIO_OUT_L].setVoltage(finalOutL * 5.0f);
+  outputs[AUDIO_OUT_R].setVoltage(finalOutR * 5.0f);
 
   // Write CV output
   outputs[CV_OUTPUT].setVoltage(result.cvOut);
