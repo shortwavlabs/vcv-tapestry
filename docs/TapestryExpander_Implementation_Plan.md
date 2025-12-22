@@ -35,7 +35,7 @@ Each effect includes individual **Dry/Wet** mixing controls for precise blending
 ### Key Features
 
 - Seamless integration with Tapestry via VCV Rack's expander message system
-- Zero-latency audio processing
+- Near-zero-latency audio processing (1-sample expander message latency)
 - CV control for all parameters
 - Stereo audio path maintained throughout
 - 4HP panel width for minimal rack space
