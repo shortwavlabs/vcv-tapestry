@@ -784,13 +784,8 @@ struct TapestryExpander : Module {
         moogFilterL_.setParams(cutoff, reso, sampleRate_);
         moogFilterR_.setParams(cutoff, reso, sampleRate_);
         
-        // Process: Bit Crusher
+        // Process: Bit Crusher (shared state stereo)
         float crushedL, crushedR;
-        bitCrusherL_.processStereo(inputL, inputL, crushedL, crushedL);
-        bitCrusherR_.processStereo(inputR, inputR, crushedR, crushedR);
-        
-        // Actually, let's use shared state for stereo crushing
-        float dummyL, dummyR;
         bitCrusherL_.processStereo(inputL, inputR, crushedL, crushedR);
         
         // Stage 1 mix
