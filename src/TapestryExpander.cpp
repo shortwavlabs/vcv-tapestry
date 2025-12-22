@@ -1,5 +1,4 @@
 #include "TapestryExpander.hpp"
-#include "Tapestry.hpp"  // For Tapestry class and expanderMessage access
 
 //------------------------------------------------------------------------------
 // Constructor / Destructor
@@ -27,15 +26,19 @@ TapestryExpander::TapestryExpander()
     configInput(FILTER_RESO_CV_INPUT, "Resonance CV");
     configInput(FILTER_MIX_CV_INPUT, "Filter Mix CV");
     
-    // Note: We don't allocate our own message buffers.
-    // We'll access Tapestry's rightExpander buffers directly.
+    // Allocate expander message buffers (double-buffered, flipped by Rack engine)
+    leftExpander.producerMessage = new TapestryExpanderMessage();
+    leftExpander.consumerMessage = new TapestryExpanderMessage();
     
     // Initialize sample rate
     onSampleRateChange();
 }
 
 TapestryExpander::~TapestryExpander() {
-    // Nothing to delete - we use Tapestry's buffers
+    delete static_cast<TapestryExpanderMessage*>(leftExpander.producerMessage);
+    delete static_cast<TapestryExpanderMessage*>(leftExpander.consumerMessage);
+    leftExpander.producerMessage = nullptr;
+    leftExpander.consumerMessage = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -120,27 +123,22 @@ void TapestryExpander::process(const ProcessArgs& args)
     float inputR = 0.0f;
     
     Module* tapestryModule = leftExpander.module;
-    TapestryExpanderMessage* sharedMsg = nullptr;
+    const TapestryExpanderMessage* fromTapestry = nullptr;
     
-    // Check if left module is Tapestry
-    if (tapestryModule && tapestryModule->model == modelTapestry) {
-        // Access the shared message buffer via Tapestry's expanderMessage pointer
-        Tapestry* tapestry = static_cast<Tapestry*>(tapestryModule);
-        sharedMsg = tapestry->expanderMessage;
-        
-        if (sharedMsg) {
-            connected = true;
-            inputL = sharedMsg->audioL;
-            inputR = sharedMsg->audioR;
-            sampleRate_ = sharedMsg->sampleRate;
-        }
+    // Check if left module is Tapestry and read from our consumer buffer.
+    if (tapestryModule && tapestryModule->model == modelTapestry && leftExpander.consumerMessage) {
+        fromTapestry = static_cast<const TapestryExpanderMessage*>(leftExpander.consumerMessage);
+        connected = true;
+        inputL = fromTapestry->audioL;
+        inputR = fromTapestry->audioR;
+        sampleRate_ = fromTapestry->sampleRate;
     }
     
     // Update connection LED
     lights[CONNECTED_LIGHT].setBrightness(connected ? 1.0f : 0.0f);
     
     // If not connected, nothing to do
-    if (!connected || !sharedMsg) {
+    if (!connected) {
         return;
     }
     
@@ -232,12 +230,16 @@ void TapestryExpander::process(const ProcessArgs& args)
     outputR = clamp(outputR, -1.5f, 1.5f);
     
     //--------------------------------------------------------------------------
-    // Write processed audio back to the shared message buffer
+    // Write processed audio back to Tapestry by writing into its rightExpander producer buffer.
     //--------------------------------------------------------------------------
-    
-    sharedMsg->processedL = outputL;
-    sharedMsg->processedR = outputR;
-    sharedMsg->expanderConnected = true;
+
+    if (tapestryModule && tapestryModule->rightExpander.producerMessage) {
+        auto* toTapestry = static_cast<TapestryExpanderMessage*>(tapestryModule->rightExpander.producerMessage);
+        toTapestry->processedL = outputL;
+        toTapestry->processedR = outputR;
+        toTapestry->expanderConnected = true;
+        tapestryModule->rightExpander.messageFlipRequested = true;
+    }
 }
 
 //------------------------------------------------------------------------------

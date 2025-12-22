@@ -254,6 +254,9 @@ Settings: Morph=0.6, Gene=0.2s, Slide=variable
 **Q: Why does the expander need to be on the right side?**  
 A: Yes! TapestryExpander must be placed directly to the right of Tapestry. The connection LED will light up when properly connected.
 
+**Q: Is there latency when using the expander?**  
+A: Yes—VCV Rack expander messages are double-buffered and flipped by the engine, so processed audio returns with **1-sample latency**. This is typically inaudible and ensures the modules don’t read partially-written data.
+
 **Q: Can I use just the filter or just the bit crusher?**  
 A: Yes! Set the mix knob to 0% for any effect you don't want. Each effect can be used independently.
 

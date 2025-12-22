@@ -2,7 +2,7 @@
 
 #include "plugin.hpp"
 #include "dsp/tapestry-dsp.h"
-#include "TapestryExpander.hpp"
+#include "TapestryExpanderMessage.hpp"
 #include <thread>
 #include <atomic>
 #include <mutex>
@@ -190,6 +190,9 @@ struct Tapestry : Module
   dsp::PulseGenerator eosgPulse;
   static constexpr float kEosgPulseWidth = 0.001f; // 1ms pulse
 
+  // Track expander changes to avoid consuming stale processed audio
+  int64_t lastRightExpanderModuleId_ = -1;
+
   //--------------------------------------------------------------------------
   // Constructor
   //--------------------------------------------------------------------------
@@ -248,21 +251,19 @@ struct Tapestry : Module
     configBypass(AUDIO_IN_L, AUDIO_OUT_L);
     configBypass(AUDIO_IN_R, AUDIO_OUT_R);
 
-    // Set up single shared expander message buffer
-    // Both producer and consumer point to the same struct for same-frame communication
-    expanderMessage = new TapestryExpanderMessage();
-    rightExpander.producerMessage = expanderMessage;
-    rightExpander.consumerMessage = expanderMessage;
+    // Allocate expander message buffers (double-buffered, flipped by Rack engine)
+    rightExpander.producerMessage = new TapestryExpanderMessage();
+    rightExpander.consumerMessage = new TapestryExpanderMessage();
 
     onSampleRateChange();
   }
 
   ~Tapestry() {
-    delete expanderMessage;
+    delete static_cast<TapestryExpanderMessage*>(rightExpander.producerMessage);
+    delete static_cast<TapestryExpanderMessage*>(rightExpander.consumerMessage);
+    rightExpander.producerMessage = nullptr;
+    rightExpander.consumerMessage = nullptr;
   }
-
-  // Shared expander message
-  TapestryExpanderMessage* expanderMessage = nullptr;
 
   //--------------------------------------------------------------------------
   // Sample Rate Change

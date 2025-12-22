@@ -129,19 +129,43 @@ void Tapestry::process(const ProcessArgs& args)
   // Check for TapestryExpander on the right
   if (rightExpander.module && rightExpander.module->model == modelTapestryExpander)
   {
-    // Use the single shared message buffer
-    // Write our audio for expander to read
-    expanderMessage->audioL = result.audioOutL;
-    expanderMessage->audioR = result.audioOutR;
-    expanderMessage->sampleRate = APP->engine->getSampleRate();
-
-    // Read processed audio from the same shared buffer
-    // The expander will have written to this during its process() call
-    if (expanderMessage->expanderConnected)
+    if (rightExpander.moduleId != lastRightExpanderModuleId_)
     {
-      finalOutL = expanderMessage->processedL;
-      finalOutR = expanderMessage->processedR;
+      lastRightExpanderModuleId_ = rightExpander.moduleId;
+      if (rightExpander.consumerMessage)
+      {
+        auto* fromExpander = static_cast<TapestryExpanderMessage*>(rightExpander.consumerMessage);
+        fromExpander->processedL = 0.0f;
+        fromExpander->processedR = 0.0f;
+        fromExpander->expanderConnected = false;
+      }
     }
+
+    // Send audio to the expander by writing into its leftExpander producer buffer.
+    // Messages are flipped by the engine, so this incurs 1-sample latency.
+    if (rightExpander.module->leftExpander.producerMessage)
+    {
+      auto* toExpander = static_cast<TapestryExpanderMessage*>(rightExpander.module->leftExpander.producerMessage);
+      toExpander->audioL = result.audioOutL;
+      toExpander->audioR = result.audioOutR;
+      toExpander->sampleRate = args.sampleRate;
+      rightExpander.module->leftExpander.messageFlipRequested = true;
+    }
+
+    // Receive processed audio from the expander via our consumer buffer.
+    if (rightExpander.consumerMessage)
+    {
+      auto* fromExpander = static_cast<TapestryExpanderMessage*>(rightExpander.consumerMessage);
+      if (fromExpander->expanderConnected)
+      {
+        finalOutL = fromExpander->processedL;
+        finalOutR = fromExpander->processedR;
+      }
+    }
+  }
+  else
+  {
+    lastRightExpanderModuleId_ = -1;
   }
 
   // Write audio outputs (always write both channels)

@@ -146,6 +146,8 @@ struct TapestryExpanderMessage {
    - Writes processed audio back to producerMessage
    - Requests message flip
 
+**Important note on timing:** VCV Rack expander messaging is double-buffered and flipped at the end of the engine timestep. This means messages have **1-sample latency**: data written this sample becomes visible to the other module on the next sample. Design your protocol so that each side reads only from `consumerMessage` and writes only to `producerMessage`.
+
 ### VCV Rack Expander API Reference
 
 ```cpp

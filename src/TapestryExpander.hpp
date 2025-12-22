@@ -3,6 +3,8 @@
 #include "plugin.hpp"
 #include <cmath>
 
+#include "TapestryExpanderMessage.hpp"
+
 #include "dsp/tapestry-effects.h"
 /*
  * Tapestry Expander Module
@@ -14,26 +16,6 @@
  *
  * Each effect includes individual Dry/Wet mixing controls.
  */
-
-//------------------------------------------------------------------------------
-// Message Structure for Expander Communication
-//------------------------------------------------------------------------------
-
-struct TapestryExpanderMessage {
-    // Audio from Tapestry to Expander (pre-output)
-    float audioL = 0.0f;
-    float audioR = 0.0f;
-    
-    // Processed audio from Expander back to Tapestry
-    float processedL = 0.0f;
-    float processedR = 0.0f;
-    
-    // Sync flag indicating expander is connected and active
-    bool expanderConnected = false;
-    
-    // Sample rate for DSP coefficient calculation
-    float sampleRate = 48000.0f;
-};
 
 //------------------------------------------------------------------------------
 // Parameter Smoother for zipper-free control changes
