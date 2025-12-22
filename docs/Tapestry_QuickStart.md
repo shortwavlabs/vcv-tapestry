@@ -43,8 +43,10 @@
    - **Cutoff**: Low-pass filter frequency
    - **Reso**: Resonance amount for emphasis at cutoff
    - **Mix**: Blend dry/filtered signal (0-100%)
-5. All parameters have CV inputs for modulation
-6. Effects are processed in series: Tapestry → BitCrusher → Filter → Output
+5. **Output Level**:
+  - **Level**: Post-effects volume (0-200%) to compensate for perceived level loss
+6. All parameters have CV inputs for modulation (except Output Level)
+7. Effects are processed in series: Tapestry → BitCrusher → Filter → Output Level → Output
 
 **Tip**: Start with mix knobs at 0% and gradually turn them up to hear the effects!
 

@@ -60,6 +60,9 @@ struct TapestryExpander : Module {
         FILTER_CUTOFF_PARAM,   // Cutoff frequency (0-1, log)
         FILTER_RESO_PARAM,     // Resonance (0-1)
         FILTER_MIX_PARAM,      // Dry/Wet mix (0-1)
+
+        // Output
+        OUTPUT_LEVEL_PARAM,    // Post-effects gain (0-2)
         
         NUM_PARAMS
     };
@@ -105,6 +108,7 @@ struct TapestryExpander : Module {
     SmoothParam smoothCutoff_;
     SmoothParam smoothReso_;
     SmoothParam smoothFilterMix_;
+    SmoothParam smoothOutputLevel_;
     
     //--------------------------------------------------------------------------
     // State

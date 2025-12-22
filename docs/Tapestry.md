@@ -39,9 +39,9 @@ The module integrates three core DSP components:
 The expander must be placed **directly to the right** of Tapestry. A connection LED indicates when properly connected.
 
 ### Architecture
-- **Signal Flow**: Tapestry → BitCrusher → Moog VCF → Output
+- **Signal Flow**: Tapestry → BitCrusher → Moog VCF → Output Level → Output
 - **Processing**: Stereo throughout (independent L/R channels for filter)
-- **Message Passing**: Single shared buffer for zero-latency communication
+- **Message Passing**: Double-buffered expander messages (1-sample latency)
 - **Parameter Smoothing**: 5ms smoothing on all parameters to prevent zipper noise
 - **DC Blocking**: High-pass filter at ~20Hz on input to prevent clicks
 
@@ -74,6 +74,11 @@ The expander must be placed **directly to the right** of Tapestry. A connection 
 - **FILTER_MIX_PARAM** (0-100%, default 0%): Dry/wet blend
   - 0% = bypass (unfiltered signal)
   - 100% = fully filtered signal
+
+#### Output Section
+- **OUTPUT_LEVEL_PARAM** (0-200%, default 100%): Post-effects gain
+  - Use to compensate for perceived volume loss from the effects chain
+  - 100% = unity gain
 
 ### CV Inputs
 All parameters have dedicated CV inputs with the following scaling:
@@ -136,7 +141,7 @@ All parameters have dedicated CV inputs with the following scaling:
 
 ### Performance
 - **CPU Usage**: Low (simple DSP algorithms)
-- **Latency**: Zero (same-frame processing via shared buffer)
+- **Latency**: 1-sample (expander message flip)
 - **Voice Count**: Stereo processing (2 channels)
 
 ---

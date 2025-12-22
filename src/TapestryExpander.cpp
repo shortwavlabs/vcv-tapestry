@@ -17,6 +17,9 @@ TapestryExpander::TapestryExpander()
     configParam(FILTER_CUTOFF_PARAM, 0.0f, 1.0f, 1.0f, "Filter Cutoff");
     configParam(FILTER_RESO_PARAM, 0.0f, 1.0f, 0.0f, "Resonance", "%", 0.0f, 100.0f);
     configParam(FILTER_MIX_PARAM, 0.0f, 1.0f, 0.0f, "Filter Mix", "%", 0.0f, 100.0f);
+
+    // Output
+    configParam(OUTPUT_LEVEL_PARAM, 0.0f, 2.0f, 1.0f, "Output Level", "%", 0.0f, 100.0f);
     
     // CV inputs
     configInput(CRUSH_BITS_CV_INPUT, "Bits CV");
@@ -57,6 +60,7 @@ void TapestryExpander::onSampleRateChange()
     smoothCutoff_.setSmoothTime(smoothTimeMs, sampleRate_);
     smoothReso_.setSmoothTime(smoothTimeMs, sampleRate_);
     smoothFilterMix_.setSmoothTime(smoothTimeMs, sampleRate_);
+    smoothOutputLevel_.setSmoothTime(smoothTimeMs, sampleRate_);
     
     // Initialize with current param values
     smoothBits_.setImmediate(params[CRUSH_BITS_PARAM].getValue());
@@ -65,6 +69,7 @@ void TapestryExpander::onSampleRateChange()
     smoothCutoff_.setImmediate(params[FILTER_CUTOFF_PARAM].getValue());
     smoothReso_.setImmediate(params[FILTER_RESO_PARAM].getValue());
     smoothFilterMix_.setImmediate(params[FILTER_MIX_PARAM].getValue());
+    smoothOutputLevel_.setImmediate(params[OUTPUT_LEVEL_PARAM].getValue());
     
     // Calculate DC blocking coefficient for 20Hz cutoff
     // Using the formula: coeff = exp(-2π * cutoffHz / sampleRate)
@@ -93,6 +98,7 @@ void TapestryExpander::onReset()
     smoothCutoff_.setImmediate(1.0f);
     smoothReso_.setImmediate(0.0f);
     smoothFilterMix_.setImmediate(0.0f);
+    smoothOutputLevel_.setImmediate(1.0f);
 }
 
 //------------------------------------------------------------------------------
@@ -155,6 +161,8 @@ void TapestryExpander::process(const ProcessArgs& args)
     float cutoffTarget = getModulatedParam(FILTER_CUTOFF_PARAM, FILTER_CUTOFF_CV_INPUT, 0.1f);
     float resoTarget = getModulatedParam(FILTER_RESO_PARAM, FILTER_RESO_CV_INPUT, 0.1f);
     float filterMixTarget = getModulatedParam(FILTER_MIX_PARAM, FILTER_MIX_CV_INPUT, 0.1f);
+
+    float outputLevelTarget = params[OUTPUT_LEVEL_PARAM].getValue();
     
     // Clamp targets
     bitsTarget = clamp(bitsTarget, 1.0f, 16.0f);
@@ -163,6 +171,7 @@ void TapestryExpander::process(const ProcessArgs& args)
     cutoffTarget = clamp(cutoffTarget, 0.0f, 1.0f);
     resoTarget = clamp(resoTarget, 0.0f, 1.0f);
     filterMixTarget = clamp(filterMixTarget, 0.0f, 1.0f);
+    outputLevelTarget = clamp(outputLevelTarget, 0.0f, 2.0f);
     
     // Set targets for smoothing
     smoothBits_.setTarget(bitsTarget);
@@ -171,6 +180,7 @@ void TapestryExpander::process(const ProcessArgs& args)
     smoothCutoff_.setTarget(cutoffTarget);
     smoothReso_.setTarget(resoTarget);
     smoothFilterMix_.setTarget(filterMixTarget);
+    smoothOutputLevel_.setTarget(outputLevelTarget);
     
     // Get smoothed values
     float bits = smoothBits_.process();
@@ -179,6 +189,7 @@ void TapestryExpander::process(const ProcessArgs& args)
     float cutoff = smoothCutoff_.process();
     float reso = smoothReso_.process();
     float filterMix = smoothFilterMix_.process();
+    float outputLevel = smoothOutputLevel_.process();
     
     //--------------------------------------------------------------------------
     // Update DSP parameters
@@ -220,6 +231,10 @@ void TapestryExpander::process(const ProcessArgs& args)
     // Dry/Wet mix for filter
     float outputL = stage1L * (1.0f - filterMix) + filteredL * filterMix;
     float outputR = stage1R * (1.0f - filterMix) + filteredR * filterMix;
+
+    // Post-effects output gain (to compensate for perceived level loss)
+    outputL *= outputLevel;
+    outputR *= outputLevel;
     
     // Gentle soft clipping (tanh for smooth saturation)
     outputL = std::tanh(outputL * 0.5f) * 2.0f;
@@ -333,6 +348,11 @@ TapestryExpanderWidget::TapestryExpanderWidget(TapestryExpander* module)
     yPos = 295.0f;
     addInput(createInputCentered<PJ301MPort>(
         Vec(colCenter, yPos), module, TapestryExpander::FILTER_MIX_CV_INPUT));
+
+    // OUTPUT LEVEL knob (bottom)
+    yPos = 335.0f;
+    addParam(createParamCentered<RoundSmallBlackKnob>(
+        Vec(colCenter, yPos), module, TapestryExpander::OUTPUT_LEVEL_PARAM));
 }
 
 //------------------------------------------------------------------------------
