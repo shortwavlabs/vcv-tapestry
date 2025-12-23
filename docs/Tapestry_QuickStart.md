@@ -103,6 +103,11 @@ Splices are markers that divide your recording into segments:
 - **ORGANIZE** (knob): Manual splice selection (smooth)
 - **SPLICE** (button + gate): Create splice at current position
 - **CLEAR SPLICES** (button): Remove all splice markers instantly
+- **SPLICE COUNT TOGGLE** (button): Cycle through automatic evenly-spaced splices
+  - Cycles: 4 → 8 → 16 → 4 (repeats)
+  - LED brightness shows mode (dim=4, medium=8, bright=16)
+  - Distributes splices evenly across entire buffer
+  - Great for rhythmic divisions and organized navigation
 
 ## Common Workflows
 
@@ -150,16 +155,29 @@ Splices are markers that divide your recording into segments:
 - High resonance creates singing, harmonic clouds
 
 ### Rhythmic Slicing
+**Method 1: Automatic Even Spacing**
+1. Record drums or rhythmic material (try 2-4 bars)
+2. Press **SPLICE COUNT TOGGLE** button to set even divisions
+   - 4 splices = quarter notes or main beats
+   - 8 splices = eighth notes or sub-divisions
+   - 16 splices = sixteenth notes or detailed slicing
+3. Connect clock/sequencer to **SHIFT** gate
+4. Each clock pulse jumps to next splice sequentially
+5. Creates rearranged, quantized rhythms with geometric precision
+
+**Method 2: Manual Splice Creation**
 1. Record drums or rhythmic material
 **With TapestryExpander**:
 - Use bit crushing (6-10 bits) for harsh, digital drums
 - Fast filter modulation for rhythmic emphasis
 - Low-pass filter to remove high-end for darker sound
 
-2. Use **SPLICE** trigger to mark each hit
+2. Use **SPLICE** trigger to manually mark each hit
 3. Connect clock/sequencer to **SHIFT** gate
-4. Each clock pulse jumps to next slice
-5. Creates rearranged rhythms
+4. Each clock pulse jumps to next splice
+5. Creates rearranged rhythms with custom timing
+
+**Pro Tip**: Start with automatic splice count for quick setup, then add manual splices for accent points or variations.
 
 ## CV Modulation Tips
 

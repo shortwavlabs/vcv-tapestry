@@ -283,10 +283,26 @@ void Tapestry::processButtons(const ProcessArgs& args)
   {
     clearSplicesButtonHeld = true;
     dsp.deleteAllMarkers();
+    spliceCountMode = 0;  // Reset to 4 splices for next toggle
   }
   else if (!clearSplicesPressed)
   {
     clearSplicesButtonHeld = false;
+  }
+
+  // SPLICE COUNT TOGGLE button - cycle through 4, 8, 16
+  bool spliceCountTogglePressed = params[SPLICE_COUNT_TOGGLE_BUTTON].getValue() > 0.5f;
+  if (spliceCountTogglePressed && !spliceCountToggleButtonHeld)
+  {
+    spliceCountToggleButtonHeld = true;
+    
+    // Apply current mode first, then cycle to next
+    setSpliceCount(kSpliceCountOptions[spliceCountMode]);
+    spliceCountMode = (spliceCountMode + 1) % kNumSpliceCountOptions;
+  }
+  else if (!spliceCountTogglePressed)
+  {
+    spliceCountToggleButtonHeld = false;
   }
 }
 
@@ -607,6 +623,52 @@ void Tapestry::updateLights(const ProcessArgs& args)
 
   // Clear Splices LED: dim when splices exist, off when empty
   lights[CLEAR_SPLICES_LED].setBrightness(dsp.getSpliceManager().isEmpty() ? 0.0f : 0.3f);
+
+  // Splice Count LED: Show current mode brightness (0.33, 0.66, 1.0 for 4, 8, 16)
+  float spliceCountBrightness = (spliceCountMode + 1) * 0.33f;
+  lights[SPLICE_COUNT_LED].setBrightness(spliceCountBrightness);
+}
+
+//------------------------------------------------------------------------------
+// Splice Count Management
+//------------------------------------------------------------------------------
+
+void Tapestry::setSpliceCount(int n)
+{
+  if (n < 1)
+    return;
+
+  const auto& buffer = dsp.getBuffer();
+  size_t totalFrames = buffer.getUsedFrames();
+  
+  if (totalFrames == 0)
+    return;
+
+  // Clear existing splices
+  dsp.deleteAllMarkers();
+
+  // Create n evenly-spaced splice markers
+  if (n > 1)
+  {
+    for (int i = 0; i < n; i++)
+    {
+      // Calculate position for this splice
+      // Distribute evenly: position = (i * totalFrames) / n
+      size_t splicePosition = (i * totalFrames) / n;
+      
+      // Ensure we don't place a marker at the very end
+      if (splicePosition >= totalFrames)
+        splicePosition = totalFrames - 1;
+      
+      // Add splice marker at this position
+      dsp.getSpliceManager().addMarker(splicePosition);
+    }
+  }
+  else if (n == 1)
+  {
+    // Single splice at the beginning
+    dsp.getSpliceManager().addMarker(0);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -767,6 +829,9 @@ json_t* Tapestry::dataToJson()
   // Save current splice index
   json_object_set_new(rootJ, "currentSpliceIndex", json_integer(dsp.getSpliceManager().getCurrentIndex()));
 
+  // Save splice count mode
+  json_object_set_new(rootJ, "spliceCountMode", json_integer(spliceCountMode));
+
   return rootJ;
 }
 
@@ -812,6 +877,17 @@ void Tapestry::dataFromJson(json_t* rootJ)
   if (spliceIndexJ)
   {
     pendingSpliceIndex_ = json_integer_value(spliceIndexJ);
+  }
+
+  // Load splice count mode
+  json_t* spliceCountModeJ = json_object_get(rootJ, "spliceCountMode");
+  if (spliceCountModeJ)
+  {
+    int mode = json_integer_value(spliceCountModeJ);
+    if (mode >= 0 && mode < kNumSpliceCountOptions)
+    {
+      spliceCountMode = mode;
+    }
   }
 }
 
@@ -1350,6 +1426,10 @@ TapestryWidget::TapestryWidget(Tapestry* module)
   addParam(createParamCentered<LEDButton>(Vec(200, yPos), module, Tapestry::CLEAR_SPLICES_BUTTON));
   addChild(createLightCentered<MediumLight<WhiteLight>>(Vec(200, yPos), module, Tapestry::CLEAR_SPLICES_LED));
 
+  // Splice Count Toggle button (next to Clear Splices)
+  addParam(createParamCentered<LEDButton>(Vec(235, yPos), module, Tapestry::SPLICE_COUNT_TOGGLE_BUTTON));
+  addChild(createLightCentered<MediumLight<BlueLight>>(Vec(235, yPos), module, Tapestry::SPLICE_COUNT_LED));
+
   // Overdub toggle switch (small switch near record button)
   addParam(createParamCentered<CKSS>(Vec(60, 365), module, Tapestry::OVERDUB_TOGGLE));
 }
@@ -1421,6 +1501,25 @@ void TapestryWidget::appendContextMenu(Menu* menu)
   clearItem->text = "Clear Reel";
   clearItem->module = module;
   menu->addChild(clearItem);
+
+  // Show splice count mode
+  menu->addChild(new MenuEntry);
+  struct SpliceCountMenuItem : MenuItem
+  {
+    Tapestry* module;
+    void onAction(const event::Action& e) override
+    {
+      // Cycle to next splice count mode
+      module->spliceCountMode = (module->spliceCountMode + 1) % Tapestry::kNumSpliceCountOptions;
+      module->setSpliceCount(Tapestry::kSpliceCountOptions[module->spliceCountMode]);
+    }
+  };
+  
+  SpliceCountMenuItem* spliceCountItem = new SpliceCountMenuItem();
+  int currentCount = module->getCurrentSpliceCount();
+  spliceCountItem->text = string::f("Splice Count: %d (click to cycle)", currentCount);
+  spliceCountItem->module = module;
+  menu->addChild(spliceCountItem);
 
   // Show current file info
   if (!module->currentFileName.empty())

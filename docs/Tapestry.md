@@ -310,6 +310,35 @@ All parameters have dedicated CV inputs with the following scaling:
 - **Use Case**: Quick reset of splice structure, starting fresh navigation
 - **Note**: Same as "Clear All Splices" in context menu
 
+#### SPLICE_COUNT_TOGGLE_BUTTON (Range: 0-1)
+- **Type**: Momentary button with LED brightness indicator
+- **Function**: Toggle between automatic evenly-spaced splice configurations
+- **Behavior**:
+  - Button press → cycles through 4, 8, and 16 splice modes (with wrap-around)
+  - Automatically distributes splice markers evenly across the entire buffer
+  - Replaces all existing splices with new evenly-spaced configuration
+  - LED brightness indicates current mode:
+    - Dim (0.33): 4 splices
+    - Medium (0.66): 8 splices
+    - Bright (1.0): 16 splices
+  - Setting persists in patch (saved to JSON)
+  - Requires buffer to contain audio (no effect on empty buffer)
+- **Splice Distribution**:
+  - 4 splices: Divides buffer into quarters (0%, 25%, 50%, 75%)
+  - 8 splices: Divides buffer into eighths (0%, 12.5%, 25%, 37.5%, 50%, 62.5%, 75%, 87.5%)
+  - 16 splices: Divides buffer into sixteenths (every 6.25%)
+- **Use Cases**:
+  - Quickly create rhythmic divisions for beat-synced material
+  - Set up regular intervals for organized navigation
+  - Create evenly-timed sections for looping experiments
+  - Replace manual splice creation with geometric precision
+- **Workflow Tips**:
+  - Use after recording to divide material into equal parts
+  - Combine with SHIFT button to navigate through sections
+  - Use ORGANIZE knob to smoothly scan through positions
+  - Manual splices (via button or waveform click) can be added afterward
+- **Alternative Access**: Also available in context menu as "Splice Count: N (click to cycle)"
+
 ---
 
 ## Inputs

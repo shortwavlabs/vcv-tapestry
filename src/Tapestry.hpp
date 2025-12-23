@@ -50,6 +50,7 @@ struct Tapestry : Module
     SPLICE_BUTTON,
     SHIFT_BUTTON,
     CLEAR_SPLICES_BUTTON,  // Clear all splices
+    SPLICE_COUNT_TOGGLE_BUTTON,  // Toggle splice count (4/8/16)
 
     // Toggles
     OVERDUB_TOGGLE,    // Overdub mode: 0 = replace, 1 = overdub
@@ -117,6 +118,7 @@ struct Tapestry : Module
     SPLICE_LED,
     SHIFT_LED,
     CLEAR_SPLICES_LED,
+    SPLICE_COUNT_LED,
 
     NUM_LIGHTS
   };
@@ -152,9 +154,18 @@ struct Tapestry : Module
   bool spliceButtonHeld = false;
   bool shiftButtonHeld = false;
   bool clearSplicesButtonHeld = false;
+  bool spliceCountToggleButtonHeld = false;
 
   static constexpr float kLongPressTime = 3.0f;      // 3 seconds for delete all
   static constexpr float kComboWindowTime = 0.3f;    // 300ms combo detection
+
+  //--------------------------------------------------------------------------
+  // Splice Count Toggle State
+  //--------------------------------------------------------------------------
+
+  int spliceCountMode = 0;  // 0=4, 1=8, 2=16
+  static constexpr int kSpliceCountOptions[] = {4, 8, 16};
+  static constexpr int kNumSpliceCountOptions = 3;
 
   //--------------------------------------------------------------------------
   // File I/O State
@@ -217,6 +228,7 @@ struct Tapestry : Module
     configButton(SPLICE_BUTTON, "Splice");
     configButton(SHIFT_BUTTON, "Shift");
     configButton(CLEAR_SPLICES_BUTTON, "Clear Splices");
+    configButton(SPLICE_COUNT_TOGGLE_BUTTON, "Auto Splice");
 
     // Toggles
     configSwitch(OVERDUB_TOGGLE, 0.0f, 1.0f, 0.0f, "Overdub Mode",
@@ -322,6 +334,15 @@ struct Tapestry : Module
   size_t getCurrentPlaybackFrame() const
   {
     return static_cast<size_t>(dsp.getGrainEngine().getPlayheadPosition());
+  }
+
+  // Set splice count and distribute evenly across buffer
+  void setSpliceCount(int n);
+
+  // Get current splice count value
+  int getCurrentSpliceCount() const
+  {
+    return kSpliceCountOptions[spliceCountMode];
   }
 };
 

@@ -1820,6 +1820,121 @@ void test_moog_filter_sample_rate_adaptation(TestContext &ctx)
 }
 
 //------------------------------------------------------------------------------
+// Splice Count Distribution Tests
+//------------------------------------------------------------------------------
+
+void test_splice_count_even_distribution(TestContext &ctx)
+{
+  using ShortwavDSP::SpliceManager;
+
+  SpliceManager mgr;
+  mgr.initialize(10000);
+  
+  // Test 4 evenly-spaced splices
+  {
+    mgr.deleteAllMarkers();
+    for (int i = 0; i < 4; i++)
+    {
+      size_t pos = (i * 10000) / 4;
+      mgr.addMarker(pos);
+    }
+    
+    T_ASSERT(ctx, mgr.getNumSplices() == 4);
+    T_ASSERT(ctx, mgr.getSplice(0)->startFrame == 0);
+    T_ASSERT(ctx, mgr.getSplice(1)->startFrame == 2500);
+    T_ASSERT(ctx, mgr.getSplice(2)->startFrame == 5000);
+    T_ASSERT(ctx, mgr.getSplice(3)->startFrame == 7500);
+  }
+  
+  // Test 8 evenly-spaced splices
+  {
+    mgr.deleteAllMarkers();
+    mgr.initialize(10000);  // Reinitialize after delete all
+    for (int i = 0; i < 8; i++)
+    {
+      size_t pos = (i * 10000) / 8;
+      mgr.addMarker(pos);
+    }
+    
+    T_ASSERT(ctx, mgr.getNumSplices() == 8);
+    for (int i = 0; i < 8; i++)
+    {
+      size_t expected = (i * 10000) / 8;
+      T_ASSERT(ctx, mgr.getSplice(i)->startFrame == expected);
+    }
+  }
+  
+  // Test 16 evenly-spaced splices
+  {
+    mgr.deleteAllMarkers();
+    mgr.initialize(10000);
+    for (int i = 0; i < 16; i++)
+    {
+      size_t pos = (i * 10000) / 16;
+      mgr.addMarker(pos);
+    }
+    
+    T_ASSERT(ctx, mgr.getNumSplices() == 16);
+    for (int i = 0; i < 16; i++)
+    {
+      size_t expected = (i * 10000) / 16;
+      T_ASSERT(ctx, mgr.getSplice(i)->startFrame == expected);
+    }
+  }
+}
+
+void test_splice_count_boundary_cases(TestContext &ctx)
+{
+  using ShortwavDSP::SpliceManager;
+
+  SpliceManager mgr;
+  mgr.initialize(100);  // Small buffer
+  
+  for (int i = 0; i < 4; i++)
+  {
+    size_t pos = (i * 100) / 4;
+    mgr.addMarker(pos);
+  }
+  
+  T_ASSERT(ctx, mgr.getNumSplices() == 4);
+  T_ASSERT(ctx, mgr.getSplice(0)->startFrame == 0);
+  T_ASSERT(ctx, mgr.getSplice(3)->startFrame < 100); // Should not place at very end
+}
+
+void test_splice_count_replacement(TestContext &ctx)
+{
+  using ShortwavDSP::SpliceManager;
+
+  SpliceManager mgr;
+  mgr.initialize(10000);
+  
+  // Create 4 manual splices at arbitrary positions
+  mgr.addMarker(1000);
+  mgr.addMarker(3000);
+  mgr.addMarker(7000);
+  
+  T_ASSERT(ctx, mgr.getNumSplices() == 4);
+  
+  // Replace with 8 evenly-spaced splices
+  mgr.deleteAllMarkers();
+  mgr.initialize(10000);
+  for (int i = 0; i < 8; i++)
+  {
+    size_t pos = (i * 10000) / 8;
+    mgr.addMarker(pos);
+  }
+  
+  T_ASSERT(ctx, mgr.getNumSplices() == 8);
+  
+  // Verify all splices are evenly distributed (none of the old manual ones remain)
+  for (int i = 0; i < 8; i++)
+  {
+    size_t expected = (i * 10000) / 8;
+    T_ASSERT(ctx, mgr.getSplice(i)->startFrame == expected);
+  }
+}
+
+//------------------------------------------------------------------------------
 // Test Runner
 //------------------------------------------------------------------------------
 
@@ -1915,6 +2030,11 @@ void run_all_tapestry_tests()
   test_moog_filter_dc_blocking(ctx);
   test_moog_filter_four_pole_response(ctx);
   test_moog_filter_sample_rate_adaptation(ctx);
+
+  std::printf("--- Splice Count Distribution Tests ---\n");
+  test_splice_count_even_distribution(ctx);
+  test_splice_count_boundary_cases(ctx);
+  test_splice_count_replacement(ctx);
 
   std::printf("\n");
   ctx.summary();
