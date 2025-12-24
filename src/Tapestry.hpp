@@ -291,7 +291,8 @@ struct Tapestry : Module
     configParam(MORPH_PARAM, 0.0f, 1.0f, 0.3f, "Morph", "%", 0.0f, 100.0f);
     configParam(SLIDE_PARAM, 0.0f, 1.0f, 0.0f, "Slide", "%", 0.0f, 100.0f);
     configParam(SLIDE_CV_ATTEN, -1.0f, 1.0f, 0.0f, "Slide CV", "%", 0.0f, 100.0f);
-    configParam(ORGANIZE_PARAM, 0.0f, 1.0f, 0.0f, "Organize", "%", 0.0f, 100.0f);
+    auto* organizeParam = configParam(ORGANIZE_PARAM, 0.0f, 1.0f, 0.0f, "Organize");
+    organizeParam->snapEnabled = true;
 
     // Buttons
     configButton(REC_BUTTON, "Record");
@@ -414,6 +415,9 @@ struct Tapestry : Module
   {
     return kSpliceCountOptions[spliceCountMode];
   }
+
+  // Update organize parameter range based on current splice count
+  void updateOrganizeParamRange();
 };
 
 //------------------------------------------------------------------------------

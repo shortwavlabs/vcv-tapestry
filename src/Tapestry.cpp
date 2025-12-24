@@ -26,6 +26,9 @@ void Tapestry::process(const ProcessArgs& args)
       
       pendingSpliceMarkers_.clear();
       pendingSpliceIndex_ = -1;
+      
+      // Update organize parameter range to match loaded splice count
+      updateOrganizeParamRange();
     }
   }
 
@@ -41,7 +44,18 @@ void Tapestry::process(const ProcessArgs& args)
   dsp.setGeneSize(params[GENE_SIZE_PARAM].getValue());
   dsp.setMorph(params[MORPH_PARAM].getValue());
   dsp.setSlide(params[SLIDE_PARAM].getValue());
-  dsp.setOrganize(params[ORGANIZE_PARAM].getValue());
+  
+  // Organize parameter: normalize based on splice count
+  size_t numSplices = dsp.getSpliceManager().getNumSplices();
+  if (numSplices > 0)
+  {
+    dsp.setOrganize(params[ORGANIZE_PARAM].getValue() / static_cast<float>(numSplices));
+  }
+  else
+  {
+    dsp.setOrganize(0.0f);
+  }
+  
   dsp.setVariSpeed(params[VARI_SPEED_PARAM].getValue());
 
   // Read CV inputs
@@ -245,6 +259,7 @@ void Tapestry::processButtons(const ProcessArgs& args)
       if (!recButtonHeld && !shiftButtonHeld)
       {
         dsp.onSpliceTrigger(getCurrentPlaybackFrame());
+        updateOrganizeParamRange();
       }
     }
     spliceButtonHoldTime += dt;
@@ -284,6 +299,8 @@ void Tapestry::processButtons(const ProcessArgs& args)
     clearSplicesButtonHeld = true;
     dsp.deleteAllMarkers();
     spliceCountMode = 0;  // Reset to 4 splices for next toggle
+    updateOrganizeParamRange();
+    params[ORGANIZE_PARAM].setValue(0.0f);  // Reset organize to 0
   }
   else if (!clearSplicesPressed)
   {
@@ -357,12 +374,14 @@ void Tapestry::processButtonCombos(const ProcessArgs& args)
     {
       // Long press: delete all markers
       dsp.deleteAllMarkers();
+      updateOrganizeParamRange();
       spliceButtonHoldTime = 0.0f; // Reset to prevent repeated deletion
     }
     else if (spliceButtonHoldTime < kComboWindowTime)
     {
       // Short combo: delete current marker
       dsp.deleteCurrentMarker();
+      updateOrganizeParamRange();
       spliceButtonHoldTime = kComboWindowTime + 1.0f;
     }
   }
@@ -444,6 +463,7 @@ void Tapestry::processGateInputs(const ProcessArgs& args)
                                     0.1f, ShortwavDSP::TapestryConfig::kGateTriggerThreshold))
     {
       dsp.onSpliceTrigger(getCurrentPlaybackFrame());
+      updateOrganizeParamRange();
     }
   }
 
@@ -668,6 +688,40 @@ void Tapestry::setSpliceCount(int n)
   {
     // Single splice at the beginning
     dsp.getSpliceManager().addMarker(0);
+  }
+  
+  // Update organize parameter range
+  updateOrganizeParamRange();
+}
+
+//------------------------------------------------------------------------------
+// Organize Parameter Update
+//------------------------------------------------------------------------------
+
+void Tapestry::updateOrganizeParamRange()
+{
+  size_t numSplices = dsp.getSpliceManager().getNumSplices();
+  auto* organizeParamQuantity = paramQuantities[ORGANIZE_PARAM];
+  
+  // Store the current normalized position (0.0-1.0) before updating range
+  float normalizedPosition = 0.0f;
+  if (organizeParamQuantity->maxValue > 0.0f)
+  {
+    normalizedPosition = organizeParamQuantity->getValue() / organizeParamQuantity->maxValue;
+  }
+  
+  if (numSplices > 0)
+  {
+    float newMax = static_cast<float>(numSplices);
+    organizeParamQuantity->maxValue = newMax;
+    // Set value to maintain the same proportional position
+    organizeParamQuantity->setValue(normalizedPosition * newMax);
+  }
+  else
+  {
+    // No splices, set max to 1 and value to 0
+    organizeParamQuantity->maxValue = 1.0f;
+    organizeParamQuantity->setValue(0.0f);
   }
 }
 
@@ -1212,6 +1266,7 @@ void ReelDisplay::onButton(const ButtonEvent& e)
       // Create new splice at click position
       size_t frame = xPositionToFrame(e.pos.x);
       module->dsp.onSpliceTrigger(frame);
+      module->updateOrganizeParamRange();
     }
     e.consume(this);
   }
@@ -1224,6 +1279,7 @@ void ReelDisplay::onButton(const ButtonEvent& e)
     {
       // Delete the marker at this specific index
       module->dsp.getSpliceManager().deleteMarkerAtIndex(spliceIdx);
+      module->updateOrganizeParamRange();
       e.consume(this);
     }
     // Don't consume the event if we didn't delete anything
