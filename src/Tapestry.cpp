@@ -832,6 +832,9 @@ json_t* Tapestry::dataToJson()
   // Save splice count mode
   json_object_set_new(rootJ, "spliceCountMode", json_integer(spliceCountMode));
 
+  // Save waveform color
+  json_object_set_new(rootJ, "waveformColor", json_integer(static_cast<int>(waveformColor)));
+
   return rootJ;
 }
 
@@ -887,6 +890,17 @@ void Tapestry::dataFromJson(json_t* rootJ)
     if (mode >= 0 && mode < kNumSpliceCountOptions)
     {
       spliceCountMode = mode;
+    }
+  }
+
+  // Load waveform color
+  json_t* waveformColorJ = json_object_get(rootJ, "waveformColor");
+  if (waveformColorJ)
+  {
+    int colorInt = json_integer_value(waveformColorJ);
+    if (colorInt >= 0 && colorInt < static_cast<int>(WaveformColor::NUM_COLORS))
+    {
+      waveformColor = static_cast<WaveformColor>(colorInt);
     }
   }
 }
@@ -983,12 +997,21 @@ void ReelDisplay::drawWaveform(const DrawArgs& args)
     nvgFillColor(args.vg, nvgRGBA(0, 0, 0, 20));
     nvgFill(args.vg);
     
-    // Create blue-to-teal gradient
+    // Get user-selected waveform color
+    int r, g, b;
+    module->getWaveformColorRGB(r, g, b);
+    
+    // Create gradient from selected color (lighter at top, darker at bottom)
+    int r1 = r, g1 = g, b1 = b;  // Top color
+    int r2 = static_cast<int>(r * 0.7f);  // Bottom color (darker)
+    int g2 = static_cast<int>(g * 0.7f);
+    int b2 = static_cast<int>(b * 0.7f);
+    
     NVGpaint gradient = nvgLinearGradient(args.vg, 
                                           x, centerY - barHeight,
                                           x, centerY + barHeight,
-                                          nvgRGBA(51, 153, 255, isBarHovered ? 255 : 200),   // Blue
-                                          nvgRGBA(0, 204, 204, isBarHovered ? 255 : 180));   // Teal
+                                          nvgRGBA(r1, g1, b1, isBarHovered ? 255 : 200),
+                                          nvgRGBA(r2, g2, b2, isBarHovered ? 255 : 180));
     
     // Draw top bar (positive amplitude)
     nvgBeginPath(args.vg);
@@ -1015,16 +1038,16 @@ void ReelDisplay::drawWaveform(const DrawArgs& args)
     // Draw rounded caps for enhanced appearance
     if (barHeight > 3.0f)
     {
-      // Top cap
+      // Top cap (lighter color)
       nvgBeginPath(args.vg);
       nvgCircle(args.vg, x + barWidth * 0.5f, centerY - barHeight, barWidth * 0.5f);
-      nvgFillColor(args.vg, nvgRGBA(51, 153, 255, isBarHovered ? 255 : 220));
+      nvgFillColor(args.vg, nvgRGBA(r1, g1, b1, isBarHovered ? 255 : 220));
       nvgFill(args.vg);
       
-      // Bottom cap
+      // Bottom cap (darker color)
       nvgBeginPath(args.vg);
       nvgCircle(args.vg, x + barWidth * 0.5f, centerY + barHeight, barWidth * 0.5f);
-      nvgFillColor(args.vg, nvgRGBA(0, 204, 204, isBarHovered ? 255 : 200));
+      nvgFillColor(args.vg, nvgRGBA(r2, g2, b2, isBarHovered ? 255 : 200));
       nvgFill(args.vg);
     }
   }
@@ -1520,6 +1543,49 @@ void TapestryWidget::appendContextMenu(Menu* menu)
   spliceCountItem->text = string::f("Splice Count: %d (click to cycle)", currentCount);
   spliceCountItem->module = module;
   menu->addChild(spliceCountItem);
+
+  // Waveform color selection submenu
+  menu->addChild(new MenuEntry);
+  
+  struct WaveformColorItem : MenuItem
+  {
+    Tapestry* module;
+    Tapestry::WaveformColor color;
+    
+    void onAction(const event::Action& e) override
+    {
+      module->waveformColor = color;
+    }
+  };
+  
+  struct WaveformColorMenu : MenuItem
+  {
+    Tapestry* module;
+    
+    Menu* createChildMenu() override
+    {
+      Menu* submenu = new Menu;
+      
+      const char* colorNames[] = {"Red", "Amber", "Green", "Baby Blue", "Peach", "Pink", "White"};
+      for (int i = 0; i < static_cast<int>(Tapestry::WaveformColor::NUM_COLORS); i++)
+      {
+        WaveformColorItem* colorItem = new WaveformColorItem();
+        colorItem->text = colorNames[i];
+        colorItem->module = module;
+        colorItem->color = static_cast<Tapestry::WaveformColor>(i);
+        colorItem->rightText = (module->waveformColor == colorItem->color) ? "✓" : "";
+        submenu->addChild(colorItem);
+      }
+      
+      return submenu;
+    }
+  };
+  
+  WaveformColorMenu* colorMenu = new WaveformColorMenu();
+  colorMenu->text = "Waveform Color";
+  colorMenu->rightText = RIGHT_ARROW;
+  colorMenu->module = module;
+  menu->addChild(colorMenu);
 
   // Show current file info
   if (!module->currentFileName.empty())

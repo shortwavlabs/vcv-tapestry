@@ -29,6 +29,22 @@ struct TapestryWidget;
 struct Tapestry : Module
 {
   //--------------------------------------------------------------------------
+  // Waveform Color Presets
+  //--------------------------------------------------------------------------
+
+  enum class WaveformColor
+  {
+    Red = 0,
+    Amber,
+    Green,
+    BabyBlue,
+    Peach,
+    Pink,
+    White,
+    NUM_COLORS
+  };
+
+  //--------------------------------------------------------------------------
   // Param IDs
   //--------------------------------------------------------------------------
 
@@ -203,6 +219,60 @@ struct Tapestry : Module
 
   // Track expander changes to avoid consuming stale processed audio
   int64_t lastRightExpanderModuleId_ = -1;
+
+  //--------------------------------------------------------------------------
+  // Waveform Display Settings
+  //--------------------------------------------------------------------------
+
+  WaveformColor waveformColor = WaveformColor::BabyBlue;
+
+  // Get RGB values for current waveform color (0-255 range)
+  void getWaveformColorRGB(int& r, int& g, int& b) const
+  {
+    switch (waveformColor)
+    {
+    case WaveformColor::Red:
+      r = 255; g = 0; b = 0;
+      break;
+    case WaveformColor::Amber:
+      r = 255; g = 180; b = 0;
+      break;
+    case WaveformColor::Green:
+      r = 0; g = 255; b = 0;
+      break;
+    case WaveformColor::BabyBlue:
+      r = 100; g = 200; b = 255;
+      break;
+    case WaveformColor::Peach:
+      r = 255; g = 200; b = 150;
+      break;
+    case WaveformColor::Pink:
+      r = 255; g = 100; b = 200;
+      break;
+    case WaveformColor::White:
+      r = 255; g = 255; b = 255;
+      break;
+    default:
+      r = 100; g = 200; b = 255; // Default to Baby Blue
+      break;
+    }
+  }
+
+  // Get color name as string
+  const char* getWaveformColorName() const
+  {
+    switch (waveformColor)
+    {
+    case WaveformColor::Red: return "Red";
+    case WaveformColor::Amber: return "Amber";
+    case WaveformColor::Green: return "Green";
+    case WaveformColor::BabyBlue: return "Baby Blue";
+    case WaveformColor::Peach: return "Peach";
+    case WaveformColor::Pink: return "Pink";
+    case WaveformColor::White: return "White";
+    default: return "Baby Blue";
+    }
+  }
 
   //--------------------------------------------------------------------------
   // Constructor

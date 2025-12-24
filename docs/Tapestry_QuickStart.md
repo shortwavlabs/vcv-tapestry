@@ -206,7 +206,7 @@ Splices are markers that divide your recording into segments:
 ## Display Features
 
 ### Waveform View
-- **Gray waveform**: Your recorded audio
+- **Colored waveform**: Your recorded audio (customizable - see Context Menu below)
 - **Red cursor**: Current playhead position
 - **Blue lines**: Splice markers
 - **Green hover line**: Shows where new splice will be created (when hovering)
@@ -219,11 +219,16 @@ Splices are markers that divide your recording into segments:
 - **Hover**: See green preview for new splice or red highlight for deletion
 - **Visual feedback**: Triangle indicator at top shows exact click position
 
-### Context Menu (right-click)
-- **Clear Tape**: Erase all audio
-- **Clear All Splices**: Remove all markers (same as Clear Splices button)
-- **Remove Last Splice**: Undo last splice
-- **Tape Info**: View buffer status
+### Context Menu (right-click on module)
+- **Load Reel...**: Import WAV file into tape buffer
+- **Save Reel...**: Export current tape buffer as WAV
+- **Clear Reel**: Erase all audio
+- **Splice Count**: Cycle through auto-splice options (4, 8, or 16 markers)
+- **Waveform Color**: Choose visual color preset
+  - Red, Amber, Green, Baby Blue (default), Peach, Pink, White
+  - Customize to match your patch aesthetic or improve visibility
+  - Selection persists with saved patches
+- **File Info**: View current file name, duration, and splice count
 
 **With Expander**: Add subtle filter (cutoff=0.7, mix=30%) for darker ambience
 

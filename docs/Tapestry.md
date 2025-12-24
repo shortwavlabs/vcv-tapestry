@@ -413,7 +413,9 @@ All parameters have dedicated CV inputs with the following scaling:
   - Red playhead cursor showing current position
   - Blue splice markers (vertical lines)
   - Interactive hover feedback with visual indicators
-  - Grayscale waveform with peak detection
+  - Customizable waveform color (7 preset options via context menu)
+  - Gradient-based bar rendering with SoundCloud-style appearance
+  - Dynamic hover highlighting with subtle glow effect
 - **Interaction**:
   - **Left-click on waveform** → create new splice at click position
   - **Left-click on splice marker** → select/jump to that splice
@@ -423,6 +425,27 @@ All parameters have dedicated CV inputs with the following scaling:
   - **Triangle indicator** → appears at top of hover line showing exact position
   - **Hit detection** → 6-pixel tolerance on each side of markers for easy clicking
 
+### Waveform Color Customization
+- **Access**: Right-click module panel → "Waveform Color" submenu
+- **Options**: 7 color presets to personalize your visual workspace
+  - **Red** (255, 0, 0): Bold and striking, high visibility
+  - **Amber** (255, 180, 0): Warm and vintage aesthetic
+  - **Green** (0, 255, 0): Classic oscilloscope style
+  - **Baby Blue** (100, 200, 255): Default, modern and clean
+  - **Peach** (255, 200, 150): Soft and pleasant to eyes
+  - **Pink** (255, 100, 200): Vibrant and creative
+  - **White** (255, 255, 255): Maximum contrast, clinical appearance
+- **Behavior**:
+  - Selected color is saved with patch (persists across sessions)
+  - Gradient automatically adjusts: lighter shade at top, darker at bottom
+  - Hover effects maintain visual clarity regardless of color choice
+  - Checkmark (✓) indicates currently selected color in menu
+- **Use Cases**:
+  - Match waveform to module theme or patch color scheme
+  - Improve visibility in different lighting conditions
+  - Differentiate multiple Tapestry instances in complex patches
+  - Reduce eye strain with preferred color temperature
+
 ### Zoom Controls
 - **Zoom In** (+): Increase waveform magnification
 - **Zoom Out** (−): Decrease waveform magnification
@@ -430,10 +453,15 @@ All parameters have dedicated CV inputs with the following scaling:
 - **Effect**: Zoom centers on current playhead position
 
 ### Context Menu
-- **Clear Tape**: Erase all recorded audio and reset splices
-- **Clear All Splices**: Remove all splice markers (keeps audio, same as Clear Splices button)
-- **Remove Last Splice**: Delete most recently created splice
-- **Tape Info**: Display buffer status and recording time
+- **Load Reel...**: Import WAV file into tape buffer
+- **Save Reel...**: Export current tape buffer as WAV file
+- **Clear Reel**: Erase all recorded audio and reset splices
+- **Splice Count**: Cycle through auto-splice options (4, 8, or 16 evenly-spaced markers)
+- **Waveform Color**: Choose from 7 color presets for waveform display
+  - Red, Amber, Green, Baby Blue (default), Peach, Pink, White
+  - Selected color is marked with checkmark (✓)
+  - Changes apply immediately and persist with patch
+- **File Info**: Display current loaded file name, duration, and splice count (when applicable)
 
 ### Button Controls
 - **Clear Splices Button**: Dedicated button with white LED indicator for quick splice clearing
