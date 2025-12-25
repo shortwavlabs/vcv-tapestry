@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Tapestry** is a granular sampler module for VCV Rack inspired by the Make Noise Morphagene. It provides sound-on-sound recording, splice-based navigation, and advanced granular synthesis with 4-voice overlapping grains. Perfect for creating evolving textures, rhythmic variations, and experimental soundscapes.
+**Tapestry** is a granular sampler module for VCV Rack inspired by the Make Noise Morphagene. It provides mix recording, marker-based navigation, and advanced granular synthesis with 4-voice overlapping grains. Perfect for creating evolving textures, rhythmic variations, and experimental soundscapes.
 
 **TapestryExpander** is an optional companion module that adds BitCrusher and Moog VCF effects to the Tapestry signal path.
 
@@ -14,16 +14,16 @@
 The module integrates three core DSP components:
 - **TapestryGrainEngine**: 4-voice granular processor with Hann windowing and pitch/pan modulation
 - **TapeBufferManager**: Circular tape buffer with lock-free audio recording
-- **SpliceManager**: Dynamic splice marker management with organize functionality
-- High-quality cubic interpolation for smooth varispeed playback
-- Real-time waveform display with playhead cursor and splice visualization
+- **MarkerManager**: Dynamic marker management with select functionality
+- High-quality cubic interpolation for smooth speed playback
+- Real-time waveform display with playhead cursor and marker visualization
 
 ### Module Features
 - 20HP panel with intuitive control layout
-- 10 parameters: record, play, varispeed, morph, organize, gene size, slide, shift, splice trigger
-- 7 inputs: audio L/R, clock, play/splice/shift gates, varispeed CV
+- 10 parameters: record, play, speed, density, select, grain size, scan, next, marker trigger
+- 7 inputs: audio L/R, clock, play/marker/next gates, speed CV
 - 2 outputs: stereo audio (L/R)
-- Custom waveform display with zoom controls and splice management
+- Custom waveform display with zoom controls and marker management
 - JSON state persistence with tape buffer serialization
 - Expander support for optional effects processing (BitCrusher, Moog VCF)
 
@@ -149,19 +149,19 @@ All parameters have dedicated CV inputs with the following scaling:
 ## Core Concepts
 
 ### The Tape
-**Tapestry** uses a circular tape buffer (default 300 seconds) that continuously loops. Audio is recorded into this buffer using sound-on-sound technique, allowing overdubbing and layering.
+**Tapestry** uses a circular tape buffer (default 300 seconds) that continuously loops. Audio is recorded into this buffer using mix technique, allowing overdubbing and layering.
 
-### Splices
-**Splices** are markers that divide the tape into segments. Think of them as bookmarks or loop points:
-- Navigate between splices using the **SHIFT** button or gate input
-- Create splices manually with **SPLICE** trigger or automatically during recording
-- Splices define the playback boundaries for the granular engine
+### Markers
+**Markers** divide the tape into segments. Think of them as bookmarks or loop points:
+- Navigate between markers using the **NEXT** button or gate input
+- Create markers manually with **MARKER** trigger or automatically during recording
+- Markers define the playback boundaries for the granular engine
 
 ### Grains
-**Grains** are short audio fragments played back with windowing (Hann envelope). The **GENE SIZE** parameter determines grain length. Multiple grains overlap (controlled by **MORPH**) to create smooth, evolving textures.
+**Grains** are short audio fragments played back with windowing (Hann envelope). The **GRAIN SIZE** parameter determines grain length. Multiple grains overlap (controlled by **DENSITY**) to create smooth, evolving textures.
 
-### Varispeed
-**VARISPEED** controls playback speed and direction:
+### Speed
+**SPEED** controls playback speed and direction:
 - Center = stopped (playback paused)
 - Right of center = forward playback (faster as you turn right)
 - Left of center = reverse playback (faster as you turn left)
@@ -174,13 +174,13 @@ All parameters have dedicated CV inputs with the following scaling:
 
 #### RECORD_BUTTON (Range: 0-1)
 - **Type**: Toggle button
-- **Function**: Enable/disable sound-on-sound recording
+- **Function**: Enable/disable mix recording
 - **Behavior**:
   - Press once → start recording (button lights up)
-  - Record into current splice position
+  - Record into current marker position
   - Buffer clearing depends on OVERDUB_TOGGLE state (see below)
-  - Automatic splice creation when first input arrives
-  - Recording stops at splice boundary or when button pressed again
+  - Automatic marker creation when first input arrives
+  - Recording stops at marker boundary or when button pressed again
 - **Audio Routing**: Sums L/R inputs, records mono into buffer
 
 #### OVERDUB_TOGGLE (Range: 0-1)
@@ -197,19 +197,19 @@ All parameters have dedicated CV inputs with the following scaling:
 
 #### PLAY_BUTTON (Range: 0-1)
 - **Type**: Trigger button with gate input
-- **Function**: Retrigger playback from beginning of current splice
+- **Function**: Retrigger playback from beginning of current marker
 - **Behavior**:
   - Button press or gate input rising edge → restart grain engine
-  - Resets playhead to current splice start
-  - Works even when varispeed is at zero (stopped)
+  - Resets playhead to current marker start
+  - Works even when speed is at zero (stopped)
 - **Use Case**: Rhythmic retriggering, live performance control
 
 ### Granular Controls
 
-#### VARISPEED_PARAM (Range: -1 to +1)
+#### SPEED_PARAM (Range: -1 to +1)
 - **Units**: Bipolar speed control
 - **Default**: 0.0 (stopped)
-- **CV Modulation**: Multiplicative from VARISPEED_CV input (0-10V → -1 to +1)
+- **CV Modulation**: Multiplicative from SPEED_CV input (0-10V → -1 to +1)
 - **DSP Mapping**:
   - -1.0 → maximum reverse speed
   - -0.5 → half speed reverse
@@ -217,9 +217,9 @@ All parameters have dedicated CV inputs with the following scaling:
   - +0.5 → half speed forward
   - +1.0 → maximum forward speed
 - **Speed Range**: ±4 octaves (0.0625x to 16x)
-- **Effect**: Controls playback direction and rate; at zero, slide knob remains functional for splice creation
+- **Effect**: Controls playback direction and rate; at zero, scan knob remains functional for marker creation
 
-#### MORPH_PARAM (Range: 0-1)
+#### DENSITY_PARAM (Range: 0-1)
 - **Units**: Normalized overlap amount
 - **Default**: 0.0 (single voice)
 - **DSP Mapping**:
@@ -230,21 +230,21 @@ All parameters have dedicated CV inputs with the following scaling:
 - **Voice Behavior**:
   - Single voice: clean playback, no granular effect
   - Multiple voices: overlapping grains with pitch/pan randomization
-  - Higher morph = denser, more "swarm-like" texture
-- **Trigger Spacing**: Voices triggered at equal phase intervals within gene window
+  - Higher density = denser, more "swarm-like" texture
+- **Trigger Spacing**: Voices triggered at equal phase intervals within grain window
 
-#### ORGANIZE_PARAM (Range: 0-1)
-- **Units**: Normalized splice selector
-- **Default**: 0.0 (first splice)
-- **Function**: Manual splice navigation via knob
-- **DSP Mapping**: Maps knob position to splice array index
-  - 0.0 → first splice
-  - 0.5 → middle splice
-  - 1.0 → last splice
-- **Behavior**: Smoothly transitions between splices as you turn the knob
-- **Priority**: Lower than SHIFT button (shift overrides organize)
+#### SELECT_PARAM (Range: 0-1)
+- **Units**: Normalized marker selector
+- **Default**: 0.0 (first marker)
+- **Function**: Manual marker navigation via knob
+- **DSP Mapping**: Maps knob position to marker array index
+  - 0.0 → first marker
+  - 0.5 → middle marker
+  - 1.0 → last marker
+- **Behavior**: Smoothly transitions between markers as you turn the knob
+- **Priority**: Lower than NEXT button (next overrides select)
 
-#### GENE_SIZE_PARAM (Range: 0.05-5.0 seconds)
+#### GRAIN_SIZE_PARAM (Range: 0.05-5.0 seconds)
 - **Units**: Seconds
 - **Default**: 1.0 second
 - **Function**: Sets the length of each grain window
@@ -253,91 +253,91 @@ All parameters have dedicated CV inputs with the following scaling:
   - 0.5s → medium grains, rhythmic variations
   - 2.0s → long grains, smooth transitions
   - 5.0s → very long grains, almost continuous playback
-- **Interaction**: Works with SLIDE to create window within splice
-- **Note**: Gene size cannot exceed splice length (automatically clamped)
+- **Interaction**: Works with SCAN to create window within marker
+- **Note**: Grain size cannot exceed marker length (automatically clamped)
 
-#### SLIDE_PARAM (Range: 0-1)
-- **Units**: Normalized position within splice
+#### SCAN_PARAM (Range: 0-1)
+- **Units**: Normalized position within marker
 - **Default**: 0.0 (beginning)
-- **Function**: Offsets grain start position within current splice
+- **Function**: Offsets grain start position within current marker
 - **DSP Mapping**:
   ```cpp
-  slideOffset = slide * (spliceLength - geneSamples)
-  grainStart = spliceStart + slideOffset
+  scanOffset = scan * (markerLength - grainSamples)
+  grainStart = markerStart + scanOffset
   ```
 - **Effect**: 
-  - 0.0 → grains start at beginning of splice
-  - 0.5 → grains start halfway through splice
-  - 1.0 → grains start at end of splice (minus gene size)
-- **Special Feature**: Functional even when varispeed is at zero, enabling precise splice creation
+  - 0.0 → grains start at beginning of marker
+  - 0.5 → grains start halfway through marker
+  - 1.0 → grains start at end of marker (minus grain size)
+- **Special Feature**: Functional even when speed is at zero, enabling precise marker creation
 
 ### Navigation Controls
 
-#### SHIFT_BUTTON (Range: 0-1)
+#### NEXT_BUTTON (Range: 0-1)
 - **Type**: Trigger button with gate input
-- **Function**: Immediate jump to next splice
+- **Function**: Immediate jump to next marker
 - **Behavior**:
-  - Button press or gate rising edge → advance to next splice
-  - Wraps around: last splice → first splice
+  - Button press or gate rising edge → advance to next marker
+  - Wraps around: last marker → first marker
   - Updates playhead position instantly
-  - Overrides ORGANIZE knob
-  - Retriggers grain engine at new splice start
-- **Use Case**: Sequential splice navigation, live performance switching
-- **Works When Stopped**: Yes, allows splice selection while varispeed is zero
+  - Overrides SELECT knob
+  - Retriggers grain engine at new marker start
+- **Use Case**: Sequential marker navigation, live performance switching
+- **Works When Stopped**: Yes, allows marker selection while speed is zero
 
-#### SPLICE_BUTTON (Range: 0-1)
+#### MARKER_BUTTON (Range: 0-1)
 - **Type**: Trigger button with gate input
-- **Function**: Create splice marker at current playhead position
+- **Function**: Create marker at current playhead position
 - **Behavior**:
-  - Button press or gate rising edge → insert new splice
-  - Splice created at current grain playhead position (includes slide offset)
-  - **Alternative**: Left-click on waveform display to create splice at any position
-  - Maximum 64 splices supported
+  - Button press or gate rising edge → insert new marker
+  - Marker created at current grain playhead position (includes scan offset)
+  - **Alternative**: Left-click on waveform display to create marker at any position
+  - Maximum 64 markers supported
   - Only active in Normal mode (not while recording)
   - Visual feedback: new marker appears in waveform display
 - **Use Case**: Marking interesting moments, creating rhythmic divisions
-- **Note**: Waveform clicking provides more precise control than button/gate for manual splice creation
+- **Note**: Waveform clicking provides more precise control than button/gate for manual marker creation
 
-#### CLEAR_SPLICES_BUTTON (Range: 0-1)
+#### CLEAR_MARKERS_BUTTON (Range: 0-1)
 - **Type**: Momentary button with LED indicator
-- **Function**: Remove all splice markers from the tape
+- **Function**: Remove all markers from the tape
 - **Behavior**:
-  - Single button press → deletes all splices
+  - Single button press → deletes all markers
   - Buffer content is preserved (audio not affected)
-  - Creates single splice spanning entire used buffer
-  - Resets current splice index to 0
-  - LED: dim when splices exist, off when empty
-- **Use Case**: Quick reset of splice structure, starting fresh navigation
-- **Note**: Same as "Clear All Splices" in context menu
+  - Creates single marker spanning entire used buffer
+  - Resets current marker index to 0
+  - LED: dim when markers exist, off when empty
+- **Use Case**: Quick reset of marker structure, starting fresh navigation
+- **Note**: Same as "Clear All Markers" in context menu
 
-#### SPLICE_COUNT_TOGGLE_BUTTON (Range: 0-1)
+#### MARKER_COUNT_TOGGLE_BUTTON (Range: 0-1)
 - **Type**: Momentary button with LED brightness indicator
-- **Function**: Toggle between automatic evenly-spaced splice configurations
+- **Function**: Toggle between automatic evenly-spaced marker configurations
 - **Behavior**:
-  - Button press → cycles through 4, 8, and 16 splice modes (with wrap-around)
-  - Automatically distributes splice markers evenly across the entire buffer
-  - Replaces all existing splices with new evenly-spaced configuration
+  - Button press → cycles through 4, 8, and 16 marker modes (with wrap-around)
+  - Automatically distributes markers evenly across the entire buffer
+  - Replaces all existing markers with new evenly-spaced configuration
   - LED brightness indicates current mode:
-    - Dim (0.33): 4 splices
-    - Medium (0.66): 8 splices
-    - Bright (1.0): 16 splices
+    - Dim (0.33): 4 markers
+    - Medium (0.66): 8 markers
+    - Bright (1.0): 16 markers
   - Setting persists in patch (saved to JSON)
   - Requires buffer to contain audio (no effect on empty buffer)
-- **Splice Distribution**:
-  - 4 splices: Divides buffer into quarters (0%, 25%, 50%, 75%)
-  - 8 splices: Divides buffer into eighths (0%, 12.5%, 25%, 37.5%, 50%, 62.5%, 75%, 87.5%)
-  - 16 splices: Divides buffer into sixteenths (every 6.25%)
+- **Marker Distribution**:
+  - 4 markers: Divides buffer into quarters (0%, 25%, 50%, 75%)
+  - 8 markers: Divides buffer into eighths (0%, 12.5%, 25%, 37.5%, 50%, 62.5%, 75%, 87.5%)
+  - 16 markers: Divides buffer into sixteenths (every 6.25%)
 - **Use Cases**:
   - Quickly create rhythmic divisions for beat-synced material
   - Set up regular intervals for organized navigation
   - Create evenly-timed sections for looping experiments
-  - Replace manual splice creation with geometric precision
+  - Replace manual marker creation with geometric precision
 - **Workflow Tips**:
   - Use after recording to divide material into equal parts
-  - Combine with SHIFT button to navigate through sections
-  - Use ORGANIZE knob to smoothly scan through positions
-  - Manual splices (via button or waveform click) can be added afterward
-- **Alternative Access**: Also available in context menu as "Splice Count: N (click to cycle)"
+  - Combine with NEXT button to navigate through sections
+  - Use SELECT knob to smoothly scan through positions
+  - Manual markers (via button or waveform click) can be added afterward
+- **Alternative Access**: Also available in context menu as "Marker Count: N (click to cycle)"
 
 ---
 
@@ -366,24 +366,24 @@ All parameters have dedicated CV inputs with the following scaling:
 - **Function**: External control for PLAY button
 - **Behavior**: Rising edge retriggers playback
 
-#### VARISPEED_CV_INPUT
+#### SPEED_CV_INPUT
 - **Type**: CV (control voltage)
 - **Range**: 0-10V → maps to -1 to +1
 - **Function**: Voltage control of playback speed/direction
-- **Scaling**: `finalSpeed = varispeParam + (cvInput - 5V) / 5V`
+- **Scaling**: `finalSpeed = speedParam + (cvInput - 5V) / 5V`
 - **Use Case**: Modulate playback rate with LFO, envelope, or sequencer
 
-#### SPLICE_INPUT
+#### MARKER_INPUT
 - **Type**: Gate/trigger
 - **Voltage**: Schmitt trigger with 0.1V/2.0V thresholds
-- **Function**: External control for splice creation
-- **Behavior**: Rising edge creates splice at current position
+- **Function**: External control for marker creation
+- **Behavior**: Rising edge creates marker at current position
 
-#### SHIFT_INPUT
+#### NEXT_INPUT
 - **Type**: Gate/trigger
 - **Voltage**: Schmitt trigger with 0.1V/2.0V thresholds
-- **Function**: External control for splice navigation
-- **Behavior**: Rising edge advances to next splice
+- **Function**: External control for marker navigation
+- **Behavior**: Rising edge advances to next marker
 
 ---
 
@@ -396,10 +396,10 @@ All parameters have dedicated CV inputs with the following scaling:
 - **Processing Chain**:
   1. Grain engine generates 4 overlapping voices
   2. Each voice applies Hann windowing
-  3. Pitch randomization (high morph)
-  4. Stereo panning (high morph, 3+ voices)
+  3. Pitch randomization (high density)
+  4. Stereo panning (high density, 3+ voices)
   5. Mix down with voice normalization
-  6. Smooth crossfades between splice boundaries
+  6. Smooth crossfades between marker boundaries
   7. Output scaling to Eurorack levels
 
 ---
@@ -411,16 +411,16 @@ All parameters have dedicated CV inputs with the following scaling:
 - **Features**:
   - Real-time waveform rendering with automatic zoom
   - Red playhead cursor showing current position
-  - Blue splice markers (vertical lines)
+  - Blue markers (vertical lines)
   - Interactive hover feedback with visual indicators
   - Customizable waveform color (7 preset options via context menu)
   - Gradient-based bar rendering with SoundCloud-style appearance
   - Dynamic hover highlighting with subtle glow effect
 - **Interaction**:
-  - **Left-click on waveform** → create new splice at click position
-  - **Left-click on splice marker** → select/jump to that splice
-  - **Right-click on splice marker** → delete that marker
-  - **Hover over waveform** → green line preview shows where splice will be created
+  - **Left-click on waveform** → create new marker at click position
+  - **Left-click on marker** → select/jump to that marker
+  - **Right-click on marker** → delete that marker
+  - **Hover over waveform** → green line preview shows where marker will be created
   - **Hover over marker** → red line highlight indicates marker can be deleted
   - **Triangle indicator** → appears at top of hover line showing exact position
   - **Hit detection** → 6-pixel tolerance on each side of markers for easy clicking
@@ -455,34 +455,34 @@ All parameters have dedicated CV inputs with the following scaling:
 ### Context Menu
 - **Load Reel...**: Import WAV file into tape buffer
 - **Save Reel...**: Export current tape buffer as WAV file
-- **Clear Reel**: Erase all recorded audio and reset splices
-- **Splice Count**: Cycle through auto-splice options (4, 8, or 16 evenly-spaced markers)
+- **Clear Reel**: Erase all recorded audio and reset markers
+- **Marker Count**: Cycle through auto-marker options (4, 8, or 16 evenly-spaced markers)
 - **Waveform Color**: Choose from 7 color presets for waveform display
   - Red, Amber, Green, Baby Blue (default), Peach, Pink, White
   - Selected color is marked with checkmark (✓)
   - Changes apply immediately and persist with patch
-- **File Info**: Display current loaded file name, duration, and splice count (when applicable)
+- **File Info**: Display current loaded file name, duration, and marker count (when applicable)
 
 ### Button Controls
-- **Clear Splices Button**: Dedicated button with white LED indicator for quick splice clearing
-  - LED dim (0.3 brightness) when splices exist
-  - LED off when no splices or empty buffer
-  - Provides instant visual feedback of splice structure state
+- **Clear Markers Button**: Dedicated button with white LED indicator for quick marker clearing
+  - LED dim (0.3 brightness) when markers exist
+  - LED off when no markers or empty buffer
+  - Provides instant visual feedback of marker structure state
 
 ---
 
 ## Workflow Examples
 
 ### Basic Recording & Playback
-1. Set **VARISPEED** to center (stopped)
+1. Set **SPEED** to center (stopped)
 2. Press **RECORD** button (lights up)
 3. Play audio into **AUDIO L/R** inputs
-4. First audio creates initial splice automatically
+4. First audio creates initial marker automatically
 5. Press **RECORD** again to stop
-6. **Click on waveform** to create additional splice markers at interesting points
-7. Turn **VARISPEED** right to play forward
-8. Adjust **SLIDE** to explore different positions
-9. **Right-click markers** to remove unwanted splices
+6. **Click on waveform** to create additional markers at interesting points
+7. Turn **SPEED** right to play forward
+8. Adjust **SCAN** to explore different positions
+9. **Right-click markers** to remove unwanted markers
 
 ### Live Looping with Overdubs
 1. Record initial phrase with **OVERDUB** toggle OFF (replace mode)
@@ -491,40 +491,40 @@ All parameters have dedicated CV inputs with the following scaling:
 - **Rhythmic Crushing**: Clock-synced envelope to rate and bits
 - **Random Glitch**: Random CV to bit depth, S&H to rate
 - **Dynamic Mix**: Envelope follower to both mix parameters
-- **Pitch-Follow Filter**: Varispeed CV mult to filter cutoff (via attenuator)
+- **Pitch-Follow Filter**: Speed CV mult to filter cutoff (via attenuator)
 
 2. Toggle **OVERDUB** switch ON (up position) to enable layering
 3. Press **PLAY** to return to start
-4. Turn **VARISPEED** to play back loop
+4. Turn **SPEED** to play back loop
 5. Press **RECORD** - buffer is preserved, ready for layering
 6. New audio merges with existing content (non-destructive)
 7. Repeat steps 3-6 to build up multiple layers
-8. Use **SPLICE** trigger to mark sections
-9. Navigate with **SHIFT** button
+8. Use **MARKER** trigger to mark sections
+9. Navigate with **NEXT** button
 
 ### Granular Texture Creation
 1. Record source material (sustained tones work well)
-2. Set **MORPH** to 0.8-1.0 (4 voices)
-3. Set **GENE SIZE** to 0.1-0.5 seconds (short grains)
-4. Slowly modulate **VARISPEED** with LFO
-5. Use **SLIDE** to scan through audio
+2. Set **DENSITY** to 0.8-1.0 (4 voices)
+3. Set **GRAIN SIZE** to 0.1-0.5 seconds (short grains)
+4. Slowly modulate **SPEED** with LFO
+5. Use **SCAN** to scan through audio
 6. Result: evolving, cloud-like texture
 
 ### Rhythmic Slicing
 1. Record rhythmic material (drums, percussion)
-2. Create splices at each hit using **SPLICE** trigger
-3. Set **VARISPEED** to stopped (center)
-4. Use **SHIFT** gate input with clock to step through slices
-5. Each slice plays as complete rhythmic fragment
-6. Vary **ORGANIZE** knob for non-linear playback order
+2. Create markers at each hit using **MARKER** trigger
+3. Set **SPEED** to stopped (center)
+4. Use **NEXT** gate input with clock to step through markers
+5. Each marker plays as complete rhythmic fragment
+6. Vary **SELECT** knob for non-linear playback order
 
 ### Reverse Echo Effect
 1. Record short phrase
-2. Set **VARISPEED** slightly left of center (slow reverse)
-3. Set **GENE SIZE** to match phrase duration
+2. Set **SPEED** slightly left of center (slow reverse)
+3. Set **GRAIN SIZE** to match phrase duration
 4. Press **PLAY** to retrigger
 5. Result: reverse echo/time-reverse effect
-6. Modulate **SLIDE** for variations
+6. Modulate **SCAN** for variations
 
 ---
 
@@ -541,21 +541,21 @@ All parameters have dedicated CV inputs with the following scaling:
 - **Voices**: Up to 4 simultaneous grains
 - **Window**: Hann (raised cosine) for smooth envelope
 - **Interpolation**: Cubic for high-quality pitch shifting
-- **Voice Spacing**: Phase-based triggers at morph-dependent intervals
-- **Pitch Randomization**: ±10% at high morph settings
+- **Voice Spacing**: Phase-based triggers at density-dependent intervals
+- **Pitch Randomization**: ±10% at high density settings
 - **Stereo Width**: Panning spread for 3+ voices
 
-### Splice System
-- **Maximum**: 64 splices
+### Marker System
+- **Maximum**: 64 markers
 - **Storage**: Array of frame positions with metadata
 - **Navigation**: Linear or knob-based selection
 - **Creation**: Manual (button/gate) or automatic (recording start)
-- **Wraparound**: Playback loops within splice boundaries
+- **Wraparound**: Playback loops within marker boundaries
 
 ### Sample Rate Adaptation
 - **Design**: All DSP runs at Rack engine sample rate
 - **Ratio**: Calculated as `moduleSampleRate / 44100.0`
-- **Affected Parameters**: Varispeed, grain triggers, window phase
+- **Affected Parameters**: Speed, grain triggers, window phase
 - **Buffer**: Fixed 44.1kHz regardless of engine rate
 
 ---
@@ -563,57 +563,57 @@ All parameters have dedicated CV inputs with the following scaling:
 ## Performance Tips
 
 ### CPU Optimization
-- **Lower Morph** = fewer active voices = less CPU
-- Single voice mode (morph = 0) is most efficient
-- Gene size doesn't significantly affect CPU usage
+- **Lower Density** = fewer active voices = less CPU
+- Single voice mode (density = 0) is most efficient
+- Grain size doesn't significantly affect CPU usage
 - Recording is lightweight (simple buffer write)
 
 ### Memory Considerations
 - 300-second buffer ≈ 50MB RAM
 - Patch files include full buffer (can be large)
 - Consider clearing tape before saving if empty
-- Each splice adds minimal overhead (~16 bytes)
+- Each marker adds minimal overhead (~16 bytes)
 
 ### Musical Tips
-- **Smooth Transitions**: Use high morph + medium gene size
-- **Glitchy Textures**: Low gene size + fast varispeed changes
-- **Natural Loops**: Align splices with musical phrases
-- **Drone Synthesis**: Long gene size + slow varispeed + high morph
-- **Rhythmic Stutter**: Fast shift triggering with short splices
+- **Smooth Transitions**: Use high density + medium grain size
+- **Glitchy Textures**: Low grain size + fast speed changes
+- **Natural Loops**: Align markers with musical phrases
+- **Drone Synthesis**: Long grain size + slow speed + high density
+- **Rhythmic Stutter**: Fast next triggering with short markers
 
 ---
 
 ## Advanced Techniques
 
 ### Probability-Based Navigation
-- Patch random CV to quantizer → shift input
-- Creates unpredictable splice navigation
-- Set range to control which splices are accessible
+- Patch random CV to quantizer → next input
+- Creates unpredictable marker navigation
+- Set range to control which markers are accessible
 
 ### Envelope-Controlled Grains
-- Route envelope to varispeed CV
+- Route envelope to speed CV
 - Creates attack/decay on grain playback
-- Combine with fast shift triggers for percussive effects
+- Combine with fast next triggers for percussive effects
 
 ### Feedback Recording
 - Route tapestry output back to input (with mixer level control)
 - Creates evolving, degrading tape loops
 - Add delay/reverb in feedback path for complex textures
 
-### Multi-Splice Sequencing
-- Create 8/16 splices at equal intervals
-- Use sequencer to send gates to shift input
+### Multi-Marker Sequencing
+- Create 8/16 markers at equal intervals
+- Use sequencer to send gates to next input
 - Synchronize with clock for rhythmic patterns
-- Vary organize knob while sequencing for variations
+- Vary select knob while sequencing for variations
 
 ---
 
 ## Troubleshooting
 
 ### No Sound Output
-- Check varispeed is not at center (stopped)
+- Check speed is not at center (stopped)
 - Verify audio was actually recorded (check waveform display)
-- Ensure splice exists (recording creates initial splice)
+- Ensure marker exists (recording creates initial marker)
 - Check output connections
 
 ### Recording Not Working
@@ -624,14 +624,14 @@ All parameters have dedicated CV inputs with the following scaling:
 
 ### Playhead Stuck
 - This was fixed in v2.0 - update to latest version
-- If using old version: restart playback or shift to new splice
+- If using old version: restart playback or next to new marker
 
-### Splices Not Creating
+### Markers Not Creating
 - **Try clicking directly on waveform** - most reliable method
-- Ensure not in record mode when using splice trigger button/gate
+- Ensure not in record mode when using marker trigger button/gate
 - Check that playhead position is valid (within buffer)
-- Maximum 64 splices - clear some if full
-- When hovering, green line should appear showing where splice will be created
+- Maximum 64 markers - clear some if full
+- When hovering, green line should appear showing where marker will be created
 - **TapestryExpander**: DC blocking should prevent most clicks
 
 ### Expander Not Connecting
@@ -647,13 +647,13 @@ All parameters have dedicated CV inputs with the following scaling:
 - BitCrusher: needs bits < 16 or rate > 0 to hear effect
 - Filter: needs cutoff < 1.0 to hear filtering
 - Connection LED must be lit for expander to work
-- Cannot create splice at frame 0 (beginning) - this is always a splice marker
+- Cannot create marker at frame 0 (beginning) - this is always a marker
 
 ### Audio Glitches/Clicks
-- Increase gene size for smoother playback
-- Raise morph value for more overlap
+- Increase grain size for smoother playback
+- Raise density value for more overlap
 - Check CPU usage (lower voice count if needed)
-- Ensure varispeed changes are gradual
+- Ensure speed changes are gradual
 
 ### Key Differences (TapestryExpander)
 - **Optional Module**: Separate 4HP expander vs built-in effects
@@ -661,7 +661,7 @@ All parameters have dedicated CV inputs with the following scaling:
 - **Moog VCF**: Software emulation of classic filter
 - **Independent Mix**: Separate dry/wet for each effect
 - **CV Control**: All parameters voltage-controllable
-- **Varispeed Playback**: Forward and reverse operation
+- **Speed Playback**: Forward and reverse operation
 - **Effects DSP**: BitCrusher and Moog VCF emulation (TapestryExpander)
 - **UI/Display**: NanoVG waveform rendering
 
@@ -684,7 +684,7 @@ All parameters have dedicated CV inputs with the following scaling:
 ### Key Differences
 - **Digital**: Pure software implementation (no tape saturation/character)
 - **Stereo I/O**: Full stereo recording and playback paths
-- **Visual Feedback**: Real-time waveform display with splice markers
+- **Visual Feedback**: Real-time waveform display with markers
 - **Longer Buffer**: 300 seconds vs hardware limitations
 - **CV Inputs**: More extensive CV control options
 - **No Vari-Tone**: Pitch shifting not implemented separately
@@ -707,7 +707,7 @@ All parameters have dedicated CV inputs with the following scaling:
 ### v2.0.0 (2025-12-19)
 - Initial release
 - Core granular engine with 4-voice overlap
-- Sound-on-sound recording with overdub toggle
+- Mix recording with overdub toggle
   - Replace mode (default): clears buffer on new recording
   - Overdub mode: preserves existing audio for layering
 - Splice management system

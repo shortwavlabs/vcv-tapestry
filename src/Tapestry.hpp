@@ -22,7 +22,7 @@ struct TapestryWidget;
  * - Splices: Up to 300 markers per reel
  * - Genes: Granular particles with overlap control
  * - Vari-Speed: Bipolar speed/direction control
- * - Sound On Sound: Crossfade recording
+ * - Mix: Crossfade recording
  * - Time Stretch: Clock-synced granular playback
  */
 
@@ -51,7 +51,7 @@ struct Tapestry : Module
   enum ParamIds
   {
     // Main knobs
-    SOS_PARAM,              // Sound On Sound (combo pot)
+    SOS_PARAM,              // Mix (combo pot)
     GENE_SIZE_PARAM,        // Gene size
     GENE_SIZE_CV_ATTEN,     // Gene size CV attenuverter
     VARI_SPEED_PARAM,       // Vari-Speed bipolar knob
@@ -283,23 +283,23 @@ struct Tapestry : Module
     config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
     // Main knobs
-    configParam(SOS_PARAM, 0.0f, 1.0f, 1.0f, "Sound On Sound", "%", 0.0f, 100.0f);
-    configParam(GENE_SIZE_PARAM, 0.0f, 1.0f, 0.0f, "Gene Size", "%", 0.0f, 100.0f);
-    configParam(GENE_SIZE_CV_ATTEN, -1.0f, 1.0f, 0.0f, "Gene Size CV", "%", 0.0f, 100.0f);
-    configParam(VARI_SPEED_PARAM, 0.0f, 1.0f, 0.5f, "Vari-Speed");
-    configParam(VARI_SPEED_CV_ATTEN, -1.0f, 1.0f, 0.0f, "Vari-Speed CV", "%", 0.0f, 100.0f);
-    configParam(MORPH_PARAM, 0.0f, 1.0f, 0.3f, "Morph", "%", 0.0f, 100.0f);
-    configParam(SLIDE_PARAM, 0.0f, 1.0f, 0.0f, "Slide", "%", 0.0f, 100.0f);
-    configParam(SLIDE_CV_ATTEN, -1.0f, 1.0f, 0.0f, "Slide CV", "%", 0.0f, 100.0f);
-    auto* organizeParam = configParam(ORGANIZE_PARAM, 0.0f, 1.0f, 0.0f, "Organize");
+    configParam(SOS_PARAM, 0.0f, 1.0f, 1.0f, "Mix", "%", 0.0f, 100.0f);
+    configParam(GENE_SIZE_PARAM, 0.0f, 1.0f, 0.0f, "Grain Size", "%", 0.0f, 100.0f);
+    configParam(GENE_SIZE_CV_ATTEN, -1.0f, 1.0f, 0.0f, "Grain Size CV", "%", 0.0f, 100.0f);
+    configParam(VARI_SPEED_PARAM, 0.0f, 1.0f, 0.5f, "Speed");
+    configParam(VARI_SPEED_CV_ATTEN, -1.0f, 1.0f, 0.0f, "Speed CV", "%", 0.0f, 100.0f);
+    configParam(MORPH_PARAM, 0.0f, 1.0f, 0.3f, "Density", "%", 0.0f, 100.0f);
+    configParam(SLIDE_PARAM, 0.0f, 1.0f, 0.0f, "Scan", "%", 0.0f, 100.0f);
+    configParam(SLIDE_CV_ATTEN, -1.0f, 1.0f, 0.0f, "Scan CV", "%", 0.0f, 100.0f);
+    auto* organizeParam = configParam(ORGANIZE_PARAM, 0.0f, 1.0f, 0.0f, "Select");
     organizeParam->snapEnabled = true;
 
     // Buttons
     configButton(REC_BUTTON, "Record");
-    configButton(SPLICE_BUTTON, "Splice");
-    configButton(SHIFT_BUTTON, "Shift");
-    configButton(CLEAR_SPLICES_BUTTON, "Clear Splices");
-    configButton(SPLICE_COUNT_TOGGLE_BUTTON, "Auto Splice");
+    configButton(SPLICE_BUTTON, "Marker");
+    configButton(SHIFT_BUTTON, "Next");
+    configButton(CLEAR_SPLICES_BUTTON, "Clear Markers");
+    configButton(SPLICE_COUNT_TOGGLE_BUTTON, "Auto Markers");
 
     // Toggles
     configSwitch(OVERDUB_TOGGLE, 0.0f, 1.0f, 0.0f, "Overdub Mode",
@@ -311,24 +311,24 @@ struct Tapestry : Module
 
     // CV inputs
     configInput(SOS_CV_INPUT, "S.O.S. CV");
-    configInput(GENE_SIZE_CV_INPUT, "Gene Size CV");
-    configInput(VARI_SPEED_CV_INPUT, "Vari-Speed CV");
-    configInput(MORPH_CV_INPUT, "Morph CV");
-    configInput(SLIDE_CV_INPUT, "Slide CV");
-    configInput(ORGANIZE_CV_INPUT, "Organize CV");
+    configInput(GENE_SIZE_CV_INPUT, "Grain Size CV");
+    configInput(VARI_SPEED_CV_INPUT, "Speed CV");
+    configInput(MORPH_CV_INPUT, "Density CV");
+    configInput(SLIDE_CV_INPUT, "Scan CV");
+    configInput(ORGANIZE_CV_INPUT, "Select CV");
 
     // Gate inputs
     configInput(CLK_INPUT, "Clock");
     configInput(PLAY_INPUT, "Play Gate");
     configInput(REC_INPUT, "Record Gate");
-    configInput(SPLICE_INPUT, "Splice Gate");
-    configInput(SHIFT_INPUT, "Shift Gate");
+    configInput(SPLICE_INPUT, "Marker Gate");
+    configInput(SHIFT_INPUT, "Next Gate");
 
     // Outputs
     configOutput(AUDIO_OUT_L, "Audio L");
     configOutput(AUDIO_OUT_R, "Audio R");
     configOutput(CV_OUTPUT, "CV");
-    configOutput(EOSG_OUTPUT, "End of Splice/Gene");
+    configOutput(EOSG_OUTPUT, "End of Marker/Grain");
 
     // Set bypass routes
     configBypass(AUDIO_IN_L, AUDIO_OUT_L);
@@ -407,16 +407,16 @@ struct Tapestry : Module
     return static_cast<size_t>(dsp.getGrainEngine().getPlayheadPosition());
   }
 
-  // Set splice count and distribute evenly across buffer
+  // Set marker count and distribute evenly across buffer
   void setSpliceCount(int n);
 
-  // Get current splice count value
+  // Get current marker count value
   int getCurrentSpliceCount() const
   {
     return kSpliceCountOptions[spliceCountMode];
   }
 
-  // Update organize parameter range based on current splice count
+  // Update select parameter range based on current marker count
   void updateOrganizeParamRange();
 };
 
