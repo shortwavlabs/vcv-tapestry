@@ -1413,8 +1413,8 @@ TapestryWidget::TapestryWidget(Tapestry* module)
   // Reel display
   ReelDisplay* display = new ReelDisplay();
   display->module = module;
-  display->box.pos = Vec(10, 25);
-  display->box.size = Vec(box.size.x - 20, 60);
+  display->box.pos = Vec(0, 15);
+  display->box.size = Vec(box.size.x, 70);
   addChild(display);
   if (module)
   {
