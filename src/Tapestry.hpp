@@ -293,6 +293,7 @@ struct Tapestry : Module
     configParam(SLIDE_CV_ATTEN, -1.0f, 1.0f, 0.0f, "Scan CV", "%", 0.0f, 100.0f);
     auto* organizeParam = configParam(ORGANIZE_PARAM, 0.0f, 1.0f, 0.0f, "Select");
     organizeParam->snapEnabled = true;
+    organizeParam->displayOffset = 1.0f; // Display as 1-based instead of 0-based
 
     // Buttons
     configButton(REC_BUTTON, "Record");

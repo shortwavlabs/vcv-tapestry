@@ -47,12 +47,14 @@ void Tapestry::process(const ProcessArgs& args)
   
   // Organize parameter: normalize based on splice count
   size_t numSplices = dsp.getSpliceManager().getNumSplices();
-  if (numSplices > 0)
+  if (numSplices > 1)
   {
-    dsp.setOrganize(params[ORGANIZE_PARAM].getValue() / static_cast<float>(numSplices));
+    // Normalize to 0.0-1.0 range: divide by (numSplices - 1) so max value maps to 1.0
+    dsp.setOrganize(params[ORGANIZE_PARAM].getValue() / static_cast<float>(numSplices - 1));
   }
   else
   {
+    // With 0 or 1 splice, just use 0.0
     dsp.setOrganize(0.0f);
   }
   
@@ -712,7 +714,8 @@ void Tapestry::updateOrganizeParamRange()
   
   if (numSplices > 0)
   {
-    float newMax = static_cast<float>(numSplices);
+    // Max value should be (numSplices - 1) to give us indices 0 to (numSplices-1)
+    float newMax = static_cast<float>(numSplices - 1);
     organizeParamQuantity->maxValue = newMax;
     // Set value to maintain the same proportional position
     organizeParamQuantity->setValue(normalizedPosition * newMax);
