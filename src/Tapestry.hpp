@@ -290,7 +290,7 @@ struct Tapestry : Module
     configParam(SOS_PARAM, 0.0f, 1.0f, 1.0f, "Mix", "%", 0.0f, 100.0f);
     configParam(GENE_SIZE_PARAM, 0.0f, 1.0f, 0.0f, "Grain Size", "%", 0.0f, 100.0f);
     configParam(GENE_SIZE_CV_ATTEN, -1.0f, 1.0f, 0.0f, "Grain Size CV", "%", 0.0f, 100.0f);
-    configParam(VARI_SPEED_PARAM, 0.0f, 1.0f, 0.5f, "Speed");
+    configParam(VARI_SPEED_PARAM, 0.0f, 1.0f, 0.5f, "Speed", "%", 0.0f, 200.0f, -100.0f);
     configParam(VARI_SPEED_CV_ATTEN, -1.0f, 1.0f, 0.0f, "Speed CV", "%", 0.0f, 100.0f);
     configParam(MORPH_PARAM, 0.0f, 1.0f, 0.3f, "Density", "%", 0.0f, 100.0f);
     configParam(SLIDE_PARAM, 0.0f, 1.0f, 0.0f, "Scan", "%", 0.0f, 100.0f);
