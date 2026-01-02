@@ -98,6 +98,8 @@ struct Tapestry : Module
     REC_INPUT,
     SPLICE_INPUT,
     SHIFT_INPUT,
+    CLEAR_SPLICES_INPUT,
+    SPLICE_COUNT_TOGGLE_INPUT,
 
     NUM_INPUTS
   };
@@ -158,6 +160,8 @@ struct Tapestry : Module
   dsp::SchmittTrigger recInputTrigger;
   dsp::SchmittTrigger spliceInputTrigger;
   dsp::SchmittTrigger shiftInputTrigger;
+  dsp::SchmittTrigger clearSplicesInputTrigger;
+  dsp::SchmittTrigger spliceCountToggleInputTrigger;
 
   //--------------------------------------------------------------------------
   // Button Combo State
@@ -324,6 +328,8 @@ struct Tapestry : Module
     configInput(REC_INPUT, "Record Gate");
     configInput(SPLICE_INPUT, "Marker Gate");
     configInput(SHIFT_INPUT, "Next Gate");
+    configInput(CLEAR_SPLICES_INPUT, "Clear Markers Gate");
+    configInput(SPLICE_COUNT_TOGGLE_INPUT, "Auto Markers Gate");
 
     // Outputs
     configOutput(AUDIO_OUT_L, "Audio L");

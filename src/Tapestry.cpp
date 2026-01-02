@@ -478,6 +478,31 @@ void Tapestry::processGateInputs(const ProcessArgs& args)
       dsp.onShiftTrigger();
     }
   }
+
+  // CLEAR SPLICES gate input
+  if (inputs[CLEAR_SPLICES_INPUT].isConnected())
+  {
+    if (clearSplicesInputTrigger.process(inputs[CLEAR_SPLICES_INPUT].getVoltage(),
+                                          0.1f, ShortwavDSP::TapestryConfig::kGateTriggerThreshold))
+    {
+      dsp.deleteAllMarkers();
+      spliceCountMode = 0;  // Reset to 4 splices for next toggle
+      updateOrganizeParamRange();
+      params[ORGANIZE_PARAM].setValue(0.0f);  // Reset organize to 0
+    }
+  }
+
+  // SPLICE COUNT TOGGLE gate input
+  if (inputs[SPLICE_COUNT_TOGGLE_INPUT].isConnected())
+  {
+    if (spliceCountToggleInputTrigger.process(inputs[SPLICE_COUNT_TOGGLE_INPUT].getVoltage(),
+                                               0.1f, ShortwavDSP::TapestryConfig::kGateTriggerThreshold))
+    {
+      // Apply current mode first, then cycle to next
+      setSpliceCount(kSpliceCountOptions[spliceCountMode]);
+      spliceCountMode = (spliceCountMode + 1) % kNumSpliceCountOptions;
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -1486,10 +1511,12 @@ TapestryWidget::TapestryWidget(Tapestry* module)
   addInput(createInputCentered<PJ301MPort>(Vec(95, yPos), module, Tapestry::REC_INPUT));
   addInput(createInputCentered<PJ301MPort>(Vec(130, yPos), module, Tapestry::SPLICE_INPUT));
   addInput(createInputCentered<PJ301MPort>(Vec(165, yPos), module, Tapestry::SHIFT_INPUT));
+  addInput(createInputCentered<PJ301MPort>(Vec(200, yPos), module, Tapestry::CLEAR_SPLICES_INPUT));
+  addInput(createInputCentered<PJ301MPort>(Vec(235, yPos), module, Tapestry::SPLICE_COUNT_TOGGLE_INPUT));
 
   // CV and EOSG outputs
-  addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 60, yPos), module, Tapestry::EOSG_OUTPUT));
-  addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 25, yPos), module, Tapestry::CV_OUTPUT));
+  addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 25, yPos), module, Tapestry::EOSG_OUTPUT));
+  addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 25, yPos + 30), module, Tapestry::CV_OUTPUT));
 
   // Buttons with LEDs
   yPos = 365;
