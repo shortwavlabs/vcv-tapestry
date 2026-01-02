@@ -1458,7 +1458,7 @@ TapestryWidget::TapestryWidget(Tapestry* module)
   float controlsPos = 110;
 
   // Overdub toggle switch (small switch near record button)
-  addParam(createParamCentered<CKSS>(Vec(xCenter - 90, controlsPos), module, Tapestry::OVERDUB_TOGGLE));
+  addParam(createParamCentered<CKSS>(Vec(25, controlsPos), module, Tapestry::OVERDUB_TOGGLE));
 
   addParam(createParamCentered<LEDButton>(Vec(xCenter - 60, controlsPos), module, Tapestry::REC_BUTTON));
   addChild(createLightCentered<MediumLight<RedLight>>(Vec(xCenter - 60, controlsPos), module, Tapestry::REC_LED));
@@ -1478,7 +1478,7 @@ TapestryWidget::TapestryWidget(Tapestry* module)
   addChild(createLightCentered<MediumLight<BlueLight>>(Vec(xCenter + 60, controlsPos), module, Tapestry::SPLICE_COUNT_LED));
 
   // Select knob
-  addParam(createParamCentered<RoundBlackKnob>(Vec(xCenter + 95, controlsPos), module, Tapestry::ORGANIZE_PARAM));
+  addParam(createParamCentered<RoundBlackKnob>(Vec(box.size.x - 25, controlsPos), module, Tapestry::ORGANIZE_PARAM));
 
   // CV controls
   addInput(createInputCentered<PJ301MPort>(Vec(xCenter - 60, controlsPos + 30), module, Tapestry::REC_INPUT));
@@ -1486,7 +1486,7 @@ TapestryWidget::TapestryWidget(Tapestry* module)
   addInput(createInputCentered<PJ301MPort>(Vec(xCenter, controlsPos + 30), module, Tapestry::SHIFT_INPUT));
   addInput(createInputCentered<PJ301MPort>(Vec(xCenter + 30, controlsPos + 30), module, Tapestry::CLEAR_SPLICES_INPUT));
   addInput(createInputCentered<PJ301MPort>(Vec(xCenter + 60, controlsPos + 30), module, Tapestry::SPLICE_COUNT_TOGGLE_INPUT));
-  addInput(createInputCentered<PJ301MPort>(Vec(xCenter + 95, controlsPos + 30), module, Tapestry::ORGANIZE_CV_INPUT));
+  addInput(createInputCentered<PJ301MPort>(Vec(box.size.x - 25, controlsPos + 30), module, Tapestry::ORGANIZE_CV_INPUT));
 
   // ------------------------------------------------------------------------------
 
