@@ -1500,6 +1500,12 @@ TapestryWidget::TapestryWidget(Tapestry* module)
   addParam(createParamCentered<Trimpot>(Vec(xCenter - 30, speedPos + 40), module, Tapestry::VARI_SPEED_CV_ATTEN));
   addInput(createInputCentered<PJ301MPort>(Vec(xCenter + 30, speedPos + 40), module, Tapestry::VARI_SPEED_CV_INPUT));
 
+   // Activity windows (RGB LEDs)
+  addChild(createLightCentered<LargeLight<RedGreenBlueLight>>(
+      Vec(55, speedPos), module, Tapestry::VARI_SPEED_LEFT_LIGHT));
+  addChild(createLightCentered<LargeLight<RedGreenBlueLight>>(
+      Vec(box.size.x - 55, speedPos), module, Tapestry::VARI_SPEED_RIGHT_LIGHT));
+
   // ------------------------------------------------------------------------------
 
   // Inputs / Outputs
@@ -1543,12 +1549,6 @@ TapestryWidget::TapestryWidget(Tapestry* module)
 
   // // Vari-Speed section
   // yPos = 230;
-
-  // // Activity windows (RGB LEDs)
-  // addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(
-  //     Vec(55, yPos), module, Tapestry::VARI_SPEED_LEFT_LIGHT));
-  // addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(
-  //     Vec(box.size.x - 55, yPos), module, Tapestry::VARI_SPEED_RIGHT_LIGHT));
 
   // // Organize knob and CV
   
