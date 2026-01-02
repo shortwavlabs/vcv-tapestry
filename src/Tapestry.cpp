@@ -607,6 +607,7 @@ void Tapestry::updateLights(const ProcessArgs& args)
   // Flash during reel select or clock input
   bool flash = (dsp.getModuleMode() == ShortwavDSP::ModuleMode::ReelSelect) ||
                (inputs[CLK_INPUT].isConnected() && clkTrigger.isHigh());
+  // TODO: adjust logic to `!flash` for clock
   if (flash && ((lightDivider / 64) % 2 == 0))
   {
     r *= 0.3f;
@@ -1449,7 +1450,39 @@ TapestryWidget::TapestryWidget(Tapestry* module)
     module->reelDisplay = display;
   }
 
-  // BOTTOM ROW CONTROLS
+  float xCenter = box.size.x / 2;
+
+  // ------------------------------------------------------------------------------
+
+  // Reel Controls
+  float controlsPos = 110;
+
+  // Overdub toggle switch (small switch near record button)
+  addParam(createParamCentered<CKSS>(Vec(xCenter - 90, controlsPos), module, Tapestry::OVERDUB_TOGGLE));
+
+  addParam(createParamCentered<LEDButton>(Vec(xCenter - 60, controlsPos), module, Tapestry::REC_BUTTON));
+  addChild(createLightCentered<MediumLight<RedLight>>(Vec(xCenter - 60, controlsPos), module, Tapestry::REC_LED));
+
+  addParam(createParamCentered<LEDButton>(Vec(xCenter - 30, controlsPos), module, Tapestry::SPLICE_BUTTON));
+  addChild(createLightCentered<MediumLight<YellowLight>>(Vec(xCenter - 30, controlsPos), module, Tapestry::SPLICE_LED));
+
+  addParam(createParamCentered<LEDButton>(Vec(xCenter, controlsPos), module, Tapestry::SHIFT_BUTTON));
+  addChild(createLightCentered<MediumLight<GreenLight>>(Vec(xCenter, controlsPos), module, Tapestry::SHIFT_LED));
+
+  // Clear Splices button to the right
+  addParam(createParamCentered<LEDButton>(Vec(xCenter + 30, controlsPos), module, Tapestry::CLEAR_SPLICES_BUTTON));
+  addChild(createLightCentered<MediumLight<WhiteLight>>(Vec(xCenter + 30, controlsPos), module, Tapestry::CLEAR_SPLICES_LED));
+
+  // Splice Count Toggle button (next to Clear Splices)
+  addParam(createParamCentered<LEDButton>(Vec(xCenter + 60, controlsPos), module, Tapestry::SPLICE_COUNT_TOGGLE_BUTTON));
+  addChild(createLightCentered<MediumLight<BlueLight>>(Vec(xCenter + 60, controlsPos), module, Tapestry::SPLICE_COUNT_LED));
+
+  // Select knob
+  addParam(createParamCentered<RoundBlackKnob>(Vec(xCenter + 95, controlsPos), module, Tapestry::ORGANIZE_PARAM));
+
+  // ------------------------------------------------------------------------------
+
+  // Inputs / Outputs
   float bottomRowPos = box.size.y - 35;
   // Audio inputs
   addInput(createInputCentered<PJ301MPort>(Vec(25, bottomRowPos - 30), module, Tapestry::AUDIO_IN_L));
@@ -1460,9 +1493,9 @@ TapestryWidget::TapestryWidget(Tapestry* module)
   addInput(createInputCentered<PJ301MPort>(Vec(60, bottomRowPos), module, Tapestry::SOS_CV_INPUT));
 
   // Clock and Play inputs
-  addInput(createInputCentered<PJ301MPort>(Vec(box.size.x / 2 - 30, bottomRowPos - 30), module, Tapestry::CLK_INPUT));
-  addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(Vec(box.size.x / 2 - 2.5, bottomRowPos - 30), module, Tapestry::REEL_LIGHT));
-  addInput(createInputCentered<PJ301MPort>(Vec(box.size.x / 2 + 25, bottomRowPos - 30), module, Tapestry::PLAY_INPUT));
+  addInput(createInputCentered<PJ301MPort>(Vec(xCenter - 30, bottomRowPos - 30), module, Tapestry::CLK_INPUT));
+  addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(Vec(xCenter - 2.5, bottomRowPos - 30), module, Tapestry::REEL_LIGHT));
+  addInput(createInputCentered<PJ301MPort>(Vec(xCenter + 25, bottomRowPos - 30), module, Tapestry::PLAY_INPUT));
 
   // CV and EOSG outputs
   addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 60, bottomRowPos - 30), module, Tapestry::EOSG_OUTPUT));
@@ -1504,7 +1537,6 @@ TapestryWidget::TapestryWidget(Tapestry* module)
   // addInput(createInputCentered<PJ301MPort>(Vec(box.size.x / 2 + 30, yPos), module, Tapestry::VARI_SPEED_CV_INPUT));
 
   // // Organize knob and CV
-  // addParam(createParamCentered<RoundBlackKnob>(Vec(box.size.x - 45, yPos), module, Tapestry::ORGANIZE_PARAM));
   // addInput(createInputCentered<PJ301MPort>(Vec(box.size.x - 45, yPos + 35), module, Tapestry::ORGANIZE_CV_INPUT));
 
   // // Activity LEDs row
@@ -1520,28 +1552,6 @@ TapestryWidget::TapestryWidget(Tapestry* module)
   // addInput(createInputCentered<PJ301MPort>(Vec(165, yPos), module, Tapestry::SHIFT_INPUT));
   // addInput(createInputCentered<PJ301MPort>(Vec(200, yPos), module, Tapestry::CLEAR_SPLICES_INPUT));
   // addInput(createInputCentered<PJ301MPort>(Vec(235, yPos), module, Tapestry::SPLICE_COUNT_TOGGLE_INPUT));
-
-  // // Buttons with LEDs
-  // yPos = 365;
-  // addParam(createParamCentered<LEDButton>(Vec(95, yPos), module, Tapestry::REC_BUTTON));
-  // addChild(createLightCentered<MediumLight<RedLight>>(Vec(95, yPos), module, Tapestry::REC_LED));
-
-  // addParam(createParamCentered<LEDButton>(Vec(130, yPos), module, Tapestry::SPLICE_BUTTON));
-  // addChild(createLightCentered<MediumLight<YellowLight>>(Vec(130, yPos), module, Tapestry::SPLICE_LED));
-
-  // addParam(createParamCentered<LEDButton>(Vec(165, yPos), module, Tapestry::SHIFT_BUTTON));
-  // addChild(createLightCentered<MediumLight<GreenLight>>(Vec(165, yPos), module, Tapestry::SHIFT_LED));
-
-  // // Clear Splices button to the right
-  // addParam(createParamCentered<LEDButton>(Vec(200, yPos), module, Tapestry::CLEAR_SPLICES_BUTTON));
-  // addChild(createLightCentered<MediumLight<WhiteLight>>(Vec(200, yPos), module, Tapestry::CLEAR_SPLICES_LED));
-
-  // // Splice Count Toggle button (next to Clear Splices)
-  // addParam(createParamCentered<LEDButton>(Vec(235, yPos), module, Tapestry::SPLICE_COUNT_TOGGLE_BUTTON));
-  // addChild(createLightCentered<MediumLight<BlueLight>>(Vec(235, yPos), module, Tapestry::SPLICE_COUNT_LED));
-
-  // // Overdub toggle switch (small switch near record button)
-  // addParam(createParamCentered<CKSS>(Vec(60, 365), module, Tapestry::OVERDUB_TOGGLE));
 }
 
 void TapestryWidget::appendContextMenu(Menu* menu)
