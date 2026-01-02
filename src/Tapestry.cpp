@@ -1514,8 +1514,8 @@ TapestryWidget::TapestryWidget(Tapestry* module)
 
   // Clock and Play inputs
   addInput(createInputCentered<PJ301MPort>(Vec(xCenter - 30, bottomRowPos - 30), module, Tapestry::CLK_INPUT));
-  addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(Vec(xCenter - 2.5, bottomRowPos - 30), module, Tapestry::REEL_LIGHT));
-  addInput(createInputCentered<PJ301MPort>(Vec(xCenter + 25, bottomRowPos - 30), module, Tapestry::PLAY_INPUT));
+  addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(Vec(xCenter, bottomRowPos - 30), module, Tapestry::REEL_LIGHT));
+  addInput(createInputCentered<PJ301MPort>(Vec(xCenter + 30, bottomRowPos - 30), module, Tapestry::PLAY_INPUT));
 
   // CV and EOSG outputs
   addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 60, bottomRowPos - 30), module, Tapestry::EOSG_OUTPUT));
