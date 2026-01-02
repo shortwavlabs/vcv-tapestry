@@ -1449,96 +1449,99 @@ TapestryWidget::TapestryWidget(Tapestry* module)
     module->reelDisplay = display;
   }
 
-  // Audio inputs (top left)
-  float yPos = 95;
-  addInput(createInputCentered<PJ301MPort>(Vec(25, yPos), module, Tapestry::AUDIO_IN_L));
-  addInput(createInputCentered<PJ301MPort>(Vec(55, yPos), module, Tapestry::AUDIO_IN_R));
+  // BOTTOM ROW CONTROLS
+  float bottomRowPos = box.size.y - 35;
+  // Audio inputs
+  addInput(createInputCentered<PJ301MPort>(Vec(25, bottomRowPos - 30), module, Tapestry::AUDIO_IN_L));
+  addInput(createInputCentered<PJ301MPort>(Vec(25, bottomRowPos), module, Tapestry::AUDIO_IN_R));
 
-  // Audio outputs (top right)
-  addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 55, yPos), module, Tapestry::AUDIO_OUT_L));
-  addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 25, yPos), module, Tapestry::AUDIO_OUT_R));
+  // Mix knob and CV
+  addParam(createParamCentered<RoundBlackKnob>(Vec(60, bottomRowPos - 30), module, Tapestry::SOS_PARAM));
+  addInput(createInputCentered<PJ301MPort>(Vec(60, bottomRowPos), module, Tapestry::SOS_CV_INPUT));
 
-  // S.O.S. knob and CV
-  yPos = 135;
-  addParam(createParamCentered<RoundBlackKnob>(Vec(35, yPos), module, Tapestry::SOS_PARAM));
-  addInput(createInputCentered<PJ301MPort>(Vec(35, yPos + 35), module, Tapestry::SOS_CV_INPUT));
-
-  // Gene Size knob, attenuverter, and CV
-  addParam(createParamCentered<RoundBlackKnob>(Vec(95, yPos), module, Tapestry::GENE_SIZE_PARAM));
-  addParam(createParamCentered<Trimpot>(Vec(95, yPos + 28), module, Tapestry::GENE_SIZE_CV_ATTEN));
-  addInput(createInputCentered<PJ301MPort>(Vec(95, yPos + 55), module, Tapestry::GENE_SIZE_CV_INPUT));
-
-  // Morph knob and CV
-  addParam(createParamCentered<RoundBlackKnob>(Vec(155, yPos), module, Tapestry::MORPH_PARAM));
-  addInput(createInputCentered<PJ301MPort>(Vec(155, yPos + 35), module, Tapestry::MORPH_CV_INPUT));
-
-  // Slide knob, attenuverter, and CV
-  addParam(createParamCentered<RoundBlackKnob>(Vec(215, yPos), module, Tapestry::SLIDE_PARAM));
-  addParam(createParamCentered<Trimpot>(Vec(215, yPos + 28), module, Tapestry::SLIDE_CV_ATTEN));
-  addInput(createInputCentered<PJ301MPort>(Vec(215, yPos + 55), module, Tapestry::SLIDE_CV_INPUT));
-
-  // Vari-Speed section
-  yPos = 230;
-
-  // Activity windows (RGB LEDs)
-  addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(
-      Vec(55, yPos), module, Tapestry::VARI_SPEED_LEFT_LIGHT));
-  addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(
-      Vec(box.size.x - 55, yPos), module, Tapestry::VARI_SPEED_RIGHT_LIGHT));
-
-  // Vari-Speed knob (center)
-  addParam(createParamCentered<RoundLargeBlackKnob>(Vec(box.size.x / 2, yPos), module, Tapestry::VARI_SPEED_PARAM));
-
-  // Vari-Speed CV
-  yPos = 270;
-  addParam(createParamCentered<Trimpot>(Vec(box.size.x / 2 - 30, yPos), module, Tapestry::VARI_SPEED_CV_ATTEN));
-  addInput(createInputCentered<PJ301MPort>(Vec(box.size.x / 2 + 30, yPos), module, Tapestry::VARI_SPEED_CV_INPUT));
-
-  // Organize knob and CV
-  addParam(createParamCentered<RoundBlackKnob>(Vec(box.size.x - 45, yPos), module, Tapestry::ORGANIZE_PARAM));
-  addInput(createInputCentered<PJ301MPort>(Vec(box.size.x - 45, yPos + 35), module, Tapestry::ORGANIZE_CV_INPUT));
-
-  // Activity LEDs row
-  yPos = 305;
-  addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(Vec(40, yPos), module, Tapestry::REEL_LIGHT));
-  addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(Vec(100, yPos), module, Tapestry::SPLICE_LIGHT));
-  addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(Vec(160, yPos), module, Tapestry::CV_OUT_LIGHT));
-
-  // Gate inputs row
-  yPos = 335;
-  addInput(createInputCentered<PJ301MPort>(Vec(25, yPos), module, Tapestry::CLK_INPUT));
-  addInput(createInputCentered<PJ301MPort>(Vec(60, yPos), module, Tapestry::PLAY_INPUT));
-  addInput(createInputCentered<PJ301MPort>(Vec(95, yPos), module, Tapestry::REC_INPUT));
-  addInput(createInputCentered<PJ301MPort>(Vec(130, yPos), module, Tapestry::SPLICE_INPUT));
-  addInput(createInputCentered<PJ301MPort>(Vec(165, yPos), module, Tapestry::SHIFT_INPUT));
-  addInput(createInputCentered<PJ301MPort>(Vec(200, yPos), module, Tapestry::CLEAR_SPLICES_INPUT));
-  addInput(createInputCentered<PJ301MPort>(Vec(235, yPos), module, Tapestry::SPLICE_COUNT_TOGGLE_INPUT));
+  // Clock and Play inputs
+  addInput(createInputCentered<PJ301MPort>(Vec(box.size.x / 2 - 30, bottomRowPos - 30), module, Tapestry::CLK_INPUT));
+  addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(Vec(box.size.x / 2 - 2.5, bottomRowPos - 30), module, Tapestry::REEL_LIGHT));
+  addInput(createInputCentered<PJ301MPort>(Vec(box.size.x / 2 + 25, bottomRowPos - 30), module, Tapestry::PLAY_INPUT));
 
   // CV and EOSG outputs
-  addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 25, yPos), module, Tapestry::EOSG_OUTPUT));
-  addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 25, yPos + 30), module, Tapestry::CV_OUTPUT));
+  addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 60, bottomRowPos - 30), module, Tapestry::EOSG_OUTPUT));
+  addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 60, bottomRowPos), module, Tapestry::CV_OUTPUT));
 
-  // Buttons with LEDs
-  yPos = 365;
-  addParam(createParamCentered<LEDButton>(Vec(95, yPos), module, Tapestry::REC_BUTTON));
-  addChild(createLightCentered<MediumLight<RedLight>>(Vec(95, yPos), module, Tapestry::REC_LED));
+  // Audio outputs
+  addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 25, bottomRowPos - 30), module, Tapestry::AUDIO_OUT_L));
+  addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 25, bottomRowPos), module, Tapestry::AUDIO_OUT_R));
 
-  addParam(createParamCentered<LEDButton>(Vec(130, yPos), module, Tapestry::SPLICE_BUTTON));
-  addChild(createLightCentered<MediumLight<YellowLight>>(Vec(130, yPos), module, Tapestry::SPLICE_LED));
+  // // Gene Size knob, attenuverter, and CV
+  // addParam(createParamCentered<RoundBlackKnob>(Vec(95, yPos), module, Tapestry::GENE_SIZE_PARAM));
+  // addParam(createParamCentered<Trimpot>(Vec(95, yPos + 28), module, Tapestry::GENE_SIZE_CV_ATTEN));
+  // addInput(createInputCentered<PJ301MPort>(Vec(95, yPos + 55), module, Tapestry::GENE_SIZE_CV_INPUT));
 
-  addParam(createParamCentered<LEDButton>(Vec(165, yPos), module, Tapestry::SHIFT_BUTTON));
-  addChild(createLightCentered<MediumLight<GreenLight>>(Vec(165, yPos), module, Tapestry::SHIFT_LED));
+  // // Morph knob and CV
+  // addParam(createParamCentered<RoundBlackKnob>(Vec(155, yPos), module, Tapestry::MORPH_PARAM));
+  // addInput(createInputCentered<PJ301MPort>(Vec(155, yPos + 35), module, Tapestry::MORPH_CV_INPUT));
 
-  // Clear Splices button to the right
-  addParam(createParamCentered<LEDButton>(Vec(200, yPos), module, Tapestry::CLEAR_SPLICES_BUTTON));
-  addChild(createLightCentered<MediumLight<WhiteLight>>(Vec(200, yPos), module, Tapestry::CLEAR_SPLICES_LED));
+  // // Slide knob, attenuverter, and CV
+  // addParam(createParamCentered<RoundBlackKnob>(Vec(215, yPos), module, Tapestry::SLIDE_PARAM));
+  // addParam(createParamCentered<Trimpot>(Vec(215, yPos + 28), module, Tapestry::SLIDE_CV_ATTEN));
+  // addInput(createInputCentered<PJ301MPort>(Vec(215, yPos + 55), module, Tapestry::SLIDE_CV_INPUT));
 
-  // Splice Count Toggle button (next to Clear Splices)
-  addParam(createParamCentered<LEDButton>(Vec(235, yPos), module, Tapestry::SPLICE_COUNT_TOGGLE_BUTTON));
-  addChild(createLightCentered<MediumLight<BlueLight>>(Vec(235, yPos), module, Tapestry::SPLICE_COUNT_LED));
+  // // Vari-Speed section
+  // yPos = 230;
 
-  // Overdub toggle switch (small switch near record button)
-  addParam(createParamCentered<CKSS>(Vec(60, 365), module, Tapestry::OVERDUB_TOGGLE));
+  // // Activity windows (RGB LEDs)
+  // addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(
+  //     Vec(55, yPos), module, Tapestry::VARI_SPEED_LEFT_LIGHT));
+  // addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(
+  //     Vec(box.size.x - 55, yPos), module, Tapestry::VARI_SPEED_RIGHT_LIGHT));
+
+  // // Vari-Speed knob (center)
+  // addParam(createParamCentered<RoundLargeBlackKnob>(Vec(box.size.x / 2, yPos), module, Tapestry::VARI_SPEED_PARAM));
+
+  // // Vari-Speed CV
+  // yPos = 270;
+  // addParam(createParamCentered<Trimpot>(Vec(box.size.x / 2 - 30, yPos), module, Tapestry::VARI_SPEED_CV_ATTEN));
+  // addInput(createInputCentered<PJ301MPort>(Vec(box.size.x / 2 + 30, yPos), module, Tapestry::VARI_SPEED_CV_INPUT));
+
+  // // Organize knob and CV
+  // addParam(createParamCentered<RoundBlackKnob>(Vec(box.size.x - 45, yPos), module, Tapestry::ORGANIZE_PARAM));
+  // addInput(createInputCentered<PJ301MPort>(Vec(box.size.x - 45, yPos + 35), module, Tapestry::ORGANIZE_CV_INPUT));
+
+  // // Activity LEDs row
+  // float yPos = 305;
+  // addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(Vec(100, yPos), module, Tapestry::SPLICE_LIGHT));
+  // addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(Vec(160, yPos), module, Tapestry::CV_OUT_LIGHT));
+
+  // // Gate inputs row
+  // yPos = 335;
+
+  // addInput(createInputCentered<PJ301MPort>(Vec(95, yPos), module, Tapestry::REC_INPUT));
+  // addInput(createInputCentered<PJ301MPort>(Vec(130, yPos), module, Tapestry::SPLICE_INPUT));
+  // addInput(createInputCentered<PJ301MPort>(Vec(165, yPos), module, Tapestry::SHIFT_INPUT));
+  // addInput(createInputCentered<PJ301MPort>(Vec(200, yPos), module, Tapestry::CLEAR_SPLICES_INPUT));
+  // addInput(createInputCentered<PJ301MPort>(Vec(235, yPos), module, Tapestry::SPLICE_COUNT_TOGGLE_INPUT));
+
+  // // Buttons with LEDs
+  // yPos = 365;
+  // addParam(createParamCentered<LEDButton>(Vec(95, yPos), module, Tapestry::REC_BUTTON));
+  // addChild(createLightCentered<MediumLight<RedLight>>(Vec(95, yPos), module, Tapestry::REC_LED));
+
+  // addParam(createParamCentered<LEDButton>(Vec(130, yPos), module, Tapestry::SPLICE_BUTTON));
+  // addChild(createLightCentered<MediumLight<YellowLight>>(Vec(130, yPos), module, Tapestry::SPLICE_LED));
+
+  // addParam(createParamCentered<LEDButton>(Vec(165, yPos), module, Tapestry::SHIFT_BUTTON));
+  // addChild(createLightCentered<MediumLight<GreenLight>>(Vec(165, yPos), module, Tapestry::SHIFT_LED));
+
+  // // Clear Splices button to the right
+  // addParam(createParamCentered<LEDButton>(Vec(200, yPos), module, Tapestry::CLEAR_SPLICES_BUTTON));
+  // addChild(createLightCentered<MediumLight<WhiteLight>>(Vec(200, yPos), module, Tapestry::CLEAR_SPLICES_LED));
+
+  // // Splice Count Toggle button (next to Clear Splices)
+  // addParam(createParamCentered<LEDButton>(Vec(235, yPos), module, Tapestry::SPLICE_COUNT_TOGGLE_BUTTON));
+  // addChild(createLightCentered<MediumLight<BlueLight>>(Vec(235, yPos), module, Tapestry::SPLICE_COUNT_LED));
+
+  // // Overdub toggle switch (small switch near record button)
+  // addParam(createParamCentered<CKSS>(Vec(60, 365), module, Tapestry::OVERDUB_TOGGLE));
 }
 
 void TapestryWidget::appendContextMenu(Menu* menu)

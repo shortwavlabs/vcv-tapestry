@@ -315,7 +315,7 @@ struct Tapestry : Module
     configInput(AUDIO_IN_R, "Audio R");
 
     // CV inputs
-    configInput(SOS_CV_INPUT, "S.O.S. CV");
+    configInput(SOS_CV_INPUT, "Mix CV");
     configInput(GENE_SIZE_CV_INPUT, "Grain Size CV");
     configInput(VARI_SPEED_CV_INPUT, "Speed CV");
     configInput(MORPH_CV_INPUT, "Density CV");
