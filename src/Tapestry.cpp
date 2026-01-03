@@ -672,8 +672,10 @@ void Tapestry::updateLights(const ProcessArgs& args)
   // Clear Splices LED: dim when splices exist, off when empty
   lights[CLEAR_SPLICES_LED].setBrightness(dsp.getSpliceManager().isEmpty() ? 0.0f : 0.3f);
 
-  // Splice Count LED: Show current mode brightness (0.33, 0.66, 1.0 for 4, 8, 16)
-  float spliceCountBrightness = (spliceCountMode + 1) * 0.33f;
+  // Splice Count LED: brightness indicates current splice count (4=0.33, 8=0.66, 16=1.0)
+  float spliceCountBrightness = (numSplices == 4) ? 0.33f :
+                                 (numSplices == 8) ? 0.66f :
+                                 (numSplices == 16) ? 1.0f : 0.0f;
   lights[SPLICE_COUNT_LED].setBrightness(spliceCountBrightness);
 }
 
