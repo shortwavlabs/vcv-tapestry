@@ -1455,7 +1455,7 @@ TapestryWidget::TapestryWidget(Tapestry* module)
   // ------------------------------------------------------------------------------
 
   // Reel Controls
-  float controlsPos = 110;
+  float controlsPos = 105;
 
   // Overdub toggle switch (small switch near record button)
   addParam(createParamCentered<CKSS>(Vec(25, controlsPos), module, Tapestry::OVERDUB_TOGGLE));
@@ -1480,7 +1480,8 @@ TapestryWidget::TapestryWidget(Tapestry* module)
   // Select knob
   addParam(createParamCentered<RoundBlackKnob>(Vec(box.size.x - 25, controlsPos), module, Tapestry::ORGANIZE_PARAM));
 
-  // CV controls
+  // CV controls and lights below buttons
+  addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(Vec(25, controlsPos + 30), module, Tapestry::SPLICE_LIGHT));
   addInput(createInputCentered<PJ301MPort>(Vec(xCenter - 60, controlsPos + 30), module, Tapestry::REC_INPUT));
   addInput(createInputCentered<PJ301MPort>(Vec(xCenter - 30, controlsPos + 30), module, Tapestry::SPLICE_INPUT));
   addInput(createInputCentered<PJ301MPort>(Vec(xCenter, controlsPos + 30), module, Tapestry::SHIFT_INPUT));
@@ -1491,7 +1492,7 @@ TapestryWidget::TapestryWidget(Tapestry* module)
   // ------------------------------------------------------------------------------
 
   // Speed
-  float speedPos = 200;
+  float speedPos = 190;
 
   // knob (center)
   addParam(createParamCentered<Davies1900hLargeBlackKnob>(Vec(xCenter, speedPos), module, Tapestry::VARI_SPEED_PARAM));
@@ -1508,6 +1509,25 @@ TapestryWidget::TapestryWidget(Tapestry* module)
 
   // ------------------------------------------------------------------------------
 
+  // Modulation controls
+  float modPos = 265;
+
+  // Gene Size knob
+  addParam(createParamCentered<RoundBlackKnob>(Vec(xCenter - 60, modPos), module, Tapestry::GENE_SIZE_PARAM));
+  addParam(createParamCentered<Trimpot>(Vec(xCenter - 75, modPos + 30), module, Tapestry::GENE_SIZE_CV_ATTEN));
+  addInput(createInputCentered<PJ301MPort>(Vec(xCenter - 45, modPos + 30), module, Tapestry::GENE_SIZE_CV_INPUT));
+
+  // Morph knob
+  addParam(createParamCentered<RoundBlackKnob>(Vec(xCenter, modPos), module, Tapestry::MORPH_PARAM));
+  addInput(createInputCentered<PJ301MPort>(Vec(xCenter, modPos + 30), module, Tapestry::MORPH_CV_INPUT));
+  
+  // Slide knob
+  addParam(createParamCentered<RoundBlackKnob>(Vec(xCenter + 60, modPos), module, Tapestry::SLIDE_PARAM));
+  addParam(createParamCentered<Trimpot>(Vec(xCenter + 45, modPos + 30), module, Tapestry::SLIDE_CV_ATTEN));
+  addInput(createInputCentered<PJ301MPort>(Vec(xCenter + 75, modPos + 30), module, Tapestry::SLIDE_CV_INPUT));
+
+  // ------------------------------------------------------------------------------
+
   // Inputs / Outputs
   float bottomRowPos = box.size.y - 25;
   // Audio inputs
@@ -1519,49 +1539,20 @@ TapestryWidget::TapestryWidget(Tapestry* module)
   addInput(createInputCentered<PJ301MPort>(Vec(60, bottomRowPos), module, Tapestry::SOS_CV_INPUT));
 
   // Clock and Play inputs
-  addInput(createInputCentered<PJ301MPort>(Vec(xCenter - 30, bottomRowPos - 30), module, Tapestry::CLK_INPUT));
-  addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(Vec(xCenter, bottomRowPos - 30), module, Tapestry::REEL_LIGHT));
-  addInput(createInputCentered<PJ301MPort>(Vec(xCenter + 30, bottomRowPos - 30), module, Tapestry::PLAY_INPUT));
+  addInput(createInputCentered<PJ301MPort>(Vec(xCenter - 30, bottomRowPos - 15), module, Tapestry::CLK_INPUT));
+  addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(Vec(xCenter, bottomRowPos - 15), module, Tapestry::REEL_LIGHT));
+  addInput(createInputCentered<PJ301MPort>(Vec(xCenter + 30, bottomRowPos - 15), module, Tapestry::PLAY_INPUT));
 
   // CV and EOSG outputs
   addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 60, bottomRowPos - 30), module, Tapestry::EOSG_OUTPUT));
   addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 60, bottomRowPos), module, Tapestry::CV_OUTPUT));
 
+  // CV output light
+  addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(Vec(box.size.x - 42.5, bottomRowPos - 15), module, Tapestry::CV_OUT_LIGHT));
+
   // Audio outputs
   addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 25, bottomRowPos - 30), module, Tapestry::AUDIO_OUT_L));
   addOutput(createOutputCentered<PJ301MPort>(Vec(box.size.x - 25, bottomRowPos), module, Tapestry::AUDIO_OUT_R));
-
-  // ------------------------------------------------------------------------------
-
-  // // Gene Size knob, attenuverter, and CV
-  // addParam(createParamCentered<RoundBlackKnob>(Vec(95, yPos), module, Tapestry::GENE_SIZE_PARAM));
-  // addParam(createParamCentered<Trimpot>(Vec(95, yPos + 28), module, Tapestry::GENE_SIZE_CV_ATTEN));
-  // addInput(createInputCentered<PJ301MPort>(Vec(95, yPos + 55), module, Tapestry::GENE_SIZE_CV_INPUT));
-
-  // // Morph knob and CV
-  // addParam(createParamCentered<RoundBlackKnob>(Vec(155, yPos), module, Tapestry::MORPH_PARAM));
-  // addInput(createInputCentered<PJ301MPort>(Vec(155, yPos + 35), module, Tapestry::MORPH_CV_INPUT));
-
-  // // Slide knob, attenuverter, and CV
-  // addParam(createParamCentered<RoundBlackKnob>(Vec(215, yPos), module, Tapestry::SLIDE_PARAM));
-  // addParam(createParamCentered<Trimpot>(Vec(215, yPos + 28), module, Tapestry::SLIDE_CV_ATTEN));
-  // addInput(createInputCentered<PJ301MPort>(Vec(215, yPos + 55), module, Tapestry::SLIDE_CV_INPUT));
-
-  // // Vari-Speed section
-  // yPos = 230;
-
-  // // Organize knob and CV
-  
-
-  // // Activity LEDs row
-  // float yPos = 305;
-  // addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(Vec(100, yPos), module, Tapestry::SPLICE_LIGHT));
-  // addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(Vec(160, yPos), module, Tapestry::CV_OUT_LIGHT));
-
-  // // Gate inputs row
-  // yPos = 335;
-
-
 }
 
 void TapestryWidget::appendContextMenu(Menu* menu)
