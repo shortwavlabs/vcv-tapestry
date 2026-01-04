@@ -11,7 +11,7 @@
  * Tapestry Core Types and Configuration
  *
  * Core data structures and configuration constants for the Tapestry
- * VCV Rack module implementation. Based on the Make Noise Tapestry
+ * VCV Rack module implementation. Based on the Make Noise Morphagene
  * hardware specifications.
  *
  * Features:

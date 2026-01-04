@@ -14,7 +14,7 @@ struct TapestryWidget;
 /*
  * Tapestry VCV Rack Module
  *
- * A faithful recreation of the Make Noise Tapestry.
+ * A faithful recreation of the Make Noise Morphagene.
  * Combines tape music tools with granular/microsound processing.
  *
  * Features:
@@ -98,6 +98,8 @@ struct Tapestry : Module
     REC_INPUT,
     SPLICE_INPUT,
     SHIFT_INPUT,
+    CLEAR_SPLICES_INPUT,
+    SPLICE_COUNT_TOGGLE_INPUT,
 
     NUM_INPUTS
   };
@@ -158,6 +160,8 @@ struct Tapestry : Module
   dsp::SchmittTrigger recInputTrigger;
   dsp::SchmittTrigger spliceInputTrigger;
   dsp::SchmittTrigger shiftInputTrigger;
+  dsp::SchmittTrigger clearSplicesInputTrigger;
+  dsp::SchmittTrigger spliceCountToggleInputTrigger;
 
   //--------------------------------------------------------------------------
   // Button Combo State
@@ -286,13 +290,14 @@ struct Tapestry : Module
     configParam(SOS_PARAM, 0.0f, 1.0f, 1.0f, "Mix", "%", 0.0f, 100.0f);
     configParam(GENE_SIZE_PARAM, 0.0f, 1.0f, 0.0f, "Grain Size", "%", 0.0f, 100.0f);
     configParam(GENE_SIZE_CV_ATTEN, -1.0f, 1.0f, 0.0f, "Grain Size CV", "%", 0.0f, 100.0f);
-    configParam(VARI_SPEED_PARAM, 0.0f, 1.0f, 0.5f, "Speed");
+    configParam(VARI_SPEED_PARAM, 0.0f, 1.0f, 0.5f, "Speed", "%", 0.0f, 200.0f, -100.0f);
     configParam(VARI_SPEED_CV_ATTEN, -1.0f, 1.0f, 0.0f, "Speed CV", "%", 0.0f, 100.0f);
     configParam(MORPH_PARAM, 0.0f, 1.0f, 0.3f, "Density", "%", 0.0f, 100.0f);
     configParam(SLIDE_PARAM, 0.0f, 1.0f, 0.0f, "Scan", "%", 0.0f, 100.0f);
     configParam(SLIDE_CV_ATTEN, -1.0f, 1.0f, 0.0f, "Scan CV", "%", 0.0f, 100.0f);
     auto* organizeParam = configParam(ORGANIZE_PARAM, 0.0f, 1.0f, 0.0f, "Select");
     organizeParam->snapEnabled = true;
+    organizeParam->displayOffset = 1.0f; // Display as 1-based instead of 0-based
 
     // Buttons
     configButton(REC_BUTTON, "Record");
@@ -310,7 +315,7 @@ struct Tapestry : Module
     configInput(AUDIO_IN_R, "Audio R");
 
     // CV inputs
-    configInput(SOS_CV_INPUT, "S.O.S. CV");
+    configInput(SOS_CV_INPUT, "Mix CV");
     configInput(GENE_SIZE_CV_INPUT, "Grain Size CV");
     configInput(VARI_SPEED_CV_INPUT, "Speed CV");
     configInput(MORPH_CV_INPUT, "Density CV");
@@ -323,6 +328,8 @@ struct Tapestry : Module
     configInput(REC_INPUT, "Record Gate");
     configInput(SPLICE_INPUT, "Marker Gate");
     configInput(SHIFT_INPUT, "Next Gate");
+    configInput(CLEAR_SPLICES_INPUT, "Clear Markers Gate");
+    configInput(SPLICE_COUNT_TOGGLE_INPUT, "Auto Markers Gate");
 
     // Outputs
     configOutput(AUDIO_OUT_L, "Audio L");
@@ -357,6 +364,12 @@ struct Tapestry : Module
     float sr = APP->engine->getSampleRate();
     dsp.setSampleRate(sr);
   }
+
+  //--------------------------------------------------------------------------
+  // Initialize
+  //--------------------------------------------------------------------------
+
+  void onReset() override;
 
   //--------------------------------------------------------------------------
   // Main Process
