@@ -36,7 +36,7 @@ Tapestry is a VCV Rack plugin that combines tape music techniques with granular 
 
 ### Is Tapestry based on hardware?
 
-Tapestry is inspired by the Make Noise Tapestry hardware module but is an independent implementation designed for VCV Rack.
+Tapestry is inspired by the Make Noise Morphagene hardware module but is an independent implementation designed for VCV Rack.
 
 ### What VCV Rack version is required?
 

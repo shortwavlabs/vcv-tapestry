@@ -14,7 +14,7 @@ struct TapestryWidget;
 /*
  * Tapestry VCV Rack Module
  *
- * A faithful recreation of the Make Noise Tapestry.
+ * A faithful recreation of the Make Noise Morphagene.
  * Combines tape music tools with granular/microsound processing.
  *
  * Features:
