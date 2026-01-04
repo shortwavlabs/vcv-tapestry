@@ -1486,7 +1486,7 @@ TapestryWidget::TapestryWidget(Tapestry* module)
   this->module = module;
 
   // 20HP panel
-  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/SWV_21HP_PANEL.svg")));
+  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/TAPESTRY_PANEL2.svg")));
 
   // Screws
   addChild(createWidget<ScrewSilver>(Vec(0, 0)));
