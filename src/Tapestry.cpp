@@ -2,6 +2,57 @@
 #include <osdialog.h>
 
 //------------------------------------------------------------------------------
+// Initialize/Reset Implementation
+//------------------------------------------------------------------------------
+
+void Tapestry::onReset()
+{
+  Module::onReset();
+
+  // Clear audio buffer and splices
+  dsp.clearReel();
+  dsp.deleteAllMarkers();
+
+  // Reset file state
+  currentFilePath.clear();
+  currentFileName.clear();
+  currentReelIndex = 0;
+
+  // Reset button states
+  recButtonHoldTime = 0.0f;
+  spliceButtonHoldTime = 0.0f;
+  shiftButtonHoldTime = 0.0f;
+  recButtonHeld = false;
+  spliceButtonHeld = false;
+  shiftButtonHeld = false;
+  clearSplicesButtonHeld = false;
+  spliceCountToggleButtonHeld = false;
+
+  // Reset pending splice data
+  pendingSpliceMarkers_.clear();
+  pendingSpliceIndex_ = -1;
+
+  // Reset splice count mode
+  spliceCountMode = 0;
+
+  // Reset file I/O state
+  fileLoading.store(false);
+  fileSaving.store(false);
+
+  // Reset waveform color to default
+  waveformColor = WaveformColor::BabyBlue;
+
+  // Reset EOSG pulse
+  eosgPulse.reset();
+
+  // Reset expander tracking
+  lastRightExpanderModuleId_ = -1;
+
+  // Update organize parameter range
+  updateOrganizeParamRange();
+}
+
+//------------------------------------------------------------------------------
 // Main Process Implementation
 //------------------------------------------------------------------------------
 
