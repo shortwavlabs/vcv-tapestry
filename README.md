@@ -215,7 +215,7 @@ This project is licensed under the **GPL-3.0-or-later** license. See the [LICENS
 
 ## 🙏 Acknowledgments
 
-- Inspired by the Make Noise Tapestry hardware module
+- Inspired by the Make Noise Morphagene hardware module
 - Built with the [VCV Rack](https://vcvrack.com/) SDK
 - Uses the Moog VCF algorithm for analog filter emulation
 - Community feedback and testing from VCV Rack users
