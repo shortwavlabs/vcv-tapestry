@@ -266,7 +266,7 @@ TapestryExpanderWidget::TapestryExpanderWidget(TapestryExpander* module)
     setModule(module);
     
     // 4HP panel (60.96px wide at 3px/mm)
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/TapestryExpander.svg")));
+    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/TAPESTRY_EXPANDER.svg")));
     
     // Screws
     addChild(createWidget<ScrewSilver>(Vec(0, 0)));
