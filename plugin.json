@@ -6,6 +6,10 @@
   "brand": "Shortwav Labs",
   "author": "Stephane Pericat",
   "authorEmail": "contact@shortwavlabs.com",
+  "manualUrl": "https://github.com/shortwavlabs/vcv-tapestry/blob/main/docs/INDEX.md",
+  "sourceUrl": "https://github.com/shortwavlabs/vcv-tapestry/tree/main/src",
+  "donateUrl": "https://ko-fi.com/shortwavlabs",
+  "changelogUrl": "https://github.com/shortwavlabs/vcv-tapestry/blob/main/docs/CHANGELOG.md",
   "modules": [
     {
       "slug": "Tapestry",
