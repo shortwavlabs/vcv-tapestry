@@ -2,6 +2,13 @@
 #include <osdialog.h>
 
 //------------------------------------------------------------------------------
+// Static Member Definitions
+//------------------------------------------------------------------------------
+
+// Definition required for ODR-used static constexpr members (Windows linker requirement)
+constexpr int Tapestry::kSpliceCountOptions[];
+
+//------------------------------------------------------------------------------
 // Initialize/Reset Implementation
 //------------------------------------------------------------------------------
 
