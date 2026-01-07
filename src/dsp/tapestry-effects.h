@@ -3,6 +3,11 @@
 #include <cmath>
 #include <algorithm>
 
+// Define M_PI for Windows (not part of C++ standard)
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 //------------------------------------------------------------------------------
 // Bit Crusher DSP
 // Based on musicdsp.org Decimator by tobybear + Lo-Fi Crusher by David Lowenfels
