@@ -31,7 +31,7 @@ for entry in "${TESTS[@]}"; do
   src="${entry%%:*}"
   bin="${entry##*:}"
   out_bin="${OUT_DIR}/${bin}"
-  "$CXX" -std=c++17 -O2 -Wall -Isrc -DSHORTWAV_DSP_RUN_TESTS -o "$out_bin" "$src"
+  "$CXX" -std=c++17 -O2 -Wall -Isrc -Idep/Rack-SDK/include -Idep/Rack-SDK/dep/include -DSHORTWAV_DSP_RUN_TESTS -o "$out_bin" "$src"
   "$out_bin"
 done
 

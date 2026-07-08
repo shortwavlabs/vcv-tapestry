@@ -75,12 +75,18 @@ Korupt::Korupt() {
 
 void Korupt::onSampleRateChange() {
 	const float sampleRate = APP ? APP->engine->getSampleRate() : 44100.f;
+	for (ShortwavDSP::KoruptInputStage& inputStage : inputStages_) {
+		inputStage.setSampleRate(sampleRate);
+	}
 	for (ShortwavDSP::KoruptDSP& engine : engines_) {
 		engine.setSampleRate(sampleRate);
 	}
 }
 
 void Korupt::onReset() {
+	for (ShortwavDSP::KoruptInputStage& inputStage : inputStages_) {
+		inputStage.reset();
+	}
 	for (ShortwavDSP::KoruptDSP& engine : engines_) {
 		engine.reset();
 	}
@@ -130,13 +136,13 @@ void Korupt::process(const ProcessArgs& args) {
 	for (int channel = 0; channel < channels; channel++) {
 		const float inputVoltage = inputs[AUDIO_INPUT].getPolyVoltage(channel);
 		const float normalizedInput = clamp(inputVoltage / 5.f, -1.5f, 1.5f);
-		const float comparatorInput = std::tanh(normalizedInput * 6.f);
-		const dsp::SchmittTrigger::Event event = inputTriggers_[channel].processEvent(comparatorInput, -0.05f, 0.05f);
+		const ShortwavDSP::KoruptConditionedInput conditioned = inputStages_[channel].process(normalizedInput);
+		const dsp::SchmittTrigger::Event event = inputTriggers_[channel].processEvent(conditioned.comparator, -0.18f, 0.18f);
 		const bool inputRisingEdge = event == dsp::SchmittTrigger::TRIGGERED;
 		const bool inputHigh = inputTriggers_[channel].isHigh();
 
 		const ShortwavDSP::KoruptResult result = engines_[channel].process(
-			normalizedInput,
+			conditioned.audio,
 			inputRisingEdge,
 			inputHigh,
 			paramsForChannel(channel)

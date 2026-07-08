@@ -58,6 +58,7 @@ private:
 	ShortwavDSP::KoruptParams paramsForChannel(int channel);
 
 	std::array<dsp::SchmittTrigger, 16> inputTriggers_;
+	std::array<ShortwavDSP::KoruptInputStage, 16> inputStages_;
 	std::array<ShortwavDSP::KoruptDSP, 16> engines_;
 };
 

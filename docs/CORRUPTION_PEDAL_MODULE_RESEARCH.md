@@ -36,6 +36,18 @@ Initial implementation status:
 - DSP regression tests: `src/tests/test_korupt.cpp`
 - Plugin registration/manifest: `src/plugin.hpp`, `src/plugin.cpp`, and `plugin.json`
 
+Accuracy pass status:
+
+- Added a Rack-free `KoruptInputStage` that models the coupling cap/high-pass behavior, pre-filtering, and a three-stage 4069-style CMOS inverter transfer before Rack's `dsp::SchmittTrigger`.
+- Replaced the simplified root and program dividers with explicit `Cmos4024Counter` and `Cmos4017Counter` models.
+- Reworked the PLL into a 4046-style phase-frequency detector with `Qup`/`Qdown` states, a charge-pump-like loop capacitor, leakage, glide smoothing, and VCO control voltage.
+- Moved Vibrato injection onto the PLL control node instead of modulating final oscillator frequency directly.
+- Removed voice-mix normalization so the three voice pots can overdrive the output stage like a resistor mixer into an op-amp stage.
+- Added audio-taper pot law, asymmetric soft clipping, DC blocking, two-pole output low-pass filtering, and analog edge smoothing for the one-bit voices.
+- Refactored common DSP plumbing to use Rack SDK primitives: `rack::math::clamp`, `rack::dsp::RCFilter`, `rack::dsp::ExponentialSlewLimiter`, and `rack::dsp::ExponentialFilter`.
+- Expanded tests to cover the input stage, pot law, silence stability, and driven PLL/sub voice behavior.
+- Remaining calibration work: tune the virtual component values against a real pedal, SPICE trace, or captured scope/audio references.
+
 ## Confirmed Product Decisions
 
 - Module name: `Korupt`.
@@ -115,6 +127,8 @@ Then apply:
 - Gentle band-pass or high-pass plus low-pass shaping before tracking.
 - Fixed input gain/tracking behavior calibrated for Rack levels. The original pedal intentionally has no user gain control, so avoid a front-panel `Track` or `Input` trim unless testing proves an advanced context-menu calibration is necessary.
 
+Implemented first-pass circuit model: `KoruptInputStage` applies an input high-pass, pre-filter, envelope follower, and three biased CMOS inverter transfer stages. Rack's `dsp::SchmittTrigger` still owns the final hysteretic edge decision, using the conditioned comparator signal.
+
 ### Stage 2: One-bit square shaper
 
 Use Rack's built-in `rack::dsp::SchmittTrigger` as the first-pass one-bit shaper and edge detector. It already provides hysteresis and supports explicit low/high thresholds via `process(input, low, high)`, so we should avoid writing a custom trigger class unless we later need behavior that the SDK utility cannot express.
@@ -151,6 +165,8 @@ The most faithful approach is a digital 4046 type-II phase-frequency detector:
 - Convert the oscillator phase to a one-bit square.
 
 This is more authentic than directly estimating pitch and setting an oscillator. Do not ship a polished "stable tracking" mode in the first version; a pitch-estimator model is acceptable only as a temporary test scaffold or private debug comparison while building the faithful PLL model.
+
+Implemented first-pass 4046 model: the DSP no longer sets oscillator frequency directly from the measured root period. The root period is retained for lock confidence only; oscillator frequency comes from the simulated loop/control voltage and VCO transfer.
 
 ### Stage 5: 4017 counters
 
@@ -189,6 +205,8 @@ Then:
 - Guard against NaN/Inf before writing outputs.
 
 Because this module generates hard square transitions, aliasing needs attention. Recommended first pass: 4x oversampling inside the DSP engine plus post-mix low-pass filtering. Later, replace hard edge generation with minBLEP/polyBLEP transitions if needed.
+
+Implemented first-pass edge handling: the audible square, oscillator, and subharmonic voices use analog edge smoothing before the non-normalized mixer, followed by two-pole output low-pass filtering. Full minBLEP or oversampling remains a later refinement if listening tests show too much digital edge aliasing.
 
 ## Rack Module Design
 
@@ -340,14 +358,14 @@ For polyphony, store one `KoruptDSP engines[16]` in the Rack module and iterate 
 
 ## Implementation Sequence
 
-1. Add the standalone Rack module shell with bypass routing from audio input to mixed output.
-2. Implement the square voice with Rack's `dsp::SchmittTrigger` and verify Square-only fuzz output.
-3. Add root divider and oscillator multiplier table using a minimal PLL/NCO bring-up path.
-4. Replace the bring-up path with the faithful type-II PFD plus loop filter before considering the module complete.
-5. Add 4017-style sub divider and `SUB_ROOT` behavior.
-6. Add Glide/Vibrato mode, rate CV, selector CV, and per-voice outputs.
-7. Add oversampling or bandlimited edge handling.
-8. Add tests for:
+1. Done: add the standalone Rack module shell with bypass routing from audio input to mixed output.
+2. Done: implement the square voice with Rack's `dsp::SchmittTrigger` fed by the modeled input stage.
+3. Done: add 4024 root divider and oscillator multiplier table.
+4. Done: replace the bring-up path with a type-II PFD, charge-pump-like loop filter, and VCO control node.
+5. Done: add 4017-style sub divider and `SUB_ROOT` behavior.
+6. Done: add Glide/Vibrato mode, rate CV, selector CV, and per-voice outputs.
+7. Done first pass: add analog edge smoothing and post-mix low-pass filtering. Full minBLEP/oversampling is optional release polish.
+8. Add or expand tests for:
    - `dsp::SchmittTrigger` threshold behavior or any local Rack-free threshold mirror.
    - Osc multiplier ratios `1..8`.
    - Sub divider ratios `2..9`.
@@ -357,7 +375,7 @@ For polyphony, store one `KoruptDSP engines[16]` in the Rack module and iterate 
 
 ## Open Questions
 
-- The exact analog tone of the 4069 inverter chain and TL072 output stage can be approximated first with saturation and filtering. A component-level model is probably unnecessary for a playable Rack module.
+- The exact analog tone of the 4069 inverter chain and TL072 output stage is now approximated with biased inverter transfer curves, saturation, DC blocking, and filtering. Component-value calibration is still needed for a hardware-matched release.
 - The module name should avoid implying affiliation with EQD or Schumann. `Korupt` is the chosen module name; avoid `Data Corrupter` and EQD branding.
 - The screenshot's layout is landscape, while Rack modules are vertical. The 20HP layout should preserve the same grouped hierarchy without forcing the exact pedal proportions.
 - The original pedal intentionally has no user gain/tracking control. If Rack source-level variation makes a track threshold necessary, prefer an internal calibration constant or advanced context-menu option over a front-panel `Track` control.

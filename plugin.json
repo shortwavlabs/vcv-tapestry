@@ -26,7 +26,7 @@
     {
       "slug": "Korupt",
       "name": "Korupt",
-      "description": "Standalone PLL harmonizer and square-wave fuzz inspired by the Corruption Device pedal architecture",
+      "description": "PLL harmonizer and square-wave fuzz",
       "tags": ["Effect", "Distortion", "Oscillator"]
     }
   ]

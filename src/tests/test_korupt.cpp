@@ -15,6 +15,39 @@ static void testIntervalTables() {
 	assert(ShortwavDSP::KoruptDSP::subharmonicDivisorForProgram(99) == 9);
 }
 
+static void testAudioPotLaw() {
+	assert(ShortwavDSP::KoruptDSP::audioPotLaw(0.f) == 0.f);
+	assert(ShortwavDSP::KoruptDSP::audioPotLaw(1.f) == 1.f);
+	assert(ShortwavDSP::KoruptDSP::audioPotLaw(0.5f) < 0.5f);
+	assert(ShortwavDSP::KoruptDSP::audioPotLaw(1.f) * 3.f > ShortwavDSP::KoruptDSP::audioPotLaw(1.f));
+}
+
+static void testInputStageConditioning() {
+	ShortwavDSP::KoruptInputStage inputStage;
+	inputStage.setSampleRate(48000.f);
+	inputStage.reset();
+
+	float minComparator = 1.f;
+	float maxComparator = -1.f;
+	float maxEnvelope = 0.f;
+
+	for (int i = 0; i < 48000; i++) {
+		const float phase = static_cast<float>(i) * 6.28318530718f * 110.f / 48000.f;
+		const float input = std::sin(phase) * 0.65f;
+		const ShortwavDSP::KoruptConditionedInput conditioned = inputStage.process(input);
+		assert(std::isfinite(conditioned.audio));
+		assert(std::isfinite(conditioned.comparator));
+		assert(std::isfinite(conditioned.envelope));
+		minComparator = std::min(minComparator, conditioned.comparator);
+		maxComparator = std::max(maxComparator, conditioned.comparator);
+		maxEnvelope = std::max(maxEnvelope, conditioned.envelope);
+	}
+
+	assert(minComparator < -0.2f);
+	assert(maxComparator > 0.2f);
+	assert(maxEnvelope > 0.1f);
+}
+
 static void testSilenceStaysFinite() {
 	ShortwavDSP::KoruptDSP engine;
 	engine.setSampleRate(48000.f);
@@ -66,6 +99,8 @@ static void testDrivenInputProducesVoices() {
 
 int main() {
 	testIntervalTables();
+	testAudioPotLaw();
+	testInputStageConditioning();
 	testSilenceStaysFinite();
 	testDrivenInputProducesVoices();
 	std::cout << "Korupt DSP tests passed\n";

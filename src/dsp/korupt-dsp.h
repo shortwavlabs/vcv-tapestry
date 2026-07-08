@@ -1,16 +1,16 @@
 #pragma once
 
+#include <dsp/filter.hpp>
+#include <math.hpp>
+
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 
 namespace ShortwavDSP {
 
-inline float koruptClamp(float value, float minValue, float maxValue) {
-	return std::max(minValue, std::min(maxValue, value));
-}
-
-inline float koruptClamp01(float value) {
-	return koruptClamp(value, 0.f, 1.f);
+inline float normalizedCutoff(float frequency, float sampleRate) {
+	return rack::math::clamp(frequency / std::max(1.f, sampleRate), 0.f, 0.49f);
 }
 
 struct KoruptParams {
@@ -36,71 +36,140 @@ struct KoruptResult {
 	float glitch = 0.f;
 };
 
-class ToggleDivider {
-public:
-	void reset() {
-		high_ = false;
-		count_ = 0;
-	}
-
-	bool processEdge(int frequencyDivision) {
-		if (frequencyDivision <= 1) {
-			high_ = true;
-			return true;
-		}
-
-		const int edgesPerToggle = std::max(1, frequencyDivision / 2);
-		count_++;
-		if (count_ < edgesPerToggle) {
-			return false;
-		}
-
-		count_ = 0;
-		const bool wasHigh = high_;
-		high_ = !high_;
-		return !wasHigh && high_;
-	}
-
-	bool high() const {
-		return high_;
-	}
-
-private:
-	bool high_ = false;
-	int count_ = 0;
+struct KoruptConditionedInput {
+	float audio = 0.f;
+	float comparator = 0.f;
+	float envelope = 0.f;
 };
 
-class PulseDivider {
+class KoruptInputStage {
 public:
+	void setSampleRate(float sampleRate) {
+		sampleRate_ = std::max(1.f, sampleRate);
+		sampleTime_ = 1.f / sampleRate_;
+		inputCoupling_.setCutoffFreq(normalizedCutoff(18.f, sampleRate_));
+		preFilter_.setCutoffFreq(normalizedCutoff(5200.f, sampleRate_));
+		inverter1Filter_.setCutoffFreq(normalizedCutoff(18000.f, sampleRate_));
+		inverter2Filter_.setCutoffFreq(normalizedCutoff(18000.f, sampleRate_));
+		inverter3Filter_.setCutoffFreq(normalizedCutoff(18000.f, sampleRate_));
+		envelope_.setRiseFallTau(0.0015f, 0.13f);
+	}
+
 	void reset() {
-		high_ = false;
-		count_ = 0;
+		inputCoupling_.reset();
+		preFilter_.reset();
+		inverter1Filter_.reset();
+		inverter2Filter_.reset();
+		inverter3Filter_.reset();
+		envelope_.reset();
 	}
 
-	bool processEdge(int division) {
-		division = std::max(1, division);
-		const bool wasHigh = high_;
+	KoruptConditionedInput process(float rackAudio) {
+		const float input = rack::math::clamp(rackAudio, -2.f, 2.f);
 
-		if (high_) {
-			high_ = false;
-		}
+		// Coupling cap into the pedal input, followed by a practical guitar-band limiter.
+		inputCoupling_.process(input);
+		const float coupled = inputCoupling_.highpass();
+		preFilter_.process(coupled);
+		const float preFiltered = preFilter_.lowpass();
 
-		count_++;
-		if (count_ >= division) {
-			count_ = 0;
-			high_ = true;
-		}
+		const float driven = rack::math::clamp(preFiltered * 3.4f, -3.5f, 3.5f);
+		const float inverter1 = cmosInverter(driven, inverter1Filter_, 2.6f, -0.035f);
+		const float inverter2 = cmosInverter(inverter1, inverter2Filter_, 3.1f, 0.018f);
+		const float inverter3 = cmosInverter(inverter2, inverter3Filter_, 4.2f, -0.006f);
 
-		return !wasHigh && high_;
-	}
+		const float envTarget = std::min(1.f, std::abs(preFiltered) * 1.8f);
+		const float env = envelope_.process(sampleTime_, envTarget);
 
-	float value() const {
-		return high_ ? 1.f : -1.f;
+		KoruptConditionedInput result;
+		result.audio = rack::math::clamp(inverter2, -1.25f, 1.25f);
+		result.comparator = rack::math::clamp(inverter3, -1.25f, 1.25f);
+		result.envelope = rack::math::clamp(env);
+		return result;
 	}
 
 private:
-	bool high_ = false;
+	float cmosInverter(float input, rack::dsp::RCFilter& filter, float drive, float bias) {
+		const float transfer = -std::tanh((input + bias) * drive);
+		const float skew = transfer + 0.055f * transfer * transfer - 0.025f;
+		filter.process(rack::math::clamp(skew, -1.12f, 1.08f));
+		return filter.lowpass();
+	}
+
+	float sampleRate_ = 44100.f;
+	float sampleTime_ = 1.f / 44100.f;
+	rack::dsp::RCFilter inputCoupling_;
+	rack::dsp::RCFilter preFilter_;
+	rack::dsp::RCFilter inverter1Filter_;
+	rack::dsp::RCFilter inverter2Filter_;
+	rack::dsp::RCFilter inverter3Filter_;
+	rack::dsp::ExponentialSlewLimiter envelope_;
+};
+
+class Cmos4024Counter {
+public:
+	void reset() {
+		count_ = 0;
+		previous_ = 0;
+	}
+
+	void clock() {
+		previous_ = count_;
+		count_ = static_cast<uint8_t>((count_ + 1) & 0x7f);
+	}
+
+	bool outputHigh(int bit) const {
+		const uint8_t mask = static_cast<uint8_t>(1u << rack::math::clamp(bit, 0, 6));
+		return (count_ & mask) != 0;
+	}
+
+	bool outputRising(int bit) const {
+		const uint8_t mask = static_cast<uint8_t>(1u << rack::math::clamp(bit, 0, 6));
+		return (previous_ & mask) == 0 && (count_ & mask) != 0;
+	}
+
+private:
+	uint8_t count_ = 0;
+	uint8_t previous_ = 0;
+};
+
+class Cmos4017Counter {
+public:
+	void reset() {
+		count_ = 0;
+		resetCount_ = 10;
+		decodedHigh_ = false;
+	}
+
+	bool clock(int resetCount) {
+		resetCount = rack::math::clamp(resetCount, 1, 10);
+		if (resetCount != resetCount_) {
+			count_ = 0;
+			decodedHigh_ = false;
+			resetCount_ = resetCount;
+		}
+
+		if (decodedHigh_) {
+			decodedHigh_ = false;
+		}
+
+		count_++;
+		if (count_ >= resetCount_) {
+			count_ = 0;
+			decodedHigh_ = true;
+			return true;
+		}
+		return false;
+	}
+
+	float decodedOutput() const {
+		return decodedHigh_ ? 1.f : -1.f;
+	}
+
+private:
 	int count_ = 0;
+	int resetCount_ = 10;
+	bool decodedHigh_ = false;
 };
 
 class KoruptDSP {
@@ -108,58 +177,62 @@ public:
 	void setSampleRate(float sampleRate) {
 		sampleRate_ = std::max(1.f, sampleRate);
 		sampleTime_ = 1.f / sampleRate_;
+		squareSmoother_.setCutoffFreq(normalizedCutoff(18500.f, sampleRate_));
+		oscillatorSmoother_.setCutoffFreq(normalizedCutoff(18500.f, sampleRate_));
+		subharmonicSmoother_.setCutoffFreq(normalizedCutoff(18500.f, sampleRate_));
+		outputDcBlock_.setCutoffFreq(normalizedCutoff(8.8f, sampleRate_));
+		outputLowpass1_.setCutoffFreq(normalizedCutoff(8200.f, sampleRate_));
+		outputLowpass2_.setCutoffFreq(normalizedCutoff(8200.f, sampleRate_));
+		inputEnvelope_.setRiseFallTau(0.0018f, 0.16f);
+		pfdMagnitudeFilter_.setTau(0.018f);
+		lockFilter_.setTau(0.08f);
 	}
 
 	void reset() {
-		rootDiv2_.reset();
-		rootDiv4_.reset();
-		feedbackDivider_.reset();
-		subDivider_.reset();
+		rootCounter_.reset();
+		feedbackCounter_.reset();
+		subCounter_.reset();
+		squareSmoother_.reset();
+		oscillatorSmoother_.reset();
+		subharmonicSmoother_.reset();
+		outputDcBlock_.reset();
+		outputLowpass1_.reset();
+		outputLowpass2_.reset();
+		inputEnvelope_.reset();
+		controlNodeFilter_.reset();
+		pfdMagnitudeFilter_.reset();
+		lockFilter_.reset();
 		samplesSinceRoot_ = 0.f;
 		rootPeriodSamples_ = 0.f;
 		rootFrequency_ = 0.f;
-		centerFrequency_ = 55.f;
-		pllFrequency_ = 55.f;
-		pllPhase_ = 0.f;
+		vcoPhase_ = 0.f;
+		vcoControl_ = 0.12f;
+		loopCapacitor_ = 0.12f;
+		controlNodeFilter_.out = 0.12f;
+		vcoFrequency_ = vcoFrequencyFromControl(vcoControl_);
 		lfoPhase_ = 0.f;
-		loopControl_ = 0.f;
 		pfdUp_ = false;
 		pfdDown_ = false;
-		envelope_ = 0.f;
-		outputDc_ = 0.f;
-		outputLp_ = 0.f;
-		lockEnvelope_ = 0.f;
-		lastOscillator_ = -1.f;
+		lastPfdMagnitude_ = 0.f;
 	}
 
 	KoruptResult process(float input, bool inputRisingEdge, bool inputHigh, const KoruptParams& rawParams) {
-		KoruptParams params = rawParams;
-		params.level = koruptClamp01(params.level);
-		params.squareMix = koruptClamp01(params.squareMix);
-		params.oscillatorMix = koruptClamp01(params.oscillatorMix);
-		params.subharmonicMix = koruptClamp01(params.subharmonicMix);
-		params.rate = koruptClamp01(params.rate);
-		params.oscillatorProgram = std::max(0, std::min(7, params.oscillatorProgram));
-		params.oscillatorRoot = std::max(0, std::min(2, params.oscillatorRoot));
-		params.subharmonicProgram = std::max(0, std::min(7, params.subharmonicProgram));
-		params.subharmonicRoot = std::max(0, std::min(1, params.subharmonicRoot));
+		KoruptParams params = normalizedParams(rawParams);
 
 		samplesSinceRoot_ += 1.f;
-		updateEnvelope(input);
+		const float envelope = updateEnvelope(input);
 
 		bool rootEdge = false;
 		if (inputRisingEdge) {
-			const bool div2Edge = rootDiv2_.processEdge(2);
-			const bool div4Edge = rootDiv4_.processEdge(4);
-
+			rootCounter_.clock();
 			if (params.oscillatorRoot == 0) {
 				rootEdge = true;
 			}
 			else if (params.oscillatorRoot == 1) {
-				rootEdge = div2Edge;
+				rootEdge = rootCounter_.outputRising(0);
 			}
 			else {
-				rootEdge = div4Edge;
+				rootEdge = rootCounter_.outputRising(1);
 			}
 		}
 
@@ -169,83 +242,88 @@ public:
 		}
 
 		const int oscillatorMultiplier = oscillatorMultiplierForProgram(params.oscillatorProgram);
-		updatePll(params, oscillatorMultiplier);
-
 		bool oscillatorEdge = false;
-		const float oscillator = tickOscillator(oscillatorMultiplier, &oscillatorEdge);
+		const float rawOscillator = tickVco(&oscillatorEdge);
 
-		if (oscillatorEdge && feedbackDivider_.processEdge(oscillatorMultiplier)) {
-			pfdDown_ = true;
+		bool feedbackEdge = false;
+		if (oscillatorEdge) {
+			feedbackEdge = feedbackCounter_.clock(oscillatorMultiplier);
+			if (feedbackEdge) {
+				pfdDown_ = true;
+			}
 		}
+
 		if (pfdUp_ && pfdDown_) {
 			pfdUp_ = false;
 			pfdDown_ = false;
 		}
+		update4046Loop(params);
 
 		const int subharmonicDivisor = subharmonicDivisorForProgram(params.subharmonicProgram);
 		const bool subSourceEdge = params.subharmonicRoot == 0 ? inputRisingEdge : oscillatorEdge;
 		if (subSourceEdge) {
-			subDivider_.processEdge(subharmonicDivisor);
+			subCounter_.clock(subharmonicDivisor);
 		}
 
-		const float tracking = envelope_ > 0.01f ? 1.f : envelope_ * 100.f;
-		const float square = tracking * (inputHigh ? 1.f : -1.f);
-		const float oscillatorVoice = tracking * oscillator;
-		const float subharmonic = tracking * subDivider_.value();
+		const float tracking = envelope > 0.012f ? 1.f : envelope * 83.333f;
+		squareSmoother_.process(inputHigh ? 1.f : -1.f);
+		oscillatorSmoother_.process(rawOscillator);
+		subharmonicSmoother_.process(subCounter_.decodedOutput());
+		const float square = tracking * squareSmoother_.lowpass();
+		const float oscillator = tracking * oscillatorSmoother_.lowpass();
+		const float subharmonic = tracking * subharmonicSmoother_.lowpass();
 
-		const float mixSum = std::max(0.0001f, params.squareMix + params.oscillatorMix + params.subharmonicMix);
-		float mixed = (
-			square * params.squareMix +
-			oscillatorVoice * params.oscillatorMix +
-			subharmonic * params.subharmonicMix
-		) / mixSum;
-		mixed = std::tanh(2.4f * mixed) * params.level;
+		float mixed = mixAndOutput(square, oscillator, subharmonic, params);
 
-		const float dcCoeff = coefficientForTime(0.02f);
-		outputDc_ += dcCoeff * (mixed - outputDc_);
-		mixed -= outputDc_ * 0.96f;
+		const float lockTarget = lockConfidence(params, oscillatorMultiplier, tracking);
+		lockFilter_.process(sampleTime_, lockTarget);
 
-		const float lpCoeff = coefficientForFrequency(9500.f);
-		outputLp_ += lpCoeff * (mixed - outputLp_);
-		mixed = koruptClamp(outputLp_, -1.f, 1.f);
-
-		const float lockTarget = tracking * koruptClamp01(1.f - std::abs(loopControl_) * 0.85f);
-		lockEnvelope_ += coefficientForTime(0.08f) * (lockTarget - lockEnvelope_);
+		if (!std::isfinite(mixed)) {
+			mixed = 0.f;
+		}
 
 		KoruptResult result;
 		result.mixed = mixed;
 		result.square = square;
-		result.oscillator = oscillatorVoice;
+		result.oscillator = oscillator;
 		result.subharmonic = subharmonic;
-		result.lock = koruptClamp01(lockEnvelope_);
-		result.tracking = koruptClamp01(tracking);
-		result.glitch = koruptClamp01(tracking * (1.f - result.lock));
+		result.lock = rack::math::clamp(lockFilter_.out);
+		result.tracking = rack::math::clamp(tracking);
+		result.glitch = rack::math::clamp(tracking * (1.f - result.lock + lastPfdMagnitude_ * 0.18f));
 		return result;
 	}
 
 	static int oscillatorMultiplierForProgram(int program) {
-		return std::max(1, std::min(8, program + 1));
+		return rack::math::clamp(program + 1, 1, 8);
 	}
 
 	static int subharmonicDivisorForProgram(int program) {
-		return std::max(2, std::min(9, program + 2));
+		return rack::math::clamp(program + 2, 2, 9);
+	}
+
+	static float audioPotLaw(float value) {
+		value = rack::math::clamp(value);
+		return 0.035f * value + 0.965f * value * value;
 	}
 
 private:
-	float coefficientForFrequency(float frequency) const {
-		const float omega = 6.28318530718f * std::max(0.f, frequency) * sampleTime_;
-		return koruptClamp01(1.f - std::exp(-omega));
+	KoruptParams normalizedParams(const KoruptParams& rawParams) const {
+		KoruptParams params = rawParams;
+		params.level = rack::math::clamp(params.level);
+		params.squareMix = rack::math::clamp(params.squareMix);
+		params.oscillatorMix = rack::math::clamp(params.oscillatorMix);
+		params.subharmonicMix = rack::math::clamp(params.subharmonicMix);
+		params.rate = rack::math::clamp(params.rate);
+		params.oscillatorProgram = rack::math::clamp(params.oscillatorProgram, 0, 7);
+		params.oscillatorRoot = rack::math::clamp(params.oscillatorRoot, 0, 2);
+		params.subharmonicProgram = rack::math::clamp(params.subharmonicProgram, 0, 7);
+		params.subharmonicRoot = rack::math::clamp(params.subharmonicRoot, 0, 1);
+		return params;
 	}
 
-	float coefficientForTime(float seconds) const {
-		seconds = std::max(0.000001f, seconds);
-		return koruptClamp01(1.f - std::exp(-sampleTime_ / seconds));
-	}
-
-	void updateEnvelope(float input) {
+	float updateEnvelope(float input) {
 		const float target = std::min(1.f, std::abs(input));
-		const float coeff = target > envelope_ ? coefficientForTime(0.002f) : coefficientForTime(0.18f);
-		envelope_ += coeff * (target - envelope_);
+		return inputEnvelope_.process(sampleTime_, target);
 	}
 
 	void updateRootEstimate() {
@@ -254,75 +332,129 @@ private:
 				rootPeriodSamples_ = samplesSinceRoot_;
 			}
 			else {
-				rootPeriodSamples_ += 0.12f * (samplesSinceRoot_ - rootPeriodSamples_);
+				rootPeriodSamples_ += 0.18f * (samplesSinceRoot_ - rootPeriodSamples_);
 			}
 			rootFrequency_ = sampleRate_ / std::max(1.f, rootPeriodSamples_);
 		}
 		samplesSinceRoot_ = 0.f;
 	}
 
-	void updatePll(const KoruptParams& params, int oscillatorMultiplier) {
-		const float pfd = (pfdUp_ ? 1.f : 0.f) - (pfdDown_ ? 1.f : 0.f);
-		const float loopHz = 0.8f + params.rate * params.rate * 85.f;
-		loopControl_ += coefficientForFrequency(loopHz) * (pfd - loopControl_);
-		loopControl_ = koruptClamp(loopControl_, -1.f, 1.f);
+	float vcoFrequencyFromControl(float control) const {
+		control = rack::math::clamp(control);
+		const float vcoMin = 18.f;
+		const float vcoMax = std::min(9800.f, sampleRate_ * 0.36f);
+		const float bentControl = std::pow(control, 1.22f);
+		return vcoMin + bentControl * (vcoMax - vcoMin);
+	}
 
-		const float validRootFrequency = rootFrequency_ > 1.f ? rootFrequency_ : 55.f;
-		centerFrequency_ = koruptClamp(validRootFrequency * oscillatorMultiplier, 8.f, sampleRate_ * 0.42f);
+	float tickVco(bool* oscillatorEdge) {
+		*oscillatorEdge = false;
+		vcoPhase_ += vcoFrequency_ * sampleTime_;
+		if (vcoPhase_ >= 1.f) {
+			vcoPhase_ -= std::floor(vcoPhase_);
+			*oscillatorEdge = true;
+		}
+		return vcoPhase_ < 0.5f ? 1.f : -1.f;
+	}
 
-		float targetFrequency = centerFrequency_ * (1.f + loopControl_ * 0.35f);
+	void update4046Loop(const KoruptParams& params) {
+		const float pump = (pfdUp_ ? 1.f : 0.f) - (pfdDown_ ? 1.f : 0.f);
+		lastPfdMagnitude_ = pfdMagnitudeFilter_.process(sampleTime_, std::abs(pump));
+
+		const float pumpRate = 0.95f + params.rate * params.rate * 16.f;
+		loopCapacitor_ += pump * pumpRate * sampleTime_;
+
+		const float leakageHz = params.vibratoMode ? 0.42f : 0.045f;
+		loopLeakageFilter_.out = loopCapacitor_;
+		loopLeakageFilter_.setLambda(6.28318530718f * leakageHz);
+		loopCapacitor_ = rack::math::clamp(loopLeakageFilter_.process(sampleTime_, 0.12f));
+
+		float targetControl = loopCapacitor_;
 		if (params.vibratoMode) {
-			const float vibratoHz = 0.6f + params.rate * 18.f;
+			const float vibratoHz = 0.55f + params.rate * 18.f;
 			lfoPhase_ += vibratoHz * sampleTime_;
 			if (lfoPhase_ >= 1.f) {
 				lfoPhase_ -= std::floor(lfoPhase_);
 			}
-			targetFrequency *= 1.f + std::sin(lfoPhase_ * 6.28318530718f) * 0.055f;
+			const float tri = lfoPhase_ < 0.5f ? (lfoPhase_ * 4.f - 1.f) : (3.f - lfoPhase_ * 4.f);
+			targetControl += tri * 0.028f;
 		}
 
-		const float slewTime = params.vibratoMode ? 0.006f : (0.45f - params.rate * 0.42f);
-		pllFrequency_ += coefficientForTime(std::max(0.004f, slewTime)) * (targetFrequency - pllFrequency_);
-		pllFrequency_ = koruptClamp(pllFrequency_, 8.f, sampleRate_ * 0.42f);
+		const float glideHz = params.vibratoMode ? 650.f : (0.45f + params.rate * params.rate * 95.f);
+		controlNodeFilter_.setLambda(6.28318530718f * glideHz);
+		vcoControl_ = rack::math::clamp(controlNodeFilter_.process(sampleTime_, targetControl));
+		vcoFrequency_ = vcoFrequencyFromControl(vcoControl_);
 	}
 
-	float tickOscillator(int oscillatorMultiplier, bool* oscillatorEdge) {
-		(void) oscillatorMultiplier;
-		*oscillatorEdge = false;
-		pllPhase_ += pllFrequency_ * sampleTime_;
-		if (pllPhase_ >= 1.f) {
-			pllPhase_ -= std::floor(pllPhase_);
-			*oscillatorEdge = true;
+	float lockConfidence(const KoruptParams& params, int oscillatorMultiplier, float tracking) const {
+		if (tracking <= 0.f || rootFrequency_ <= 1.f) {
+			return 0.f;
 		}
 
-		float oscillator = pllPhase_ < 0.5f ? 1.f : -1.f;
-		if (*oscillatorEdge && lastOscillator_ < 0.f) {
-			oscillator = 1.f;
+		const float desiredFrequency = rootFrequency_ * static_cast<float>(oscillatorMultiplier);
+		const float vcoMin = 18.f;
+		const float vcoMax = std::min(9800.f, sampleRate_ * 0.36f);
+		if (desiredFrequency < vcoMin || desiredFrequency > vcoMax) {
+			return 0.f;
 		}
-		lastOscillator_ = oscillator;
-		return oscillator;
+
+		const float ratioError = std::abs(vcoFrequency_ - desiredFrequency) / std::max(1.f, desiredFrequency);
+		const float holdWindow = 0.16f + params.rate * 0.22f;
+		const float phasePenalty = rack::math::clamp(lastPfdMagnitude_ * 0.55f);
+		return tracking * rack::math::clamp(1.f - ratioError / holdWindow) * (1.f - phasePenalty);
+	}
+
+	float asymmetricClip(float input) const {
+		if (input >= 0.f) {
+			return 1.04f * std::tanh(input / 1.04f);
+		}
+		return -1.14f * std::tanh((-input) / 1.14f);
+	}
+
+	float mixAndOutput(float square, float oscillator, float subharmonic, const KoruptParams& params) {
+		const float squareGain = audioPotLaw(params.squareMix);
+		const float oscillatorGain = audioPotLaw(params.oscillatorMix);
+		const float subharmonicGain = audioPotLaw(params.subharmonicMix);
+
+		float mixed = square * squareGain + oscillator * oscillatorGain + subharmonic * subharmonicGain;
+		mixed = asymmetricClip(mixed * 1.25f);
+
+		outputDcBlock_.process(mixed);
+		mixed = outputDcBlock_.highpass();
+		outputLowpass1_.process(mixed);
+		outputLowpass2_.process(outputLowpass1_.lowpass());
+
+		const float levelGain = 0.02f + params.level * 1.72f;
+		return rack::math::clamp(outputLowpass2_.lowpass() * levelGain, -1.35f, 1.35f);
 	}
 
 	float sampleRate_ = 44100.f;
 	float sampleTime_ = 1.f / 44100.f;
-	ToggleDivider rootDiv2_;
-	ToggleDivider rootDiv4_;
-	PulseDivider feedbackDivider_;
-	PulseDivider subDivider_;
+	Cmos4024Counter rootCounter_;
+	Cmos4017Counter feedbackCounter_;
+	Cmos4017Counter subCounter_;
+	rack::dsp::RCFilter squareSmoother_;
+	rack::dsp::RCFilter oscillatorSmoother_;
+	rack::dsp::RCFilter subharmonicSmoother_;
+	rack::dsp::RCFilter outputDcBlock_;
+	rack::dsp::RCFilter outputLowpass1_;
+	rack::dsp::RCFilter outputLowpass2_;
+	rack::dsp::ExponentialSlewLimiter inputEnvelope_;
+	rack::dsp::ExponentialFilter loopLeakageFilter_;
+	rack::dsp::ExponentialFilter controlNodeFilter_;
+	rack::dsp::ExponentialFilter pfdMagnitudeFilter_;
+	rack::dsp::ExponentialFilter lockFilter_;
 	float samplesSinceRoot_ = 0.f;
 	float rootPeriodSamples_ = 0.f;
 	float rootFrequency_ = 0.f;
-	float centerFrequency_ = 55.f;
-	float pllFrequency_ = 55.f;
-	float pllPhase_ = 0.f;
+	float vcoPhase_ = 0.f;
+	float vcoControl_ = 0.12f;
+	float loopCapacitor_ = 0.12f;
+	float vcoFrequency_ = 55.f;
 	float lfoPhase_ = 0.f;
-	float loopControl_ = 0.f;
 	bool pfdUp_ = false;
 	bool pfdDown_ = false;
-	float envelope_ = 0.f;
-	float outputDc_ = 0.f;
-	float outputLp_ = 0.f;
-	float lockEnvelope_ = 0.f;
-	float lastOscillator_ = -1.f;
+	float lastPfdMagnitude_ = 0.f;
 };
 
 } // namespace ShortwavDSP
