@@ -21,15 +21,18 @@ if [ -d "./build" ]; then
   OUT_DIR="./build"
 fi
 
-OUT_BIN="${OUT_DIR}/build_test_tapestry"
-
-"$CXX" -std=c++17 -O2 -Wall -Isrc -DSHORTWAV_DSP_RUN_TESTS -o "$OUT_BIN" src/tests/test_tapestry.cpp
+TESTS=(
+  "src/tests/test_tapestry.cpp:build_test_tapestry"
+  "src/tests/test_korupt.cpp:build_test_korupt"
+)
 
 echo "Running tests..."
-if "$OUT_BIN"; then
-  echo "Tests passed."
-  exit 0
-else
-  echo "Tests failed."
-  exit $?
-fi
+for entry in "${TESTS[@]}"; do
+  src="${entry%%:*}"
+  bin="${entry##*:}"
+  out_bin="${OUT_DIR}/${bin}"
+  "$CXX" -std=c++17 -O2 -Wall -Isrc -DSHORTWAV_DSP_RUN_TESTS -o "$out_bin" "$src"
+  "$out_bin"
+done
+
+echo "Tests passed."

@@ -28,6 +28,14 @@ The Rack module should therefore be a monophonic or per-poly-channel PLL synth/f
 
 Recommended implementation: create a new standalone-only module named `Korupt` with audio input/output, per-voice outputs, CV-friendly controls, a pedal-inspired interface, and a pure DSP engine in `src/dsp/korupt-dsp.h`. Do not implement it as a Tapestry expander; the source pedal is a self-contained mono effect, so standalone is the intended product shape.
 
+Initial implementation status:
+
+- Rack module wrapper: `src/Korupt.hpp` and `src/Korupt.cpp`
+- Rack-free DSP core: `src/dsp/korupt-dsp.h`
+- Panel SVG: `res/KORUPT.svg`
+- DSP regression tests: `src/tests/test_korupt.cpp`
+- Plugin registration/manifest: `src/plugin.hpp`, `src/plugin.cpp`, and `plugin.json`
+
 ## Confirmed Product Decisions
 
 - Module name: `Korupt`.
@@ -216,7 +224,7 @@ Suggested 20HP Rack layout:
 Implementation notes for the panel:
 
 - Use a custom SVG panel at `res/KORUPT.svg`.
-- Convert all panel text to paths before release.
+- Current first-pass panel art exists at `res/KORUPT.svg`; convert all panel text to paths before release.
 - Use a `components` layer if generating placements from SVG markers.
 - Use `RoundBlackKnob` or `Davies1900hLargeBlackKnob` as the first pass; custom scalloped knobs can come later if we want the screenshot's knob silhouette.
 - Use `RoundBlackSnapKnob` for the 8-position program selectors and `CKSS`/`CKSSThree` for the toggle switches.

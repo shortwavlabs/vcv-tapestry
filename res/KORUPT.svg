@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="300" height="380" viewBox="0 0 300 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="380" fill="#9B9B9B"/>
+  <path d="M0 284L300 94V380H0V284Z" fill="#D4D4D4" opacity="0.44"/>
+  <path d="M0 84L133 0H300V48L0 238V84Z" fill="#D9D9D9" opacity="0.28"/>
+  <path d="M91 0L300 132V244L0 54V0H91Z" fill="#EFEFEF" opacity="0.18"/>
+
+  <g stroke="#1E1E1E" stroke-width="2" fill="none" stroke-linejoin="round">
+    <path d="M16 46H175C180 46 184 50 184 55V86C184 91 180 95 175 95H16C11 95 7 91 7 86V55C7 50 11 46 16 46Z"/>
+    <path d="M185 46H215L228 71L215 95H185"/>
+    <path d="M22 113H123C129 113 133 117 133 123V274C133 280 129 284 123 284H17C11 284 7 280 7 274V123C7 117 11 113 17 113Z"/>
+    <path d="M139 113H164C170 113 174 117 174 123V274C174 280 170 284 164 284H139C133 284 129 280 129 274V123C129 117 133 113 139 113Z"/>
+    <path d="M183 113H282C288 113 293 118 293 124V274C293 280 288 284 282 284H183C177 284 173 280 173 274V124C173 118 177 113 183 113Z"/>
+    <path d="M10 299H290V370H10V299Z"/>
+  </g>
+
+  <g fill="#1E1E1E" font-family="Arial Black, Impact, sans-serif">
+    <text x="16" y="31" font-size="22">KORUPT</text>
+    <text x="16" y="43" font-size="9" letter-spacing="1">VOICE MIXER</text>
+    <text x="232" y="43" font-size="10" transform="rotate(90 232 43)">LEVEL</text>
+
+    <text x="28" y="109" font-size="13">SUBHARMONIC</text>
+    <text x="137" y="109" font-size="11">FREQ</text>
+    <text x="187" y="109" font-size="13">MASTER OSC</text>
+
+    <text x="31" y="105" font-size="8">Square</text>
+    <text x="88" y="105" font-size="8">Sub</text>
+    <text x="144" y="105" font-size="8">Osc</text>
+
+    <text x="40" y="221" font-size="8">1  2  3  4</text>
+    <text x="40" y="236" font-size="8">5  6  7  8</text>
+    <text x="22" y="263" font-size="10">Input</text>
+    <text x="22" y="277" font-size="10">Osc</text>
+    <path d="M63 257H88L88 249L117 263L88 277L88 269H63Z" fill="#1E1E1E"/>
+
+    <text x="139" y="139" font-size="9">Glide</text>
+    <text x="137" y="182" font-size="9">Vibr</text>
+    <text x="138" y="258" font-size="10">Rate</text>
+
+    <text x="214" y="221" font-size="8">1  2  3  4</text>
+    <text x="214" y="236" font-size="8">5  6  7  8</text>
+    <text x="190" y="254" font-size="10">Uni</text>
+    <text x="190" y="269" font-size="10">-1</text>
+    <text x="190" y="282" font-size="10">-2</text>
+    <path d="M215 257H241L241 249L270 263L241 277L241 269H215Z" fill="#1E1E1E"/>
+
+    <text x="15" y="306" font-size="7">IN</text>
+    <text x="14" y="374" font-size="7">OUT</text>
+    <text x="53" y="306" font-size="7">SQ CV</text>
+    <text x="54" y="374" font-size="7">SQ</text>
+    <text x="96" y="306" font-size="7">SUB CV</text>
+    <text x="98" y="374" font-size="7">SUB</text>
+    <text x="140" y="306" font-size="7">OSC CV</text>
+    <text x="142" y="374" font-size="7">OSC</text>
+    <text x="185" y="306" font-size="7">RATE</text>
+    <text x="187" y="374" font-size="7">LOCK</text>
+    <text x="231" y="306" font-size="7">SUB P</text>
+    <text x="263" y="306" font-size="7">OSC P</text>
+    <text x="231" y="374" font-size="7">TRK</text>
+    <text x="254" y="374" font-size="7">LCK</text>
+    <text x="272" y="374" font-size="7">GL</text>
+  </g>
+
+  <g stroke="#1E1E1E" stroke-width="2" stroke-linecap="round">
+    <path d="M32 188C52 174 72 174 92 188"/>
+    <path d="M205 188C225 174 245 174 265 188"/>
+    <path d="M31 242H116" stroke-dasharray="8 8"/>
+    <path d="M190 242H274" stroke-dasharray="8 8"/>
+  </g>
+</svg>
