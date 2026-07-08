@@ -116,6 +116,7 @@ For detailed tutorials, see the [Quick Start Guide](docs/QUICKSTART.md).
 ## 📚 Documentation
 
 - **[Quick Start Guide](docs/QUICKSTART.md)** - Get up and running quickly
+- **[Korupt User Manual](docs/KORUPT.md)** - PLL harmonizer/fuzz controls, presets, and patching tips
 - **[API Reference](docs/API_REFERENCE.md)** - Complete technical documentation
 - **[Advanced Usage](docs/ADVANCED_USAGE.md)** - In-depth techniques and workflows
 - **[Examples](docs/examples/)** - Real-world patch examples

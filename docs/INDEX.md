@@ -10,6 +10,7 @@
 
 - **[README.md](../README.md)** - Main overview, features, installation, and quick reference
 - **[Quick Start Guide](QUICKSTART.md)** - Get up and running in minutes
+- **[Korupt User Manual](KORUPT.md)** - PLL harmonizer/fuzz controls, patching, presets, and tracking tips
 - **[API Reference](API_REFERENCE.md)** - Complete technical documentation
 - **[Advanced Usage](ADVANCED_USAGE.md)** - Expert techniques and workflows
 - **[FAQ](FAQ.md)** - Common questions and solutions
@@ -53,6 +54,10 @@
 #### Use the Expander
 → [Example 7: Expander Effects](examples/07_expander_effects.md)  
 → [Quick Start: Adding Effects](QUICKSTART.md#adding-effects-with-expander)
+
+#### Use Korupt
+→ [Korupt User Manual](KORUPT.md)  
+→ [Korupt Presets](KORUPT.md#factory-presets)
 
 #### Understand the Technical Details
 → [API Reference](API_REFERENCE.md)  
@@ -126,6 +131,12 @@
 - [API: TapestryExpander Class](API_REFERENCE.md#tapestry-expander-module)
 - [FAQ: Expander](FAQ.md#expander-module)
 
+### Korupt PLL Harmonizer
+- [Korupt User Manual](KORUPT.md)
+- [Korupt Factory Presets](KORUPT.md#factory-presets)
+- [Korupt Tracking Tips](KORUPT.md#tracking-tips)
+- [Korupt Research Notes](CORRUPTION_PEDAL_MODULE_RESEARCH.md)
+
 ### CV Modulation
 - [Quick Start: CV Inputs](QUICKSTART.md#cv-voltage-standards)
 - [Advanced: CV Modulation Recipes](ADVANCED_USAGE.md#cv-modulation-recipes)
@@ -151,6 +162,12 @@
 **Audience**: Beginners  
 **Length**: ~600 lines  
 **Topics**: Step-by-step guides, basic workflows, troubleshooting
+
+### KORUPT.md
+**Purpose**: User manual for the Korupt PLL harmonizer/fuzz module  
+**Audience**: All users  
+**Length**: ~400 lines  
+**Topics**: Controls, inputs, outputs, presets, patch recipes, tracking, troubleshooting
 
 ### API_REFERENCE.md
 **Purpose**: Complete technical reference  
@@ -208,8 +225,8 @@
 
 ## 📊 Documentation Statistics
 
-- **Total Pages**: 10 major documents
-- **Total Length**: ~4,500 lines
+- **Total Pages**: 11 major documents
+- **Total Length**: ~4,900 lines
 - **Examples**: 4+ detailed tutorials
 - **Code Samples**: 50+ snippets
 - **Reference Tables**: 20+ tables
