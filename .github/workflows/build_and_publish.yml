@@ -70,15 +70,6 @@ jobs:
             mingw-w64-x86_64-zstd
 
       # ------------------------------------------------------------------------
-      # Run Tests
-      # ------------------------------------------------------------------------
-      - name: Run Tests
-        shell: bash
-        run: |
-          chmod +x ./run_tests.sh
-          ./run_tests.sh
-
-      # ------------------------------------------------------------------------
       # Download and Setup SDK
       # ------------------------------------------------------------------------
       - name: Setup Rack SDK
@@ -98,6 +89,15 @@ jobs:
           echo "RACK_DIR=$(pwd)/Rack-SDK" >> $GITHUB_ENV
 
       # ------------------------------------------------------------------------
+      # Run Tests
+      # ------------------------------------------------------------------------
+      - name: Run Tests
+        shell: bash
+        run: |
+          chmod +x ./run_tests.sh
+          ./run_tests.sh
+
+      # ------------------------------------------------------------------------
       # Build Plugin (Linux/Mac)
       # ------------------------------------------------------------------------
       - name: Build Plugin (Linux/Mac)
@@ -113,12 +113,12 @@ jobs:
         if: runner.os == 'Windows'
         shell: msys2 {0}
         run: |
-          # Re-export RACK_DIR inside MSYS2 because GITHUB_ENV is not automatically shared 
+          # Re-export RACK_DIR inside MSYS2 because GITHUB_ENV is not automatically shared
           # in the way make expects for path conversion sometimes, but let's try direct first.
           # Actually, MSYS2 shell inherits env vars, but paths might need care.
           # The SDK is at D:\a\repo\...\Rack-SDK. MSYS2 sees /d/a/repo/...
           # We can just point relatively.
-          
+
           export RACK_DIR="$(pwd)/Rack-SDK"
           make dep
           make dist
