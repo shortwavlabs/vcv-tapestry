@@ -8,7 +8,7 @@ struct KoruptProgramKnob : SynthTechAlco {
 	}
 };
 
-constexpr float panelWidth = 300.f;
+// constexpr float panelWidth = 300.f;
 
 } // namespace
 
@@ -170,48 +170,47 @@ void Korupt::process(const ProcessArgs& args) {
 
 KoruptWidget::KoruptWidget(Korupt* module) {
 	setModule(module);
-	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/KORUPT.svg")));
+	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/SWV_20HP_PANEL.svg")));
 
-	addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(panelWidth - 2 * RACK_GRID_WIDTH, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-	addChild(createWidget<ScrewSilver>(Vec(panelWidth - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+	// Screws
+    addChild(createWidget<ScrewSilver>(Vec(0, 0)));
+    addChild(createWidget<ScrewSilver>(Vec(box.size.x - 1 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-	addParam(createParamCentered<SynthTechAlco>(Vec(49.f, 70.f), module, Korupt::SQUARE_MIX_PARAM));
-	addParam(createParamCentered<SynthTechAlco>(Vec(105.f, 70.f), module, Korupt::SUBHARMONIC_MIX_PARAM));
-	addParam(createParamCentered<SynthTechAlco>(Vec(161.f, 70.f), module, Korupt::OSCILLATOR_MIX_PARAM));
-	addParam(createParamCentered<Davies1900hLargeBlackKnob>(Vec(251.f, 72.f), module, Korupt::LEVEL_PARAM));
+	addParam(createParamCentered<SynthTechAlco>(Vec(49.f, 45.f), module, Korupt::SQUARE_MIX_PARAM));
+	addParam(createParamCentered<SynthTechAlco>(Vec(105.f, 45.f), module, Korupt::SUBHARMONIC_MIX_PARAM));
+	addParam(createParamCentered<SynthTechAlco>(Vec(161.f, 45.f), module, Korupt::OSCILLATOR_MIX_PARAM));
+	addParam(createParamCentered<Davies1900hLargeBlackKnob>(Vec(251.f, 47.f), module, Korupt::LEVEL_PARAM));
 
-	addParam(createParamCentered<KoruptProgramKnob>(Vec(62.f, 166.f), module, Korupt::SUBHARMONIC_PROGRAM_PARAM));
-	addParam(createParamCentered<CKSS>(Vec(100.f, 250.f), module, Korupt::SUBHARMONIC_ROOT_PARAM));
+	addParam(createParamCentered<KoruptProgramKnob>(Vec(62.f, 141.f), module, Korupt::SUBHARMONIC_PROGRAM_PARAM));
+	addParam(createParamCentered<CKSS>(Vec(62.f, 194.f), module, Korupt::SUBHARMONIC_ROOT_PARAM));
 
-	addParam(createParamCentered<CKSS>(Vec(150.f, 151.f), module, Korupt::FREQ_MOD_MODE_PARAM));
-	addParam(createParamCentered<SynthTechAlco>(Vec(150.f, 219.f), module, Korupt::RATE_PARAM));
+	addParam(createParamCentered<CKSS>(Vec(150.f, 141.f), module, Korupt::FREQ_MOD_MODE_PARAM));
+	addParam(createParamCentered<SynthTechAlco>(Vec(150.f, 194.f), module, Korupt::RATE_PARAM));
 
-	addParam(createParamCentered<KoruptProgramKnob>(Vec(235.f, 166.f), module, Korupt::OSCILLATOR_PROGRAM_PARAM));
-	addParam(createParamCentered<CKSSThree>(Vec(247.f, 250.f), module, Korupt::OSCILLATOR_ROOT_PARAM));
+	addParam(createParamCentered<KoruptProgramKnob>(Vec(235.f, 141.f), module, Korupt::OSCILLATOR_PROGRAM_PARAM));
+	addParam(createParamCentered<CKSSThree>(Vec(235.f, 194.f), module, Korupt::OSCILLATOR_ROOT_PARAM));
 
-	addInput(createInputCentered<PJ301MPort>(Vec(24.f, 321.f), module, Korupt::AUDIO_INPUT));
-	addOutput(createOutputCentered<PJ301MPort>(Vec(24.f, 354.f), module, Korupt::AUDIO_OUTPUT));
+	addInput(createInputCentered<PJ301MPort>(Vec(24.f, 281.f), module, Korupt::AUDIO_INPUT));
+	addOutput(createOutputCentered<PJ301MPort>(Vec(24.f, 319.f), module, Korupt::AUDIO_OUTPUT));
 
-	addInput(createInputCentered<PJ301MPort>(Vec(67.f, 321.f), module, Korupt::SQUARE_MIX_CV_INPUT));
-	addOutput(createOutputCentered<PJ301MPort>(Vec(67.f, 354.f), module, Korupt::SQUARE_OUTPUT));
+	addInput(createInputCentered<PJ301MPort>(Vec(67.f, 281.f), module, Korupt::SQUARE_MIX_CV_INPUT));
+	addOutput(createOutputCentered<PJ301MPort>(Vec(67.f, 319.f), module, Korupt::SQUARE_OUTPUT));
 
-	addInput(createInputCentered<PJ301MPort>(Vec(111.f, 321.f), module, Korupt::SUBHARMONIC_MIX_CV_INPUT));
-	addOutput(createOutputCentered<PJ301MPort>(Vec(111.f, 354.f), module, Korupt::SUBHARMONIC_OUTPUT));
+	addInput(createInputCentered<PJ301MPort>(Vec(111.f, 281.f), module, Korupt::SUBHARMONIC_MIX_CV_INPUT));
+	addOutput(createOutputCentered<PJ301MPort>(Vec(111.f, 319.f), module, Korupt::SUBHARMONIC_OUTPUT));
 
-	addInput(createInputCentered<PJ301MPort>(Vec(155.f, 321.f), module, Korupt::OSCILLATOR_MIX_CV_INPUT));
-	addOutput(createOutputCentered<PJ301MPort>(Vec(155.f, 354.f), module, Korupt::OSCILLATOR_OUTPUT));
+	addInput(createInputCentered<PJ301MPort>(Vec(155.f, 281.f), module, Korupt::OSCILLATOR_MIX_CV_INPUT));
+	addOutput(createOutputCentered<PJ301MPort>(Vec(155.f, 319.f), module, Korupt::OSCILLATOR_OUTPUT));
 
-	addInput(createInputCentered<PJ301MPort>(Vec(199.f, 321.f), module, Korupt::RATE_CV_INPUT));
-	addOutput(createOutputCentered<PJ301MPort>(Vec(199.f, 354.f), module, Korupt::LOCK_OUTPUT));
+	addInput(createInputCentered<PJ301MPort>(Vec(199.f, 281.f), module, Korupt::RATE_CV_INPUT));
+	addOutput(createOutputCentered<PJ301MPort>(Vec(199.f, 319.f), module, Korupt::LOCK_OUTPUT));
 
-	addInput(createInputCentered<PJ301MPort>(Vec(243.f, 321.f), module, Korupt::SUBHARMONIC_PROGRAM_CV_INPUT));
-	addInput(createInputCentered<PJ301MPort>(Vec(276.f, 321.f), module, Korupt::OSCILLATOR_PROGRAM_CV_INPUT));
+	addInput(createInputCentered<PJ301MPort>(Vec(243.f, 281.f), module, Korupt::SUBHARMONIC_PROGRAM_CV_INPUT));
+	addInput(createInputCentered<PJ301MPort>(Vec(276.f, 281.f), module, Korupt::OSCILLATOR_PROGRAM_CV_INPUT));
 
-	addChild(createLightCentered<MediumLight<GreenLight>>(Vec(243.f, 354.f), module, Korupt::TRACK_LIGHT));
-	addChild(createLightCentered<MediumLight<BlueLight>>(Vec(260.f, 354.f), module, Korupt::LOCK_LIGHT));
-	addChild(createLightCentered<MediumLight<RedLight>>(Vec(277.f, 354.f), module, Korupt::GLITCH_LIGHT));
+	addChild(createLightCentered<MediumLight<GreenLight>>(Vec(243.f, 319.f), module, Korupt::TRACK_LIGHT));
+	addChild(createLightCentered<MediumLight<BlueLight>>(Vec(260.f, 319.f), module, Korupt::LOCK_LIGHT));
+	addChild(createLightCentered<MediumLight<RedLight>>(Vec(277.f, 319.f), module, Korupt::GLITCH_LIGHT));
 }
 
 Model* modelKorupt = createModel<Korupt, KoruptWidget>("Korupt");
