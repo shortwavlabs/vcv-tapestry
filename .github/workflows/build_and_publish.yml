@@ -70,15 +70,6 @@ jobs:
             mingw-w64-x86_64-zstd
 
       # ------------------------------------------------------------------------
-      # Run Tests
-      # ------------------------------------------------------------------------
-      - name: Run Tests
-        shell: bash
-        run: |
-          chmod +x ./run_tests.sh
-          ./run_tests.sh
-
-      # ------------------------------------------------------------------------
       # Download and Setup SDK
       # ------------------------------------------------------------------------
       - name: Setup Rack SDK
@@ -86,16 +77,40 @@ jobs:
         run: |
           echo "Downloading SDK from ${{ matrix.sdk_url }}"
           curl -L -o Rack-SDK.zip "${{ matrix.sdk_url }}"
-          unzip -q Rack-SDK.zip
-          # SDK unzips to a folder like "Rack-SDK". We rename it to "Rack-SDK" just in case name varies.
-          if [ -d "Rack-SDK" ]; then
-            echo "SDK found in Rack-SDK"
+          rm -rf sdk-extract
+          unzip -q Rack-SDK.zip -d sdk-extract
+
+          if [ -d sdk-extract/include ]; then
+            SDK_DIR=sdk-extract
           else
-            # Find the directory it unzipped to (e.g. Rack-SDK-2.x.x)
-            SDK_DIR=$(ls -d Rack-SDK* | head -n 1)
-            mv "$SDK_DIR" Rack-SDK
+            SDK_DIR=$(find sdk-extract -mindepth 1 -maxdepth 2 -type d -name "Rack-SDK*" | head -n 1)
           fi
-          echo "RACK_DIR=$(pwd)/Rack-SDK" >> $GITHUB_ENV
+
+          if [ -z "$SDK_DIR" ]; then
+            echo "Unable to find extracted Rack SDK directory" >&2
+            exit 1
+          fi
+
+          mkdir -p dep
+          rm -rf dep/Rack-SDK
+          mv "$SDK_DIR" dep/Rack-SDK
+
+          if [ ! -f dep/Rack-SDK/include/dsp/filter.hpp ]; then
+            echo "Rack SDK was not installed with the expected dep/Rack-SDK layout" >&2
+            find dep/Rack-SDK -maxdepth 3 -type d | sort >&2
+            exit 1
+          fi
+
+          echo "RACK_DIR=$(pwd)/dep/Rack-SDK" >> "$GITHUB_ENV"
+
+      # ------------------------------------------------------------------------
+      # Run Tests
+      # ------------------------------------------------------------------------
+      - name: Run Tests
+        shell: bash
+        run: |
+          chmod +x ./run_tests.sh
+          ./run_tests.sh
 
       # ------------------------------------------------------------------------
       # Build Plugin (Linux/Mac)
@@ -113,13 +128,13 @@ jobs:
         if: runner.os == 'Windows'
         shell: msys2 {0}
         run: |
-          # Re-export RACK_DIR inside MSYS2 because GITHUB_ENV is not automatically shared 
+          # Re-export RACK_DIR inside MSYS2 because GITHUB_ENV is not automatically shared
           # in the way make expects for path conversion sometimes, but let's try direct first.
           # Actually, MSYS2 shell inherits env vars, but paths might need care.
-          # The SDK is at D:\a\repo\...\Rack-SDK. MSYS2 sees /d/a/repo/...
+          # The SDK is at D:\a\repo\...\dep\Rack-SDK. MSYS2 sees /d/a/repo/...
           # We can just point relatively.
-          
-          export RACK_DIR="$(pwd)/Rack-SDK"
+
+          export RACK_DIR="$(pwd)/dep/Rack-SDK"
           make dep
           make dist
 

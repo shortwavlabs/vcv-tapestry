@@ -1,10 +1,10 @@
 {
   "slug": "tapestry",
   "name": "Tapestry",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "license": "GPL-3.0-or-later",
   "brand": "Shortwav Labs",
-  "author": "Stephane Pericat",
+  "author": "Shortwav Labs",
   "authorEmail": "contact@shortwavlabs.com",
   "manualUrl": "https://github.com/shortwavlabs/vcv-tapestry/blob/main/docs/INDEX.md",
   "sourceUrl": "https://github.com/shortwavlabs/vcv-tapestry/tree/main/src",
@@ -15,22 +15,19 @@
       "slug": "Tapestry",
       "name": "Tapestry",
       "description": "Granular microsound processor inspired by musique concrète - manipulate audio reels with splices, grains, and morph controls",
-      "tags": [
-        "Sampler",
-        "Granular",
-        "Recording"
-      ]
+      "tags": ["Sampler", "Granular", "Recording"]
     },
     {
       "slug": "TapestryExpander",
       "name": "Tapestry Expander",
       "description": "Effects expander for Tapestry - adds Bit Crusher and Moog VCF 24dB/oct lowpass filter with CV control",
-      "tags": [
-        "Effect",
-        "Filter",
-        "Distortion",
-        "Expander"
-      ]
+      "tags": ["Effect", "Filter", "Distortion", "Expander"]
+    },
+    {
+      "slug": "Korupt",
+      "name": "Korupt",
+      "description": "PLL harmonizer and square-wave fuzz",
+      "tags": ["Effect", "Distortion", "Oscillator"]
     }
   ]
 }

@@ -1,26 +1,22 @@
 # Tapestry
 
-![Version](https://img.shields.io/badge/version-2.0.0-blue)
+![Version](https://img.shields.io/badge/version-2.1.0-blue)
 ![License](https://img.shields.io/badge/license-GPL--3.0--or--later-green)
 ![VCV Rack](https://img.shields.io/badge/VCV%20Rack-2.0+-orange)
 
-**A granular microsound processor for VCV Rack inspired by musique concrète**
+**Granular microsound, tape-style processing, and PLL harmonizer/fuzz modules for VCV Rack**
 
-Tapestry brings the world of tape music manipulation and granular synthesis to your modular patches. Record, splice, and morph audio with sophisticated granular processing, creating everything from subtle textures to extreme sound design.
+Tapestry brings tape music manipulation, granular synthesis, and circuit-inspired pitch corruption to your modular patches. Record, splice, and morph audio with the main Tapestry module, add dedicated processing with Tapestry Expander, or turn monophonic sources into octave fuzz, subharmonics, and unstable PLL harmonies with Korupt.
 
 ---
 
 ## 🎵 Overview
 
-Tapestry is a VCV Rack plugin that combines traditional tape music techniques with modern granular synthesis. It provides:
+Tapestry is a VCV Rack plugin from Shortwav Labs with three modules:
 
-- **Reels**: Record up to 2.9 minutes of stereo audio
-- **Markers**: Create up to 300 markers for precise audio segmentation
-- **Grains**: Granular particles with variable size and overlap
-- **Time Manipulation**: Speed control for playback rate and direction
-- **Mix**: Crossfade recording with overdub capabilities
-- **Time Stretch**: Clock-synced granular playback for rhythmic effects
-- **Expander Module**: Add bit crushing and Moog-style filtering
+- **Tapestry**: Record up to 2.9 minutes of stereo audio, place up to 300 markers, and reshape reels with granular playback.
+- **Tapestry Expander**: Add voltage-controlled bit crushing and Moog-style lowpass filtering to Tapestry.
+- **Korupt**: Process monophonic audio with a PLL harmonizer, square-wave fuzz voice, and subharmonic divider.
 
 ---
 
@@ -44,6 +40,15 @@ Tapestry is a VCV Rack plugin that combines traditional tape music techniques wi
 - 🎛️ **Dry/Wet Mix**: Individual mix controls for each effect
 - 📊 **CV Control**: Voltage control for all effect parameters
 
+### Korupt
+
+- ⚙️ **PLL Harmonizer**: Master oscillator locks to the input and generates octave, fifth, third, and seventh-style harmonics
+- ▪️ **Square-Wave Fuzz**: One-bit input shaper for raw CMOS-style fuzz tones
+- ⬇️ **Subharmonic Divider**: Counter-based low voices derived from the input square or master oscillator
+- 🎚️ **Three Voice Outputs**: Separate Square, Subharmonic, and Oscillator outputs for external mixing
+- 📊 **Tracking Feedback**: Lock CV plus tracking, lock, and glitch lights
+- 🔌 **Polyphonic Processing**: Processes each input channel independently as a monophonic voice
+
 ---
 
 ## 📦 Installation
@@ -60,8 +65,8 @@ Tapestry is a VCV Rack plugin that combines traditional tape music techniques wi
 
 ```bash
 # Clone the repository
-git clone https://github.com/shortwavlabs/tapestry.git
-cd tapestry
+git clone https://github.com/shortwavlabs/vcv-tapestry.git
+cd vcv-tapestry
 
 # Build the plugin
 make install
@@ -109,6 +114,16 @@ make install
 3. **Set MIX** controls to blend dry and wet signals
 4. **Use OUTPUT LEVEL** for final gain adjustment
 
+### Korupt PLL Fuzz
+
+1. **Add Korupt** to your patch
+2. **Patch a monophonic source** to IN
+3. **Patch OUT** to your mixer
+4. **Start with preset `00_Classic_PLL_Fuzz`**
+5. **Blend Square, Subharmonic, and Oscillator** to shape the voice
+
+For stable tracking, use a strong single-note source around normal Rack audio level. For chaotic divider artifacts, feed Korupt drums, chords, or fast program CV.
+
 For detailed tutorials, see the [Quick Start Guide](docs/QUICKSTART.md).
 
 ---
@@ -116,6 +131,7 @@ For detailed tutorials, see the [Quick Start Guide](docs/QUICKSTART.md).
 ## 📚 Documentation
 
 - **[Quick Start Guide](docs/QUICKSTART.md)** - Get up and running quickly
+- **[Korupt User Manual](docs/KORUPT.md)** - PLL harmonizer/fuzz controls, presets, and patching tips
 - **[API Reference](docs/API_REFERENCE.md)** - Complete technical documentation
 - **[Advanced Usage](docs/ADVANCED_USAGE.md)** - In-depth techniques and workflows
 - **[Examples](docs/examples/)** - Real-world patch examples
@@ -170,6 +186,30 @@ For detailed tutorials, see the [Quick Start Guide](docs/QUICKSTART.md).
 | **Filter Mix** | Dry/wet blend | 0-100% | CV |
 | **Output Level** | Post-effects gain | 0-200% | - |
 
+### Korupt
+
+#### Controls
+
+| Control | Function | Range | CV Input |
+|---------|----------|-------|----------|
+| **Square** | Input-derived square fuzz level | 0-100% | 0-10V |
+| **Subharmonic** | Divider voice level | 0-100% | 0-10V |
+| **Oscillator** | PLL master oscillator level | 0-100% | 0-10V |
+| **Level** | Final output level | 0-100% | - |
+| **Subharmonic Program** | Divider interval | 1-8 | 0-10V |
+| **Subharmonic Root** | Divider source | Input / Oscillator | - |
+| **Frequency Modulator** | PLL modulation mode | Glide / Vibrato | - |
+| **Rate** | Glide or vibrato rate | 0-100% | 0-10V |
+| **Master Oscillator Program** | PLL interval | 1-8 | 0-10V |
+| **Master Oscillator Root** | PLL reference octave | Unison / -1 / -2 | - |
+
+#### Inputs/Outputs
+
+- **IN / OUT**: Main audio input and mixed Korupt output
+- **SQ / SUB / OSC**: Isolated voice outputs
+- **LOCK**: 0-10V PLL lock-confidence output
+- **SQ CV / SUB CV / OSC CV / RATE / SUB P / OSC P**: Additive CV inputs for voice levels, rate, and program selection
+
 ---
 
 ## 🔧 Technical Specifications
@@ -180,6 +220,7 @@ For detailed tutorials, see the [Quick Start Guide](docs/QUICKSTART.md).
 - **Maximum Markers**: 300 per reel
 - **Grain Voices**: Up to 4 simultaneous
 - **File Format**: WAV (32-bit float)
+- **Korupt Channels**: Up to 16 polyphonic channels, processed independently
 - **CPU Usage**: Optimized for real-time performance
 
 ---
@@ -192,6 +233,7 @@ For detailed tutorials, see the [Quick Start Guide](docs/QUICKSTART.md).
 - **Sampling**: Record and manipulate field recordings
 - **Rhythmic Effects**: Clock-synced time stretching and stuttering
 - **Experimental Music**: Explore musique concrète techniques
+- **PLL Fuzz and Harmonies**: Create octave fuzz, divider basses, and unstable upper harmonics with Korupt
 
 ---
 
@@ -209,7 +251,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](docs/CONTRIBUTING.md) for
 
 ## 📄 License
 
-This project is licensed under the **GPL-3.0-or-later** license. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the **GPL-3.0-or-later** license. See the [LICENSE](LICENSE.md) file for details.
 
 ---
 
@@ -224,7 +266,7 @@ This project is licensed under the **GPL-3.0-or-later** license. See the [LICENS
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/shortwavlabs/tapestry/issues)
+- **Issues**: [GitHub Issues](https://github.com/shortwavlabs/vcv-tapestry/issues)
 - **Email**: contact@shortwavlabs.com
 - **Website**: [shortwavlabs.com](https://shortwavlabs.com)
 
@@ -232,7 +274,7 @@ This project is licensed under the **GPL-3.0-or-later** license. See the [LICENS
 
 ## 🗺️ Roadmap
 
-See our [project board](https://github.com/shortwavlabs/tapestry/projects) for upcoming features and improvements.
+See our [project board](https://github.com/shortwavlabs/vcv-tapestry/projects) for upcoming features and improvements.
 
 ### Planned Features
 

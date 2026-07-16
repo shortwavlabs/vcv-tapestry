@@ -1,0 +1,17 @@
+{
+  "plugin": "tapestry",
+  "version": "2.1.0",
+  "model": "Korupt",
+  "params": [
+    { "id": 0, "value": 0.54 },
+    { "id": 1, "value": 0.48 },
+    { "id": 2, "value": 0.88 },
+    { "id": 3, "value": 0.48 },
+    { "id": 4, "value": 3.0 },
+    { "id": 5, "value": 1.0 },
+    { "id": 6, "value": 1.0 },
+    { "id": 7, "value": 0.58 },
+    { "id": 8, "value": 5.0 },
+    { "id": 9, "value": 0.0 }
+  ]
+}
