@@ -77,9 +77,15 @@ jobs:
         run: |
           echo "Downloading SDK from ${{ matrix.sdk_url }}"
           curl -L -o Rack-SDK.zip "${{ matrix.sdk_url }}"
-          unzip -q Rack-SDK.zip -d Rack-SDK-download
+          rm -rf sdk-extract
+          unzip -q Rack-SDK.zip -d sdk-extract
 
-          SDK_DIR=$(find Rack-SDK-download -maxdepth 2 -type d -name "Rack-SDK*" | head -n 1)
+          if [ -d sdk-extract/include ]; then
+            SDK_DIR=sdk-extract
+          else
+            SDK_DIR=$(find sdk-extract -mindepth 1 -maxdepth 2 -type d -name "Rack-SDK*" | head -n 1)
+          fi
+
           if [ -z "$SDK_DIR" ]; then
             echo "Unable to find extracted Rack SDK directory" >&2
             exit 1
@@ -88,6 +94,13 @@ jobs:
           mkdir -p dep
           rm -rf dep/Rack-SDK
           mv "$SDK_DIR" dep/Rack-SDK
+
+          if [ ! -f dep/Rack-SDK/include/dsp/filter.hpp ]; then
+            echo "Rack SDK was not installed with the expected dep/Rack-SDK layout" >&2
+            find dep/Rack-SDK -maxdepth 3 -type d | sort >&2
+            exit 1
+          fi
+
           echo "RACK_DIR=$(pwd)/dep/Rack-SDK" >> "$GITHUB_ENV"
 
       # ------------------------------------------------------------------------

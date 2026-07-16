@@ -21,6 +21,8 @@ if [ -d "./build" ]; then
   OUT_DIR="./build"
 fi
 
+RACK_SDK_DIR="${RACK_DIR:-dep/Rack-SDK}"
+
 TESTS=(
   "src/tests/test_tapestry.cpp:build_test_tapestry"
   "src/tests/test_korupt.cpp:build_test_korupt"
@@ -31,7 +33,7 @@ for entry in "${TESTS[@]}"; do
   src="${entry%%:*}"
   bin="${entry##*:}"
   out_bin="${OUT_DIR}/${bin}"
-  "$CXX" -std=c++17 -O2 -Wall -Isrc -Idep/Rack-SDK/include -Idep/Rack-SDK/dep/include -DSHORTWAV_DSP_RUN_TESTS -o "$out_bin" "$src"
+  "$CXX" -std=c++17 -O2 -Wall -Isrc -I"${RACK_SDK_DIR}/include" -I"${RACK_SDK_DIR}/dep/include" -DSHORTWAV_DSP_RUN_TESTS -o "$out_bin" "$src"
   "$out_bin"
 done
 
