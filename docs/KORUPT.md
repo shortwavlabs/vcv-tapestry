@@ -4,6 +4,8 @@
 
 Korupt is a monophonic-per-channel effect inspired by analog PLL harmonizer pedals and CMOS divider circuits. It converts incoming audio into a one-bit square voice, locks a voltage-controlled master oscillator to that signal, and derives subharmonics from either the input square or the oscillator. The result ranges from tight octave fuzz to unstable divider chatter, pitch-glide laser tones, and broken synth stacks.
 
+Korupt works best when each channel carries a single pitched source. It can process polyphonic cables, but each channel is tracked independently as its own monophonic signal.
+
 ---
 
 ## Table of Contents
@@ -62,7 +64,7 @@ Basic patch:
 [Korupt OUT]       -> [Mixer / Audio Interface]
 ```
 
-### A Good Initial Setting
+### Good Initial Settings
 
 | Control | Starting value |
 | --- | --- |
@@ -98,7 +100,7 @@ Audio In
   -> Audio Out
 ```
 
-The three voice level controls are not normalized. Turning up all three voices drives the output stage harder, just like pushing a resistor mixer into a saturating analog stage.
+The three voice level controls are not normalized. Turning up all three voices drives the output stage harder, much like pushing a resistor mixer into a saturating analog stage.
 
 ---
 
@@ -209,6 +211,8 @@ The isolated voice outputs are useful for external mixing, filtering, logic proc
 | TRK | Input tracking/envelope activity |
 | LCK | PLL is near lock |
 | GL | Tracking instability, lock error, or chaotic divider behavior |
+
+Lights show the highest activity across all polyphonic channels.
 
 ---
 
@@ -392,4 +396,3 @@ The module is a faithful behavioral model, not a literal component-level SPICE s
 - Try the factory presets from the module preset menu.
 - Use **LOCK** and **GL** to learn how different sources affect PLL tracking.
 - Patch the isolated voice outputs into different filters, wavefolders, or delays.
-- Read the implementation research note: [Corruption Pedal VCV Module Research](CORRUPTION_PEDAL_MODULE_RESEARCH.md)

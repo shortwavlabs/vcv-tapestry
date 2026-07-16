@@ -135,7 +135,6 @@
 - [Korupt User Manual](KORUPT.md)
 - [Korupt Factory Presets](KORUPT.md#factory-presets)
 - [Korupt Tracking Tips](KORUPT.md#tracking-tips)
-- [Korupt Research Notes](CORRUPTION_PEDAL_MODULE_RESEARCH.md)
 
 ### CV Modulation
 - [Quick Start: CV Inputs](QUICKSTART.md#cv-voltage-standards)
@@ -267,7 +266,7 @@
 
 ## 📧 Contact and Support
 
-- **Issues**: [GitHub Issues](https://github.com/shortwavlabs/tapestry/issues)
+- **Issues**: [GitHub Issues](https://github.com/shortwavlabs/vcv-tapestry/issues)
 - **Email**: contact@shortwavlabs.com
 - **Website**: [shortwavlabs.com](https://shortwavlabs.com)
 
@@ -277,10 +276,10 @@
 
 All documentation is part of the Tapestry project and is licensed under **GPL-3.0-or-later**.
 
-See [LICENSE](../LICENSE) for details.
+See [LICENSE](../LICENSE.md) for details.
 
 ---
 
 **Happy patching! 🎵**
 
-*Last Updated: January 4, 2026*
+*Last Updated: July 16, 2026*

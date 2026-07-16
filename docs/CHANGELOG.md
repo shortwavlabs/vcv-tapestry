@@ -19,6 +19,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.0] - 2026-07-16
+
+### Added
+
+- **Korupt** module: standalone PLL harmonizer, square-wave fuzz, and subharmonic generator.
+- Three Korupt voice paths: input-derived Square, PLL Oscillator, and counter-based Subharmonic.
+- Isolated Korupt voice outputs for external mixing and processing.
+- PLL lock-confidence CV output plus tracking, lock, and glitch status lights.
+- Additive CV inputs for Square level, Subharmonic level, Oscillator level, Rate, Subharmonic Program, and Oscillator Program.
+- Per-channel polyphonic processing for Korupt, with each channel treated as a separate monophonic source.
+- Ten factory presets for Korupt covering classic PLL fuzz, octave/sub sounds, vibrato chip tones, and unstable tracking textures.
+- Korupt user manual with controls, signal flow, patch recipes, tracking tips, troubleshooting, and technical notes.
+
+### Changed
+
+- Updated the project README and documentation index to include Korupt in the released module lineup.
+
+---
+
 ## [2.0.0] - 2026-01-04
 
 ### Initial Release
@@ -111,6 +130,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Release Date | Key Features |
 |---------|--------------|--------------|
+| **2.1.0** | 2026-07-16 | Added Korupt PLL harmonizer/fuzz module |
 | **2.0.0** | 2026-01-04 | Initial release with full feature set |
 
 ---
@@ -129,14 +149,14 @@ When reporting bugs, please include:
 - Expected vs. actual behavior
 - Patch file (if applicable)
 
-**Submit issues**: [GitHub Issues](https://github.com/shortwavlabs/tapestry/issues)
+**Submit issues**: [GitHub Issues](https://github.com/shortwavlabs/vcv-tapestry/issues)
 
 ---
 
 ## Links
 
-- **Repository**: [github.com/shortwavlabs/tapestry](https://github.com/shortwavlabs/tapestry)
-- **Documentation**: [docs/](docs/)
+- **Repository**: [github.com/shortwavlabs/vcv-tapestry](https://github.com/shortwavlabs/vcv-tapestry)
+- **Documentation**: [docs/](./)
 - **VCV Library**: [library.vcvrack.com](https://library.vcvrack.com/)
 - **Website**: [shortwavlabs.com](https://shortwavlabs.com)
 - **Email**: contact@shortwavlabs.com
@@ -147,10 +167,10 @@ When reporting bugs, please include:
 
 This project is licensed under the **GPL-3.0-or-later** license.
 
-See [LICENSE](../LICENSE) file for full details.
+See [LICENSE](../LICENSE.md) file for full details.
 
 ---
 
 **Thank you for using Tapestry!** 🎵
 
-*Last Updated: January 4, 2026*
+*Last Updated: July 16, 2026*
