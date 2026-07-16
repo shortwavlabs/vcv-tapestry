@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Aligned all tests with Rack's C++11 build standard and added Korupt and Fray coverage.
 - Consolidated Fray's common stage and distortion into one production DSP path backed by Rack slew, exponential smoothing, filter, Hann-window, crossfade, and oversampling primitives, while retaining custom fractional histories and Hermite interpolation.
+- Corrected Fray's stereo input adapter to sum each polyphonic cable independently, clarified that serial order affects overlapping lanes, and added short chain/quality transitions for live topology changes.
 
 ---
 

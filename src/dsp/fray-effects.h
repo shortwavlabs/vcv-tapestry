@@ -1196,7 +1196,7 @@ class DistortionEffect {
 public:
 	DistortionEffect()
 	: sampleRate_(48000.f), sampleTime_(1.f / 48000.f), cachedTone_(-1.f),
-	  selectedQuality_(-1), processing_(false), lastOutput_(), transitionFrom_() {
+	  selectedQuality_(-1), processing_(false), lastWet_(), transitionWetFrom_() {
 		activity_.prepare(sampleRate_, 3.f);
 		qualityTransition_.setRiseFall(1.f / 0.003f, 1.f / 0.003f);
 		toneSmoother_.setTau(0.005f);
@@ -1224,8 +1224,8 @@ public:
 		toneInitialized_ = false;
 		selectedQuality_ = -1;
 		processing_ = false;
-		lastOutput_ = StereoFrame();
-		transitionFrom_ = StereoFrame();
+		lastWet_ = StereoFrame();
+		transitionWetFrom_ = StereoFrame();
 	}
 
 	StereoFrame process(const StereoFrame& input, const EffectSettings& settings, const EffectContext& context) {
@@ -1239,8 +1239,8 @@ public:
 			selectedQuality_ = -1;
 			qualityTransition_.out = 1.f;
 			toneInitialized_ = false;
-			lastOutput_ = dry;
-			transitionFrom_ = dry;
+			lastWet_ = StereoFrame();
+			transitionWetFrom_ = StereoFrame();
 			return StereoFrame(dry.left, dry.right);
 		}
 		processing_ = true;
@@ -1248,18 +1248,20 @@ public:
 		// Slots: 0 mode (Razor/Shape/Fold/Shift), 1 drive, 2 tone,
 		// 3 wet level, 4 dry level, 5 bias, 6 shape, 7 quality hint,
 		// 8..11 reserved. Quality is a discrete Raw/2x choice. Only the
-		// selected path runs; a short held-output transition prevents a hard
-		// edge when scenes switch between paths with different latency.
+		// selected path runs; a short wet-only transition prevents a hard edge
+		// when scenes switch paths while keeping the live dry branch transparent.
 		const int quality = normalizedParam(settings, 7, 0.f) >= 0.5f ? 1 : 0;
+		bool qualityChanged = false;
 		if (selectedQuality_ < 0) {
 			selectedQuality_ = quality;
 			qualityTransition_.out = 1.f;
 		}
 		else if (quality != selectedQuality_) {
-			transitionFrom_ = lastOutput_;
+			transitionWetFrom_ = lastWet_;
 			selectedQuality_ = quality;
-			resetSignalPath();
+			resetOversamplingPath();
 			qualityTransition_.reset();
+			qualityChanged = true;
 		}
 
 		const int mode = std::min(3, static_cast<int>(std::round(normalizedParam(settings, 0, 0.f) * 3.f)));
@@ -1268,6 +1270,10 @@ public:
 		const float shapeAmount = normalizedParam(settings, 6, 0.5f);
 		const float biasedLeft = finiteOrSilence(dry.left + bias);
 		const float biasedRight = finiteOrSilence(dry.right + bias);
+		if (qualityChanged && selectedQuality_ > 0) {
+			primeOversamplingPath(
+				biasedLeft, biasedRight, mode, drive, shapeAmount);
+		}
 
 		float shapedLeft;
 		float shapedRight;
@@ -1316,23 +1322,50 @@ public:
 			lowRight * (1.5f - tone) + high.right * (0.5f + tone));
 		const float wetLevel = normalizedParam(settings, 3, 1.f);
 		const float dryLevel = normalizedParam(settings, 4, 0.f);
-		const StereoFrame core(
-			dry.left * dryLevel + toned.left * wetLevel,
-			dry.right * dryLevel + toned.right * wetLevel);
 		const float transition = clamp01(qualityTransition_.process(sampleTime_, 1.f));
-		const StereoFrame output = transition < 1.f
-			? crossfadeFrames(transitionFrom_, core, transition)
-			: sanitizeFrame(core);
-		lastOutput_ = output;
+		const StereoFrame transitionedWet = transition < 1.f
+			? crossfadeFrames(transitionWetFrom_, toned, transition)
+			: toned;
+		const StereoFrame core(
+			dry.left * dryLevel + transitionedWet.left * wetLevel,
+			dry.right * dryLevel + transitionedWet.right * wetLevel);
+		const StereoFrame output = sanitizeFrame(core);
+		lastWet_ = toned;
 		return output;
 	}
 
 private:
-	void resetSignalPath() {
+	void resetOversamplingPath() {
 		upL_.reset();
 		upR_.reset();
 		downL_.reset();
 		downR_.reset();
+	}
+
+	void primeOversamplingPath(
+		float inputLeft,
+		float inputRight,
+		int mode,
+		float drive,
+		float shapeAmount) {
+		// A constant pre-roll avoids feeding seven samples of startup zero into
+		// the shared DC/tone filters when Raw changes to 2x on a live signal.
+		for (int frame = 0; frame < 16; ++frame) {
+			float left[2];
+			float right[2];
+			upL_.process(inputLeft, left);
+			upR_.process(inputRight, right);
+			for (int i = 0; i < 2; ++i) {
+				left[i] = shape(left[i], mode, drive, shapeAmount);
+				right[i] = shape(right[i], mode, drive, shapeAmount);
+			}
+			downL_.process(left);
+			downR_.process(right);
+		}
+	}
+
+	void resetSignalPath() {
+		resetOversamplingPath();
 		dcBlockL_.reset();
 		dcBlockR_.reset();
 		toneL_.reset();
@@ -1383,8 +1416,8 @@ private:
 	float cachedTone_;
 	int selectedQuality_;
 	bool processing_;
-	StereoFrame lastOutput_;
-	StereoFrame transitionFrom_;
+	StereoFrame lastWet_;
+	StereoFrame transitionWetFrom_;
 	ActivitySlew activity_;
 	rack::dsp::SlewLimiter qualityTransition_;
 	rack::dsp::ExponentialFilter toneSmoother_;

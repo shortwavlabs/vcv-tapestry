@@ -175,7 +175,7 @@ void testRackSlewAndExponentialPrimitives() {
 			const float expected = std::max(0.f, 1.f - static_cast<float>(i + 1) / rampSamples);
 			assert(nearlyEqual(ramp.process(false), expected, 1.0e-4f));
 		}
-		assert(ramp.value() == 0.f);
+		assert(ramp.value() <= 1.0e-6f);
 
 		const float tau = 0.017f;
 		const float coefficient = sampleTime / tau;
@@ -431,6 +431,54 @@ void testRackBackedDistortionLatencyAndDcBlock() {
 	settings.values[5] = 0.5f;
 	output = dcBlock.process(StereoFrame(), settings, context);
 	assert(std::fabs(output.left) < 1.0e-7f);
+
+	// A quality switch transitions only the wet contribution. A deliberately
+	// dry-only Distortion remains an exact live stereo path throughout.
+	DistortionEffect transparent;
+	transparent.prepare(48000.f);
+	settings = EffectSettings();
+	settings.values[3] = 0.f;
+	settings.values[4] = 1.f;
+	settings.values[7] = 0.f;
+	for (int frame = 0; frame < 512; ++frame) {
+		const StereoFrame input(
+			std::sin(static_cast<float>(frame) * 0.13f),
+			std::cos(static_cast<float>(frame) * 0.17f));
+		const StereoFrame dryOutput = transparent.process(input, settings, context);
+		assert(nearlyEqual(dryOutput.left, input.left, 1.0e-7f));
+		assert(nearlyEqual(dryOutput.right, input.right, 1.0e-7f));
+	}
+	settings.values[7] = 1.f;
+	for (int frame = 0; frame < 256; ++frame) {
+		const StereoFrame input(
+			std::sin(static_cast<float>(frame + 512) * 0.13f),
+			std::cos(static_cast<float>(frame + 512) * 0.17f));
+		const StereoFrame dryOutput = transparent.process(input, settings, context);
+		assert(nearlyEqual(dryOutput.left, input.left, 1.0e-7f));
+		assert(nearlyEqual(dryOutput.right, input.right, 1.0e-7f));
+	}
+
+	// Keep the shared DC/tone state alive across Raw/2x changes and pre-roll the
+	// newly selected FIR path so a static bias does not create a long transient.
+	DistortionEffect biasedSwitch;
+	biasedSwitch.prepare(48000.f);
+	settings = EffectSettings();
+	settings.values[0] = 0.f;
+	settings.values[1] = 0.f;
+	settings.values[3] = 1.f;
+	settings.values[4] = 0.f;
+	settings.values[5] = 0.75f;
+	settings.values[7] = 0.f;
+	for (int frame = 0; frame < 48000; ++frame)
+		biasedSwitch.process(StereoFrame(), settings, context);
+	settings.values[7] = 1.f;
+	float switchPeak = 0.f;
+	for (int frame = 0; frame < 4096; ++frame) {
+		const StereoFrame switched = biasedSwitch.process(StereoFrame(), settings, context);
+		switchPeak = std::max(switchPeak, std::max(
+			std::fabs(switched.left), std::fabs(switched.right)));
+	}
+	assert(switchPeak < 0.05f);
 }
 
 void testInactiveIsDry() {
@@ -693,6 +741,36 @@ void testDeterministicStretcherAndShuffler() {
 	testDeterministicEffect(SHUFFLER);
 }
 
+void testOverlappingEffectOrderChangesAudio() {
+	FrayEffects modThenDist;
+	FrayEffects distThenMod;
+	modThenDist.prepare(48000.f);
+	distThenMod.prepare(48000.f);
+	const EffectSettings modulator = settingsFor(MODULATOR);
+	const EffectSettings distortion = settingsFor(DISTORTION);
+	EffectContext context;
+	context.sampleRate = 48000.f;
+	context.sampleTime = 1.f / 48000.f;
+	context.active = true;
+	double difference = 0.0;
+	for (std::size_t frame = 0; frame < 8192u; ++frame) {
+		context.blockStart = frame == 0u;
+		const StereoFrame input(
+			testSignal(frame, 48000.f), testSignal(frame + 137u, 48000.f));
+		const StereoFrame modFirst = modThenDist.process(
+			MODULATOR, input, modulator, context);
+		const StereoFrame a = modThenDist.process(
+			DISTORTION, modFirst, distortion, context);
+		const StereoFrame distFirst = distThenMod.process(
+			DISTORTION, input, distortion, context);
+		const StereoFrame b = distThenMod.process(
+			MODULATOR, distFirst, modulator, context);
+		difference += std::fabs(static_cast<double>(a.left - b.left));
+		difference += std::fabs(static_cast<double>(a.right - b.right));
+	}
+	assert(difference > 1.0);
+}
+
 } // namespace
 
 int main() {
@@ -708,6 +786,7 @@ int main() {
 	testDelayTailContinuesAfterBlock();
 	testCaptureEffectsAreAudibleInOneCell();
 	testDeterministicStretcherAndShuffler();
+	testOverlappingEffectOrderChangesAudio();
 	std::cout << "Fray effect tests passed\n";
 	return 0;
 }

@@ -2,7 +2,7 @@
 
 Fray is a 42 HP stereo scene-sequenced glitch effect for VCV Rack. It combines a 128-scene pattern bank, an eleven-lane block sequencer, and ten original Shortwav Labs effects in one playable module.
 
-Fray is stereo monophonic: it processes one left/right pair rather than polyphonic cables. When **IN R** is unpatched, the right channel is normalled from **IN L**.
+Fray is stereo monophonic: it sums all channels on each polyphonic input cable to one left/right pair. When **IN R** is unpatched, the summed right channel is normalled from the summed **IN L** signal; when it is patched, the two inputs remain independent.
 
 Panel asset: [FRAY.svg](../res/FRAY.svg)
 
@@ -31,7 +31,9 @@ IN L/R
 
 Several effect lanes can be active at the same time. A block determines when an effect participates; the effect editor determines what that processor does while active.
 
-The audio processors run serially. Choose **Serial effect order** in Fray's context menu to assign each chain position; selecting an effect swaps it with the effect already occupying that position, so the chain always contains each processor exactly once.
+The audio processors run serially. Choose **Serial effect order (overlapping lanes)** in Fray's context menu to assign each chain position; selecting an effect swaps it with the effect already occupying that position, so the chain always contains each processor exactly once. Order changes the sound only while two or more effect lanes are active together. With one active effect—or the Randomizer lane selecting a single overlay effect—the inactive stages are transparent, so reordering is intentionally inaudible.
+
+Cell, scene, and live order boundaries use a short Rack `SlewLimiter` dezipper at the chain output. This softens abrupt topology changes without adding a steady-state delay.
 
 ## Scenes and the grid
 
@@ -112,7 +114,7 @@ The master **MIX**, **PAN**, and **GAIN** controls operate after the complete ef
 
 Parameter mappings remain associated with their effect even when another editor is visible. Changing the selected lane only changes which controls are shown.
 
-Fray's audio layer uses Rack's `SlewLimiter`, `ExponentialSlewLimiter`, and `ExponentialFilter` for activation and parameter smoothing; `BiquadFilter` and `RCFilter` for common, tone, and DC filtering; `dsp::hann()` for grain windows; `math::crossfade()` for linear blends; and Rack's fixed-ratio resamplers for 2x distortion. Fray keeps custom circular histories and four-point Hermite reads because Rack's FIFO and linear interpolation utilities do not provide arbitrary fractional-delay playback.
+Fray's audio layer uses Rack's `SlewLimiter`, `ExponentialSlewLimiter`, and `ExponentialFilter` for activation and parameter smoothing; `TBiquadFilter<double>` and `RCFilter` for common, tone, and DC filtering; `dsp::hann()` for grain windows; `math::crossfade()` for linear blends; and Rack's fixed-ratio resamplers for 2x distortion. Common biquad coefficients update on a Rack `ClockDivider`, and double coefficient/state precision keeps the 20 Hz, high-Q settings stable at 384 and 768 kHz. Fray keeps custom circular histories and four-point Hermite reads because Rack's FIFO and linear interpolation utilities do not provide arbitrary fractional-delay playback.
 
 ### Latency
 
@@ -125,7 +127,7 @@ Distortion's **QUALITY** control is a discrete choice:
 | **Raw** | 0 samples of fixed FIR/lookahead delay; this is the default |
 | **2x oversampled** | 7 samples from Rack's linear-phase upsampler/decimator pair (about 0.15 ms at 48 kHz) |
 
-The modes are switched rather than crossfaded, avoiding a continuous blend between phase-misaligned raw and oversampled signals. Rack bypass and Fray's master dry path remain immediate; Fray does not impose a seven-sample delay on the whole module. Partial Distortion Dry, common Mix, or master Mix settings can still combine immediate dry audio with the delayed oversampled wet path. The Raw path still has the frequency-dependent phase response of its DC and tone filters, but it avoids the fixed seven-sample FIR delay; use Raw when that fixed latency is undesirable.
+Only the selected quality path runs. A live quality change pre-rolls the newly selected FIR state and applies a short wet-only transition; the immediate dry contribution is never frozen or delayed, and Raw and 2x are not continuously mixed. Rack bypass and Fray's master dry path remain immediate; Fray does not impose a seven-sample delay on the whole module. Partial Distortion Dry, common Mix, or master Mix settings can still combine immediate dry audio with the delayed oversampled wet path. The Raw path still has the frequency-dependent phase response of its DC and tone filters, but it avoids the fixed seven-sample FIR delay; use Raw when that fixed latency is undesirable.
 
 ## Randomize, Mutate, and macros
 

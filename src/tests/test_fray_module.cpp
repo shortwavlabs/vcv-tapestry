@@ -27,6 +27,43 @@ int main() {
 	assert(std::fabs(module.outputs[Fray::AUDIO_L_OUTPUT].getVoltage() - 1.f) < 1.0e-5f);
 	assert(std::fabs(module.outputs[Fray::AUDIO_R_OUTPUT].getVoltage() - 1.f) < 1.0e-5f);
 
+	// A patched right input replaces only the right normal; it must never
+	// overwrite the independently patched left channel.
+	module.inputs[Fray::AUDIO_R_INPUT].channels = 1;
+	module.inputs[Fray::AUDIO_R_INPUT].setVoltage(-2.f);
+	module.process(args);
+	assert(std::fabs(module.outputs[Fray::AUDIO_L_OUTPUT].getVoltage() - 1.f) < 1.0e-5f);
+	assert(std::fabs(module.outputs[Fray::AUDIO_R_OUTPUT].getVoltage() + 2.f) < 1.0e-5f);
+
+	// Each audio jack sums its own polyphonic cable before stereo processing.
+	module.inputs[Fray::AUDIO_L_INPUT].channels = 3;
+	module.inputs[Fray::AUDIO_L_INPUT].setVoltage(0.5f, 0);
+	module.inputs[Fray::AUDIO_L_INPUT].setVoltage(1.f, 1);
+	module.inputs[Fray::AUDIO_L_INPUT].setVoltage(-0.25f, 2);
+	module.inputs[Fray::AUDIO_R_INPUT].channels = 2;
+	module.inputs[Fray::AUDIO_R_INPUT].setVoltage(-2.f, 0);
+	module.inputs[Fray::AUDIO_R_INPUT].setVoltage(0.75f, 1);
+	module.process(args);
+	assert(std::fabs(module.outputs[Fray::AUDIO_L_OUTPUT].getVoltage() - 1.25f) < 1.0e-5f);
+	assert(std::fabs(module.outputs[Fray::AUDIO_R_OUTPUT].getVoltage() + 1.25f) < 1.0e-5f);
+	module.processBypass(args);
+	assert(std::fabs(module.outputs[Fray::AUDIO_L_OUTPUT].getVoltage() - 1.25f) < 1.0e-5f);
+	assert(std::fabs(module.outputs[Fray::AUDIO_R_OUTPUT].getVoltage() + 1.25f) < 1.0e-5f);
+
+	// With R unpatched, the summed L cable normals to R. With only R patched,
+	// L remains silent instead of being overwritten by the right signal.
+	module.inputs[Fray::AUDIO_R_INPUT].channels = 0;
+	module.process(args);
+	assert(std::fabs(module.outputs[Fray::AUDIO_L_OUTPUT].getVoltage() - 1.25f) < 1.0e-5f);
+	assert(std::fabs(module.outputs[Fray::AUDIO_R_OUTPUT].getVoltage() - 1.25f) < 1.0e-5f);
+	Fray rightOnly;
+	rightOnly.onSampleRateChange(sampleRateEvent);
+	rightOnly.inputs[Fray::AUDIO_R_INPUT].channels = 1;
+	rightOnly.inputs[Fray::AUDIO_R_INPUT].setVoltage(2.5f);
+	rightOnly.process(args);
+	assert(std::fabs(rightOnly.outputs[Fray::AUDIO_L_OUTPUT].getVoltage()) < 1.0e-5f);
+	assert(std::fabs(rightOnly.outputs[Fray::AUDIO_R_OUTPUT].getVoltage() - 2.5f) < 1.0e-5f);
+
 	// Distortion Quality is a discrete low-latency/oversampled choice. Values on
 	// the same side of the switch threshold must be identical, never a blend of
 	// the raw path with Rack's seven-sample FIR path.
@@ -130,6 +167,8 @@ int main() {
 	restored.uiEffectOrderPacked.store(swappedOrder);
 	for (int frame = 0; frame < 64; ++frame)
 		restored.process(args);
+	assert(restored.program.effectOrder[0] == 1);
+	assert(restored.program.effectOrder[1] == 0);
 	bool seen[ShortwavDSP::Fray::kEffectCount] = {};
 	for (int position = 0; position < ShortwavDSP::Fray::kEffectCount; ++position) {
 		const int effect = restored.program.effectOrder[position];

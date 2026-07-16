@@ -1315,8 +1315,10 @@ void Fray::process(const ProcessArgs& args) {
 		uiCurrentCell.store(events.cell);
 	}
 
-	const float inputLeftVoltage = finiteOrZero(inputs[AUDIO_L_INPUT].getVoltage());
-	const float inputRightVoltage = finiteOrZero(inputs[AUDIO_R_INPUT].getNormalVoltage(inputLeftVoltage));
+	const float inputLeftVoltage = finiteOrZero(inputs[AUDIO_L_INPUT].getVoltageSum());
+	const float inputRightVoltage = inputs[AUDIO_R_INPUT].isConnected()
+		? finiteOrZero(inputs[AUDIO_R_INPUT].getVoltageSum())
+		: inputLeftVoltage;
 	const StereoFrame dry(inputLeftVoltage * 0.2f, inputRightVoltage * 0.2f);
 	const StereoFrame effected = processEffectChain(dry, args, chainBoundary);
 	const float masterMix = clamp(params[MASTER_MIX_PARAM].getValue()
@@ -1362,8 +1364,10 @@ void Fray::process(const ProcessArgs& args) {
 void Fray::processBypass(const ProcessArgs& args) {
 	(void) args;
 	chainOutputInitialized = false;
-	const float left = finiteOrZero(inputs[AUDIO_L_INPUT].getVoltage());
-	const float right = finiteOrZero(inputs[AUDIO_R_INPUT].getNormalVoltage(left));
+	const float left = finiteOrZero(inputs[AUDIO_L_INPUT].getVoltageSum());
+	const float right = inputs[AUDIO_R_INPUT].isConnected()
+		? finiteOrZero(inputs[AUDIO_R_INPUT].getVoltageSum())
+		: left;
 	outputs[AUDIO_L_OUTPUT].setVoltage(left);
 	outputs[AUDIO_R_OUTPUT].setVoltage(right);
 	outputs[AUDIO_L_OUTPUT].setChannels(1);
@@ -1754,7 +1758,8 @@ void FrayWidget::appendContextMenu(Menu* menu) {
 	}
 
 	menu->addChild(new MenuSeparator);
-	menu->addChild(createMenuLabel("Serial effect order"));
+	menu->addChild(createMenuLabel("Serial effect order (overlapping lanes)"));
+	menu->addChild(createMenuLabel("Order is audible when two or more effects are active together"));
 	std::vector<std::string> effectLabels;
 	for (int effect = 0; effect < kEffectCount; ++effect)
 		effectLabels.push_back(kEffectNames[effect]);

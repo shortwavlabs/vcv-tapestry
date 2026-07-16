@@ -795,7 +795,7 @@ Likely edits:
 - `Makefile`: no change; Fray DSP is header-only and `src/Fray.cpp` is already discovered by the existing source glob.
 - README, docs index, changelog, and user manual after implementation.
 
-`fray-core.h` remains Rack-independent and header-only. `fray-effects.h` is the single Rack-backed audio layer: it owns the common post stages and the sole distortion implementation, using supported `rack.hpp` primitives for filters, slews, crossfades, Hann windows, and oversampling. `Fray.hpp/.cpp` now stay focused on voltage I/O, sequencing, queues, persistence, history, and widgets. The effect test is Rack-linked; the Makefile remains unchanged.
+`fray-core.h` remains Rack-independent and header-only. `fray-effects.h` is the single Rack-backed audio layer: it owns the common post stages and the sole distortion implementation, using supported `rack.hpp` primitives for filters, slews, crossfades, Hann windows, and oversampling. The implemented common filter uses Rack's double `TBiquadFilter` state with double-generated coefficients and a `ClockDivider` update cadence so 20 Hz/high-Q settings remain stable through Rack's 768 kHz engine rate. `Fray.hpp/.cpp` now stay focused on voltage I/O, sequencing, queues, persistence, history, and widgets; each audio input is summed independently before the right-input normal is applied. The effect test is Rack-linked; the Makefile remains unchanged.
 
 ### Resolved build and CI decisions
 
