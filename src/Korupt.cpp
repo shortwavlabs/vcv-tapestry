@@ -2,7 +2,7 @@
 
 namespace {
 
-struct KoruptProgramKnob : RoundLargeBlackKnob {
+struct KoruptProgramKnob : SynthTechAlco {
 	KoruptProgramKnob() {
 		snap = true;
 	}
@@ -177,16 +177,16 @@ KoruptWidget::KoruptWidget(Korupt* module) {
 	addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 	addChild(createWidget<ScrewSilver>(Vec(panelWidth - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-	addParam(createParamCentered<RoundBlackKnob>(Vec(49.f, 70.f), module, Korupt::SQUARE_MIX_PARAM));
-	addParam(createParamCentered<RoundBlackKnob>(Vec(105.f, 70.f), module, Korupt::SUBHARMONIC_MIX_PARAM));
-	addParam(createParamCentered<RoundBlackKnob>(Vec(161.f, 70.f), module, Korupt::OSCILLATOR_MIX_PARAM));
-	addParam(createParamCentered<RoundLargeBlackKnob>(Vec(251.f, 72.f), module, Korupt::LEVEL_PARAM));
+	addParam(createParamCentered<SynthTechAlco>(Vec(49.f, 70.f), module, Korupt::SQUARE_MIX_PARAM));
+	addParam(createParamCentered<SynthTechAlco>(Vec(105.f, 70.f), module, Korupt::SUBHARMONIC_MIX_PARAM));
+	addParam(createParamCentered<SynthTechAlco>(Vec(161.f, 70.f), module, Korupt::OSCILLATOR_MIX_PARAM));
+	addParam(createParamCentered<Davies1900hLargeBlackKnob>(Vec(251.f, 72.f), module, Korupt::LEVEL_PARAM));
 
 	addParam(createParamCentered<KoruptProgramKnob>(Vec(62.f, 166.f), module, Korupt::SUBHARMONIC_PROGRAM_PARAM));
 	addParam(createParamCentered<CKSS>(Vec(100.f, 250.f), module, Korupt::SUBHARMONIC_ROOT_PARAM));
 
 	addParam(createParamCentered<CKSS>(Vec(150.f, 151.f), module, Korupt::FREQ_MOD_MODE_PARAM));
-	addParam(createParamCentered<RoundBlackKnob>(Vec(150.f, 219.f), module, Korupt::RATE_PARAM));
+	addParam(createParamCentered<SynthTechAlco>(Vec(150.f, 219.f), module, Korupt::RATE_PARAM));
 
 	addParam(createParamCentered<KoruptProgramKnob>(Vec(235.f, 166.f), module, Korupt::OSCILLATOR_PROGRAM_PARAM));
 	addParam(createParamCentered<CKSSThree>(Vec(247.f, 250.f), module, Korupt::OSCILLATOR_ROOT_PARAM));
