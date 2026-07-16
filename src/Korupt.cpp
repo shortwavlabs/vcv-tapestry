@@ -170,7 +170,7 @@ void Korupt::process(const ProcessArgs& args) {
 
 KoruptWidget::KoruptWidget(Korupt* module) {
 	setModule(module);
-	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/SWV_20HP_PANEL.svg")));
+	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/KORUPT_PANEL.svg")));
 
 	// Screws
     addChild(createWidget<ScrewSilver>(Vec(0, 0)));
