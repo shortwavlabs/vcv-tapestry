@@ -11,6 +11,7 @@
 - **[README.md](../README.md)** - Main overview, features, installation, and quick reference
 - **[Quick Start Guide](QUICKSTART.md)** - Get up and running in minutes
 - **[Korupt User Manual](KORUPT.md)** - PLL harmonizer/fuzz controls, patching, presets, and tracking tips
+- **[Fray User Manual](FRAY.md)** - Scene-sequenced glitch effects, grid editing, clocking, and CV
 - **[API Reference](API_REFERENCE.md)** - Complete technical documentation
 - **[Advanced Usage](ADVANCED_USAGE.md)** - Expert techniques and workflows
 - **[FAQ](FAQ.md)** - Common questions and solutions
@@ -58,6 +59,10 @@
 #### Use Korupt
 → [Korupt User Manual](KORUPT.md)  
 → [Korupt Presets](KORUPT.md#factory-presets)
+
+#### Use Fray
+→ [Fray User Manual](FRAY.md)
+→ [Fray Design and Implementation Research](GLITCH2_VCV_MODULE_RESEARCH.md)
 
 #### Understand the Technical Details
 → [API Reference](API_REFERENCE.md)  
@@ -136,6 +141,12 @@
 - [Korupt Factory Presets](KORUPT.md#factory-presets)
 - [Korupt Tracking Tips](KORUPT.md#tracking-tips)
 - [Korupt Research Notes](CORRUPTION_PEDAL_MODULE_RESEARCH.md)
+
+### Fray Scene-Sequenced Multi-Effect
+- [Fray User Manual](FRAY.md)
+- [Fray Clock and Transport](FRAY.md#clock-and-transport)
+- [Fray Randomize, Mutate, and Macros](FRAY.md#randomize-mutate-and-macros)
+- [Fray Design and Implementation Research](GLITCH2_VCV_MODULE_RESEARCH.md)
 
 ### CV Modulation
 - [Quick Start: CV Inputs](QUICKSTART.md#cv-voltage-standards)
@@ -267,7 +278,7 @@
 
 ## 📧 Contact and Support
 
-- **Issues**: [GitHub Issues](https://github.com/shortwavlabs/tapestry/issues)
+- **Issues**: [GitHub Issues](https://github.com/shortwavlabs/vcv-tapestry/issues)
 - **Email**: contact@shortwavlabs.com
 - **Website**: [shortwavlabs.com](https://shortwavlabs.com)
 

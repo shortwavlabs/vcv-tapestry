@@ -1,12 +1,14 @@
 # Tapestry
 
-![Version](https://img.shields.io/badge/version-2.0.0-blue)
+![Version](https://img.shields.io/badge/version-2.1.0-blue)
 ![License](https://img.shields.io/badge/license-GPL--3.0--or--later-green)
 ![VCV Rack](https://img.shields.io/badge/VCV%20Rack-2.0+-orange)
 
 **A granular microsound processor for VCV Rack inspired by musique concrète**
 
 Tapestry brings the world of tape music manipulation and granular synthesis to your modular patches. Record, splice, and morph audio with sophisticated granular processing, creating everything from subtle textures to extreme sound design.
+
+The plugin also includes **Fray**, a scene-sequenced stereo glitch multi-effect, and **Korupt**, a PLL harmonizer and square-wave fuzz.
 
 ---
 
@@ -44,6 +46,14 @@ Tapestry is a VCV Rack plugin that combines traditional tape music techniques wi
 - 🎛️ **Dry/Wet Mix**: Individual mix controls for each effect
 - 📊 **CV Control**: Voltage control for all effect parameters
 
+### Fray
+
+- **128 scenes** with an eleven-lane, 2–64-cell block sequencer
+- **Ten serial effects** with reorderable processing order and per-effect common stages
+- **Internal or external clocking**, including Step/Beat modes and 1 V/oct tempo CV
+- **Rack-native Initialize, Randomize, presets, undo, and full scene-bank persistence**
+- **Stereo I/O, four assignable macro CVs, scene addressing, and activity/transport outputs**
+
 ---
 
 ## 📦 Installation
@@ -60,8 +70,8 @@ Tapestry is a VCV Rack plugin that combines traditional tape music techniques wi
 
 ```bash
 # Clone the repository
-git clone https://github.com/shortwavlabs/tapestry.git
-cd tapestry
+git clone https://github.com/shortwavlabs/vcv-tapestry.git
+cd vcv-tapestry
 
 # Build the plugin
 make install
@@ -72,7 +82,7 @@ make install
 ### Build Requirements
 
 - VCV Rack SDK 2.0+
-- C++17 compatible compiler
+- C++11 compatible compiler
 - Make
 
 ---
@@ -117,6 +127,7 @@ For detailed tutorials, see the [Quick Start Guide](docs/QUICKSTART.md).
 
 - **[Quick Start Guide](docs/QUICKSTART.md)** - Get up and running quickly
 - **[Korupt User Manual](docs/KORUPT.md)** - PLL harmonizer/fuzz controls, presets, and patching tips
+- **[Fray User Manual](docs/FRAY.md)** - Scene grid, effects, clocking, CV, and Rack integration
 - **[API Reference](docs/API_REFERENCE.md)** - Complete technical documentation
 - **[Advanced Usage](docs/ADVANCED_USAGE.md)** - In-depth techniques and workflows
 - **[Examples](docs/examples/)** - Real-world patch examples
@@ -225,7 +236,7 @@ This project is licensed under the **GPL-3.0-or-later** license. See the [LICENS
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/shortwavlabs/tapestry/issues)
+- **Issues**: [GitHub Issues](https://github.com/shortwavlabs/vcv-tapestry/issues)
 - **Email**: contact@shortwavlabs.com
 - **Website**: [shortwavlabs.com](https://shortwavlabs.com)
 
@@ -233,7 +244,7 @@ This project is licensed under the **GPL-3.0-or-later** license. See the [LICENS
 
 ## 🗺️ Roadmap
 
-See our [project board](https://github.com/shortwavlabs/tapestry/projects) for upcoming features and improvements.
+See our [project board](https://github.com/shortwavlabs/vcv-tapestry/projects) for upcoming features and improvements.
 
 ### Planned Features
 

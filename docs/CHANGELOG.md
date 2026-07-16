@@ -19,6 +19,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.0] - 2026-07-15
+
+### Added
+
+- **Korupt**, a polyphonic PLL harmonizer, square-wave fuzz, and subharmonic generator with three mixable voices, isolated outputs, CV control, and tracking/lock feedback.
+- Ten Korupt factory presets, a complete user manual, and implementation research.
+- **Fray**, a 42 HP stereo scene-sequenced glitch multi-effect with 128 scenes, an eleven-lane block grid, and ten reorderable processors.
+- Internal 30–300 BPM transport, 1 V/oct tempo CV, and external Step/Beat clock interpretations using Rack SDK trigger and timing primitives.
+- Deterministic scene Randomize/Mutate, weighted Randomizer-lane selection, four assignable macro CVs, and polyphonic effect-activity output.
+- Complete scene-bank JSON persistence and Rack-native Initialize, Randomize, preset, copy/paste, and undo/redo behavior.
+- Fray panel, cached interactive grid, user manual, implementation research, a standalone core test, and Rack-linked effect and module-adapter tests.
+
+### Changed
+
+- Aligned all tests with Rack's C++11 build standard and added Korupt and Fray coverage.
+- Consolidated Fray's common stage and distortion into one production DSP path backed by Rack slew, exponential smoothing, filter, Hann-window, crossfade, and oversampling primitives, while retaining custom fractional histories and Hermite interpolation.
+
+---
+
 ## [2.0.0] - 2026-01-04
 
 ### Initial Release
@@ -111,6 +130,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Release Date | Key Features |
 |---------|--------------|--------------|
+| **2.1.0** | 2026-07-15 | Added Korupt and Fray |
 | **2.0.0** | 2026-01-04 | Initial release with full feature set |
 
 ---
@@ -129,13 +149,13 @@ When reporting bugs, please include:
 - Expected vs. actual behavior
 - Patch file (if applicable)
 
-**Submit issues**: [GitHub Issues](https://github.com/shortwavlabs/tapestry/issues)
+**Submit issues**: [GitHub Issues](https://github.com/shortwavlabs/vcv-tapestry/issues)
 
 ---
 
 ## Links
 
-- **Repository**: [github.com/shortwavlabs/tapestry](https://github.com/shortwavlabs/tapestry)
+- **Repository**: [github.com/shortwavlabs/vcv-tapestry](https://github.com/shortwavlabs/vcv-tapestry)
 - **Documentation**: [docs/](docs/)
 - **VCV Library**: [library.vcvrack.com](https://library.vcvrack.com/)
 - **Website**: [shortwavlabs.com](https://shortwavlabs.com)
@@ -153,4 +173,4 @@ See [LICENSE](../LICENSE) file for full details.
 
 **Thank you for using Tapestry!** 🎵
 
-*Last Updated: January 4, 2026*
+*Last Updated: July 15, 2026*

@@ -28,6 +28,12 @@
       "name": "Korupt",
       "description": "PLL harmonizer and square-wave fuzz",
       "tags": ["Effect", "Distortion", "Oscillator"]
+    },
+    {
+      "slug": "Fray",
+      "name": "Fray",
+      "description": "Scene-sequenced stereo glitch multi-effect with a reorderable processing chain",
+      "tags": ["Effect", "Sequencer", "Random", "Delay", "Granular", "Distortion"]
     }
   ]
 }

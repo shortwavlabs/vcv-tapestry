@@ -1938,7 +1938,7 @@ void test_splice_count_replacement(TestContext &ctx)
 // Test Runner
 //------------------------------------------------------------------------------
 
-void run_all_tapestry_tests()
+int run_all_tapestry_tests()
 {
   TestContext ctx;
 
@@ -2039,6 +2039,7 @@ void run_all_tapestry_tests()
   std::printf("\n");
   ctx.summary();
   std::printf("\n");
+  return ctx.failed;
 }
 
 } // anonymous namespace
@@ -2049,6 +2050,5 @@ void run_all_tapestry_tests()
 
 int main()
 {
-  run_all_tapestry_tests();
-  return 0;
+  return run_all_tapestry_tests() == 0 ? 0 : 1;
 }

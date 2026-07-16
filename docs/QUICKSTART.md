@@ -34,8 +34,8 @@ This guide will walk you through your first recording, splicing, and granular pr
 
 ```bash
 # Clone and build
-git clone https://github.com/shortwavlabs/tapestry.git
-cd tapestry
+git clone https://github.com/shortwavlabs/vcv-tapestry.git
+cd vcv-tapestry
 make install
 ```
 
@@ -526,7 +526,7 @@ Now that you've mastered the basics, check out:
 
 ### Join the Community
 
-- **Report bugs**: [GitHub Issues](https://github.com/shortwavlabs/tapestry/issues)
+- **Report bugs**: [GitHub Issues](https://github.com/shortwavlabs/vcv-tapestry/issues)
 - **Share patches**: [Patchstorage](https://patchstorage.com/platform/vcv-rack/)
 - **Get support**: contact@shortwavlabs.com
 

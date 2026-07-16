@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Tapestry is a granular microsound processor for VCV Rack 2.0+, inspired by the Make Noise Morphagene hardware. It consists of two C++ modules: **Tapestry** (main granular processor) and **TapestryExpander** (effects chain). Audio processing happens at 48kHz stereo with up to 2.9 minutes of recording buffer and 300 markers per reel.
+Tapestry is a VCV Rack 2 plugin containing four C++ modules: **Tapestry**, **TapestryExpander**, **Korupt**, and **Fray**. Tapestry is a granular microsound processor with up to 2.9 minutes of stereo recording and 300 markers; Korupt and Fray add standalone real-time effects workflows.
 
 ## Architecture
 
@@ -32,8 +32,8 @@ Uses VCV Rack's double-buffered expander protocol (`TapestryExpanderMessage` in 
 # Build plugin (requires VCV Rack SDK in dep/Rack-SDK)
 RACK_DIR=./dep/Rack-SDK make dist  # Or use build.sh
 
-# Test without VCV Rack
-./run_tests.sh  # Compiles src/tests/test_tapestry.cpp standalone
+# Run standalone core tests plus Rack-linked effect/module tests
+./run_tests.sh
 
 # Clean build artifacts
 ./clean.sh
@@ -42,7 +42,7 @@ RACK_DIR=./dep/Rack-SDK make dist  # Or use build.sh
 The Makefile uses VCV Rack's `plugin.mk` framework. All `.cpp` files in `src/` are auto-included via `$(wildcard src/*.cpp)`.
 
 ### Testing
-Tests in [src/tests/test_tapestry.cpp](../src/tests/test_tapestry.cpp) use `SHORTWAV_DSP_RUN_TESTS` define. DSP headers are designed to compile standalone (no VCV Rack deps) for unit testing. Run `./run_tests.sh` for quick DSP validation without building the full plugin.
+The Tapestry, Korupt, and Fray core tests use `SHORTWAV_DSP_RUN_TESTS` and compile standalone. Fray's audio-effects header deliberately uses supported Rack SDK primitives, so its effect and module-adapter tests link the pinned SDK. Run `./run_tests.sh` for the complete suite without packaging the plugin.
 
 ### File Organization
 - `res/`: SVG panels, graphics, and UI assets
@@ -114,6 +114,6 @@ Use exponential smoothing in DSP: `current += coeff * (target - current)` where 
 Markers stored as `SpliceMarker` with `startFrame` and `endFrame`. `SpliceManager` handles insertion, deletion, and navigation. Organize parameter (0.0-1.0) maps to marker index for manual selection.
 
 ## Version and License
-- Current version: 2.0.0 (update in [plugin.json](../plugin.json))
+- Current version: 2.1.0 (update in [plugin.json](../plugin.json))
 - License: GPL-3.0-or-later (see [LICENSE.md](../LICENSE.md))
 - VCV Rack SDK: 2.0+ required (bundled in `dep/Rack-SDK/`)

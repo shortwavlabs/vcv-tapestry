@@ -49,7 +49,7 @@ If you experience or witness unacceptable behavior, please contact: contact@shor
 
 **Before submitting a bug report**:
 1. Check the [FAQ](FAQ.md) for common issues
-2. Search [existing issues](https://github.com/shortwavlabs/tapestry/issues) to avoid duplicates
+2. Search [existing issues](https://github.com/shortwavlabs/vcv-tapestry/issues) to avoid duplicates
 3. Test with the latest version of Tapestry
 4. Test in a minimal patch to isolate the issue
 
@@ -165,8 +165,8 @@ We welcome code contributions! Here's how to get started.
 #### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/shortwavlabs/tapestry.git
-cd tapestry
+git clone https://github.com/shortwavlabs/vcv-tapestry.git
+cd vcv-tapestry
 ```
 
 #### 2. Set Up VCV Rack SDK
@@ -289,7 +289,7 @@ git push origin feature/my-new-feature
 
 #### 6. Create Pull Request
 
-1. Go to [GitHub repository](https://github.com/shortwavlabs/tapestry)
+1. Go to [GitHub repository](https://github.com/shortwavlabs/vcv-tapestry)
 2. Click "Pull Requests" → "New Pull Request"
 3. Select your branch
 4. Fill out the PR template (see [Submission Process](#submission-process))

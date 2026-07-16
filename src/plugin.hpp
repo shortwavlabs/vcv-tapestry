@@ -10,3 +10,4 @@ extern Plugin *pluginInstance;
 extern Model *modelTapestry;
 extern Model *modelTapestryExpander;
 extern Model *modelKorupt;
+extern Model *modelFray;

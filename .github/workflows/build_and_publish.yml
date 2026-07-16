@@ -16,13 +16,16 @@ jobs:
         include:
           - os: ubuntu-latest
             platform_name: lin-x64
-            sdk_url: https://vcvrack.com/downloads/Rack-SDK-latest-lin-x64.zip
+            sdk_url: https://vcvrack.com/downloads/Rack-SDK-2.6.6-lin-x64.zip
           - os: windows-latest
             platform_name: win-x64
-            sdk_url: https://vcvrack.com/downloads/Rack-SDK-latest-win-x64.zip
+            sdk_url: https://vcvrack.com/downloads/Rack-SDK-2.6.6-win-x64.zip
           - os: macos-14
             platform_name: mac-arm64
-            sdk_url: https://vcvrack.com/downloads/Rack-SDK-latest-mac-arm64.zip
+            sdk_url: https://vcvrack.com/downloads/Rack-SDK-2.6.6-mac-arm64.zip
+          - os: macos-15-intel
+            platform_name: mac-x64
+            sdk_url: https://vcvrack.com/downloads/Rack-SDK-2.6.6-mac-x64.zip
 
     defaults:
       run:
@@ -70,15 +73,6 @@ jobs:
             mingw-w64-x86_64-zstd
 
       # ------------------------------------------------------------------------
-      # Run Tests
-      # ------------------------------------------------------------------------
-      - name: Run Tests
-        shell: bash
-        run: |
-          chmod +x ./run_tests.sh
-          ./run_tests.sh
-
-      # ------------------------------------------------------------------------
       # Download and Setup SDK
       # ------------------------------------------------------------------------
       - name: Setup Rack SDK
@@ -96,6 +90,24 @@ jobs:
             mv "$SDK_DIR" Rack-SDK
           fi
           echo "RACK_DIR=$(pwd)/Rack-SDK" >> $GITHUB_ENV
+
+      # ------------------------------------------------------------------------
+      # Run Tests (the Fray adapter suite uses Rack SDK types)
+      # ------------------------------------------------------------------------
+      - name: Run Tests (Linux/Mac)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          chmod +x ./run_tests.sh
+          ./run_tests.sh
+
+      - name: Run Tests (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          export RACK_DIR="$(pwd)/Rack-SDK"
+          chmod +x ./run_tests.sh
+          ./run_tests.sh
 
       # ------------------------------------------------------------------------
       # Build Plugin (Linux/Mac)

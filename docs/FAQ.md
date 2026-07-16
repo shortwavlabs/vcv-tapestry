@@ -61,8 +61,8 @@ Yes! Tapestry is open source under the GPL-3.0-or-later license.
 
 **Method 2**: Manual build
 ```bash
-git clone https://github.com/shortwavlabs/tapestry.git
-cd tapestry
+git clone https://github.com/shortwavlabs/vcv-tapestry.git
+cd vcv-tapestry
 make install
 ```
 
@@ -541,7 +541,7 @@ This provides smooth attack/decay with no artifacts.
 
 1. **This FAQ**
 2. **Documentation**: [README.md](../README.md), [Quick Start](../QUICKSTART.md)
-3. **GitHub Issues**: [github.com/shortwavlabs/tapestry/issues](https://github.com/shortwavlabs/tapestry/issues)
+3. **GitHub Issues**: [github.com/shortwavlabs/vcv-tapestry/issues](https://github.com/shortwavlabs/vcv-tapestry/issues)
 4. **Email**: contact@shortwavlabs.com
 
 ### How do I report a bug?
@@ -576,7 +576,7 @@ Not yet! For now, use:
 
 If your question isn't answered here:
 
-1. Search [existing GitHub issues](https://github.com/shortwavlabs/tapestry/issues)
+1. Search [existing GitHub issues](https://github.com/shortwavlabs/vcv-tapestry/issues)
 2. Check [documentation](../README.md)
 3. Open a new GitHub issue
 4. Email: contact@shortwavlabs.com
