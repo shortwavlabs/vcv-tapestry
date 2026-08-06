@@ -74,20 +74,22 @@ struct DriftWidget : ModuleWidget
   DriftWidget(Drift *module)
   {
     setModule(module);
-    setPanel(createPanel(asset::plugin(pluginInstance, "res/Drift.svg")));
+    setPanel(createPanel(asset::plugin(pluginInstance, "res/3HP.svg")));
 
     addChild(createWidget<ScrewSilver>(Vec(0, 0)));
     addChild(createWidget<ScrewSilver>(Vec(box.size.x - 1 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-    addParam(createParamCentered<RoundSmallBlackKnob>(Vec(22.5f, 58.f), module, Drift::OFFSET_PARAM));
-    addParam(createParamCentered<RoundSmallBlackKnob>(Vec(22.5f, 112.f), module, Drift::SPEED_PARAM));
-    addParam(createParamCentered<RoundSmallBlackKnob>(Vec(22.5f, 166.f), module, Drift::RANGE_PARAM));
-    addParam(createParamCentered<Trimpot>(Vec(22.5f, 222.f), module, Drift::MIX_PARAM));
+    auto controlPosition = [](float x, float y) { return Vec(x - .5f, y - 10.f); };
 
-    addInput(createInputCentered<PJ301MPort>(Vec(22.5f, 270.f), module, Drift::SIGNAL_INPUT));
-    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(17.5f, 304.f), module, Drift::OUTPUT_POS_LIGHT));
-    addChild(createLightCentered<SmallLight<RedLight>>(Vec(27.5f, 304.f), module, Drift::OUTPUT_NEG_LIGHT));
-    addChild(createLightCentered<SmallLight<YellowLight>>(Vec(22.5f, 318.f), module, Drift::ACTIVITY_LIGHT));
-    addOutput(createOutputCentered<PJ301MPort>(Vec(22.5f, 344.f), module, Drift::CV_OUTPUT));
+    addParam(createParamCentered<RoundSmallBlackKnob>(controlPosition(22.5f, 58.f), module, Drift::OFFSET_PARAM));
+    addParam(createParamCentered<RoundSmallBlackKnob>(controlPosition(22.5f, 112.f), module, Drift::SPEED_PARAM));
+    addParam(createParamCentered<RoundSmallBlackKnob>(controlPosition(22.5f, 166.f), module, Drift::RANGE_PARAM));
+    addParam(createParamCentered<Trimpot>(controlPosition(22.5f, 222.f), module, Drift::MIX_PARAM));
+
+    addInput(createInputCentered<PJ301MPort>(controlPosition(22.5f, 270.f), module, Drift::SIGNAL_INPUT));
+    addChild(createLightCentered<SmallLight<GreenLight>>(controlPosition(17.5f, 304.f), module, Drift::OUTPUT_POS_LIGHT));
+    addChild(createLightCentered<SmallLight<RedLight>>(controlPosition(27.5f, 304.f), module, Drift::OUTPUT_NEG_LIGHT));
+    addChild(createLightCentered<SmallLight<YellowLight>>(controlPosition(22.5f, 318.f), module, Drift::ACTIVITY_LIGHT));
+    addOutput(createOutputCentered<PJ301MPort>(controlPosition(22.5f, 344.f), module, Drift::CV_OUTPUT));
   }
 };
