@@ -1,0 +1,161 @@
+// Vult source for Wyrd's tone core, activation curve, and feedback coloring.
+// Regenerate src/dsp/generated/wyrd_core.* with `make generate-vult`.
+
+fun clip(x, lo, hi) {
+  return if x < lo then lo else if x > hi then hi else x;
+}
+
+fun softclip(x) {
+  return tanh(x);
+}
+
+fun smoothstep(t) {
+  val x = clip(t, 0.0, 1.0);
+  return x * x * (3.0 - 2.0 * x);
+}
+
+fun abs1(x) {
+  return if x < 0.0 then -x else x;
+}
+
+fun foldback(x, threshold) {
+  val limit = if threshold <= 0.0 then 1.0 else threshold;
+  val y = x;
+  while (y > limit || y < -limit) {
+    if (y > limit) {
+      y = 2.0 * limit - y;
+    } else {
+      if (y < -limit) {
+        y = -2.0 * limit - y;
+      }
+    }
+  }
+  return y;
+}
+
+fun smooth_param(target, current, seconds, sampleRate) {
+  val safeSeconds = clip(seconds, 0.0001, 0.1);
+  val safeRate = clip(sampleRate, 1000.0, 384000.0);
+  val a = 1.0 - exp(-1.0 / (safeSeconds * safeRate));
+  return current + (target - current) * a;
+}
+
+fun polyblep(t, dt) {
+  val safeDt = clip(dt, 0.0000001, 0.49);
+  if (t < safeDt) {
+    val x = t / safeDt;
+    return x + x - x * x - 1.0;
+  } else if (t > 1.0 - safeDt) {
+    val x = (t - 1.0) / safeDt;
+    return x * x + x + x + 1.0;
+  } else {
+    return 0.0;
+  }
+}
+
+fun process(pitchVolts : real, tonesControl : real, activationConstant : real,
+            activationCvNorm : real, activationCvAmount : real,
+            activationInterference : real, feedbackNorm : real,
+            feedbackAudio : real, filterControl : real, absorbControl : real,
+            decayControl : real, agitationNorm : real, sampleRateIn : real) {
+  mem phase, subPhase;
+  mem tonesSmooth, activationSmooth, filterSmooth, absorbSmooth, decaySmooth;
+  mem lp1, lp2, hpState;
+  mem initialized : bool;
+
+  val sampleRate = clip(sampleRateIn, 1000.0, 384000.0);
+  val pitch = clip(pitchVolts, -8.0, 6.0);
+  val hz = clip(261.6255653005986 * exp(0.6931471805599453 * pitch), 0.05, sampleRate * 0.45);
+  val dt = clip(hz / sampleRate, 0.0000001, 0.45);
+
+  phase = phase + dt;
+  if (phase >= 1.0) {
+    phase = phase - floor(phase);
+  }
+
+  subPhase = subPhase + dt * 0.5;
+  if (subPhase >= 1.0) {
+    subPhase = subPhase - floor(subPhase);
+  }
+
+  val triRaw = 1.0 - 4.0 * abs1(phase - 0.5);
+  val core = clip(softclip(triRaw * 1.08) / softclip(1.08), -1.0, 1.0);
+  val subDt = clip(dt * 0.5, 0.0000001, 0.49);
+  val subWrapPhase = if subPhase + 0.5 >= 1.0 then subPhase - 0.5 else subPhase + 0.5;
+  val subSquareRaw = if subPhase < 0.5 then 1.0 else -1.0;
+  val subSquare = clip(subSquareRaw + polyblep(subPhase, subDt) - polyblep(subWrapPhase, subDt), -1.08, 1.08);
+  val subTri = 1.0 - 4.0 * abs1(subPhase - 0.5);
+  val sub = clip(softclip(0.72 * subSquare + 0.28 * subTri), -1.0, 1.0);
+
+  val tonesTarget = clip(tonesControl, 0.0, 1.0);
+  val interferenceAmount = abs1(activationInterference);
+  val feedbackRect = abs1(feedbackNorm);
+  val activationTarget = clip(activationConstant
+                              + feedbackNorm * activationInterference * 0.62
+                              + feedbackRect * interferenceAmount * 0.22
+                              + agitationNorm * 0.16, -1.4, 1.7);
+  val filterTarget = clip(filterControl, 0.0, 1.0);
+  val absorbTarget = clip(absorbControl, 0.0, 1.0);
+  val decayTarget = clip(decayControl, 0.0, 1.0);
+
+  if (not(initialized)) {
+    tonesSmooth = tonesTarget;
+    activationSmooth = activationTarget;
+    filterSmooth = filterTarget;
+    absorbSmooth = absorbTarget;
+    decaySmooth = decayTarget;
+    initialized = true;
+  } else {
+    tonesSmooth = clip(smooth_param(tonesTarget, tonesSmooth, 0.003, sampleRate), 0.0, 1.0);
+    activationSmooth = clip(smooth_param(activationTarget, activationSmooth, 0.002, sampleRate), -1.4, 1.6);
+    filterSmooth = clip(smooth_param(filterTarget, filterSmooth, 0.005, sampleRate), 0.0, 1.0);
+    absorbSmooth = clip(smooth_param(absorbTarget, absorbSmooth, 0.01, sampleRate), 0.0, 1.0);
+    decaySmooth = clip(smooth_param(decayTarget, decaySmooth, 0.006, sampleRate), 0.0, 1.0);
+  }
+
+  val nyquistNorm = clip(hz / (sampleRate * 0.5), 0.0, 1.0);
+  val aliasTame = 1.0 - 0.72 * smoothstep(clip((nyquistNorm - 0.12) / 0.56, 0.0, 1.0));
+  val even = 2.0 * core * core - 1.0;
+  val third = 4.0 * core * core * core - 3.0 * core;
+  val folded = foldback(core * (1.0 + 8.5 * tonesSmooth * tonesSmooth * aliasTame), 1.0);
+  val pulseSub = softclip(0.46 * sub + 0.58 * subSquare + 0.18 * third);
+  val bright = softclip(0.42 * folded + 0.32 * third * aliasTame
+                        + 0.24 * even * aliasTame + 0.18 * sin(3.141592653589793 * folded) * aliasTame);
+
+  val tone =
+    if tonesSmooth < 0.2 then
+      core + (softclip(core * 0.72 + sub * 0.48) - core) * smoothstep(tonesSmooth / 0.2)
+    else if tonesSmooth < 0.4 then
+      softclip(core * 0.72 + sub * 0.48) + (softclip(core * 0.55 + even * 0.55) - softclip(core * 0.72 + sub * 0.48)) * smoothstep((tonesSmooth - 0.2) / 0.2)
+    else if tonesSmooth < 0.62 then
+      softclip(core * 0.55 + even * 0.55) + (folded - softclip(core * 0.55 + even * 0.55)) * smoothstep((tonesSmooth - 0.4) / 0.22)
+    else if tonesSmooth < 0.82 then
+      folded + (pulseSub - folded) * smoothstep((tonesSmooth - 0.62) / 0.2)
+    else
+      pulseSub + (bright - pulseSub) * smoothstep((tonesSmooth - 0.82) / 0.18);
+
+  val activationRaw = activationSmooth + activationCvNorm * activationCvAmount
+                      + feedbackAudio * activationInterference * 0.08;
+  val activationAsym = activationRaw + (if activationRaw >= 0.0 then 0.18 else -0.07) * activationRaw * activationRaw;
+  val audioActivation = softclip(activationAsym * (1.35 + 1.1 * decaySmooth));
+  val bleedActivity = smoothstep(abs1(activationRaw)
+                                  + abs1(activationCvNorm * activationCvAmount) * 0.35
+                                  + feedbackRect * interferenceAmount * 0.22);
+  val activationBleed = (0.002 + 0.018 * decaySmooth + 0.012 * interferenceAmount) * bleedActivity;
+  val activatedTone = clip(softclip(tone * (audioActivation * 1.35 + activationBleed)
+                                    + tone * tone * audioActivation * 0.045), -1.0, 1.0);
+
+  val filterHz = clip(18.0 * exp(6.907755278982137 * filterSmooth), 18.0, sampleRate * 0.45);
+  val alpha = 1.0 - exp(-6.283185307179586 * filterHz / sampleRate);
+  val x = clip(feedbackAudio, -2.5, 2.5);
+  lp1 = lp1 + alpha * (x - lp1);
+  lp2 = lp2 + alpha * (lp1 - lp2);
+  hpState = hpState + (1.0 - exp(-6.283185307179586 * 18.0 / sampleRate)) * (x - hpState);
+
+  val high = x - hpState;
+  val aged = lp2 * (0.35 + 0.65 * absorbSmooth) + high * (0.16 * filterSmooth);
+  val driven = aged * (1.0 + 0.82 * decaySmooth + 0.65 * (1.0 - absorbSmooth));
+  val coloredFeedback = clip(softclip(driven), -1.0, 1.0);
+
+  return core, sub, tone, activatedTone, coloredFeedback, audioActivation;
+}

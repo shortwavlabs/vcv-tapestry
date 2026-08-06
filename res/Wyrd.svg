@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 380" width="480" height="380">
+  <rect width="480" height="380" fill="#ece7de"/>
+  <rect x="0" y="0" width="480" height="26" fill="#171513"/>
+  <text x="16" y="18" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#ece7de" font-weight="700">WYRD</text>
+  <text x="395" y="18" font-family="Arial, Helvetica, sans-serif" font-size="9" fill="#ece7de">SHORTWAV</text>
+
+  <rect x="16" y="32" width="96" height="132" rx="5" fill="#f8f4ec" stroke="#cbbfb0"/>
+  <rect x="16" y="192" width="96" height="132" rx="5" fill="#edf3ed" stroke="#b8c8b8"/>
+  <rect x="132" y="32" width="146" height="132" rx="5" fill="#f5eee9" stroke="#cfb9ad"/>
+  <rect x="132" y="192" width="146" height="172" rx="5" fill="#f6f2e9" stroke="#cfc5b5"/>
+  <rect x="304" y="32" width="146" height="170" rx="5" fill="#eef1f5" stroke="#bac6d0"/>
+  <rect x="304" y="216" width="146" height="148" rx="5" fill="#f3ece5" stroke="#d0beb1"/>
+
+  <g font-family="Arial, Helvetica, sans-serif" fill="#24211f">
+    <text x="23" y="40" font-size="7" font-weight="700">EXTERNAL</text>
+    <text x="23" y="200" font-size="7" font-weight="700">AGITATION</text>
+    <text x="139" y="40" font-size="7" font-weight="700">ACTIVATION</text>
+    <text x="139" y="200" font-size="7" font-weight="700">TONES</text>
+    <text x="311" y="40" font-size="7" font-weight="700">TIME</text>
+    <text x="311" y="224" font-size="7" font-weight="700">FILTER / RESULT</text>
+  </g>
+
+  <g font-family="Arial, Helvetica, sans-serif" font-size="6.3" fill="#3b3630" text-anchor="middle">
+    <text x="38" y="76">STRENGTH</text>
+    <text x="88" y="76">EXT CONST</text>
+    <text x="38" y="118">EXT IN</text>
+    <text x="88" y="118">STRENGTH</text>
+    <text x="38" y="160">CV1</text>
+    <text x="88" y="160">CV2</text>
+
+    <text x="38" y="236">SPEED</text>
+    <text x="88" y="236">ANGLE</text>
+    <text x="38" y="276">SPD AMT</text>
+    <text x="88" y="276">SPD CV</text>
+    <text x="38" y="320">BEGIN/END</text>
+    <text x="88" y="320">AGIT</text>
+
+    <text x="154" y="76">ACT CONST</text>
+    <text x="204" y="76">INTERF</text>
+    <text x="154" y="118">CV AMT</text>
+    <text x="204" y="118">ACT CV</text>
+    <text x="146" y="150">ACT</text>
+    <text x="184" y="150">TIME</text>
+    <text x="222" y="150">FILT</text>
+    <text x="260" y="150">ABS</text>
+    <text x="166" y="176">TONIC</text>
+    <text x="242" y="176">DECAY</text>
+
+    <text x="154" y="238">TONIC</text>
+    <text x="204" y="236">FINE</text>
+    <text x="254" y="236">TONES</text>
+    <text x="154" y="276">TON MOD</text>
+    <text x="204" y="276">TONE AMT</text>
+    <text x="254" y="276">1V/OCT</text>
+    <text x="154" y="320">TON MOD</text>
+    <text x="204" y="320">TONES CV</text>
+    <text x="254" y="320">CORE</text>
+    <text x="254" y="362">SUB</text>
+
+    <text x="326" y="76">TIME</text>
+    <text x="376" y="76">FINE</text>
+    <text x="426" y="76">DECAY</text>
+    <text x="326" y="118">MOD AMT</text>
+    <text x="376" y="118">TIME AMT</text>
+    <text x="426" y="118">DEC AMT</text>
+    <text x="326" y="160">TIME MOD</text>
+    <text x="376" y="160">TIME CV</text>
+    <text x="426" y="160">UNITY</text>
+    <text x="426" y="202">DEC CV</text>
+
+    <text x="326" y="256">FILTER</text>
+    <text x="376" y="256">FILT AMT</text>
+    <text x="426" y="256">ABSORB</text>
+    <text x="326" y="298">FILT CV</text>
+    <text x="376" y="298">ABS CV</text>
+    <text x="326" y="324">BLEND CV</text>
+    <text x="376" y="324">LINE</text>
+    <text x="326" y="362">BLEND</text>
+    <text x="376" y="362">LEVEL</text>
+    <text x="426" y="362">OUT</text>
+  </g>
+</svg>

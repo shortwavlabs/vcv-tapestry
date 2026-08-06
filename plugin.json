@@ -1,7 +1,7 @@
 {
   "slug": "tapestry",
   "name": "Tapestry",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "license": "GPL-3.0-or-later",
   "brand": "Shortwav Labs",
   "author": "Shortwav Labs",
@@ -28,6 +28,39 @@
       "name": "Korupt",
       "description": "PLL harmonizer and square-wave fuzz",
       "tags": ["Effect", "Distortion", "Oscillator"]
+    },
+    {
+      "slug": "Wyrd",
+      "name": "Wyrd",
+      "description": "Patchable tone source and external processor with activation, agitation, and nonlinear time/filter feedback.",
+      "tags": [
+        "Synth Voice",
+        "Delay",
+        "Effect",
+        "VCF",
+        "VCO",
+        "Waveshaper",
+        "Envelope generator"
+      ]
+    },
+    {
+      "slug": "Wyrdexpander",
+      "name": "Wyrd Expander",
+      "description": "Right-side expander for Wyrd with a Plateau-inspired ambient reverb output.",
+      "tags": [
+        "Reverb",
+        "Effect",
+        "Expander"
+      ]
+    },
+    {
+      "slug": "Drift",
+      "name": "Drift",
+      "description": "3HP fluctuating random LFO inspired by source-of-uncertainty circuits, with offset, speed, range, Signal B attenuverting, subtle interference, and occasional voltage slips.",
+      "tags": [
+        "LFO",
+        "Random"
+      ]
     }
   ]
 }

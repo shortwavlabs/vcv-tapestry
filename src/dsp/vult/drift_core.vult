@@ -1,0 +1,146 @@
+// Vult source for Drift's fluctuating random LFO core.
+// Regenerate src/dsp/generated/drift_core.* with `make generate-vult`.
+
+fun clip(x, lo, hi) {
+  return if x < lo then lo else if x > hi then hi else x;
+}
+
+fun abs1(x) {
+  return if x < 0.0 then -x else x;
+}
+
+fun fract(x) {
+  return x - floor(x);
+}
+
+fun smoothstep(t) {
+  val x = clip(t, 0.0, 1.0);
+  return x * x * (3.0 - 2.0 * x);
+}
+
+fun smooth_param(target, current, seconds, sampleRate) {
+  val safeSeconds = clip(seconds, 0.0001, 0.4);
+  val safeRate = clip(sampleRate, 1000.0, 384000.0);
+  val a = 1.0 - exp(-1.0 / (safeSeconds * safeRate));
+  return current + (target - current) * a;
+}
+
+fun hash01(seed) {
+  return fract(sin(seed * 127.1 + 311.7) * 43758.5453123);
+}
+
+fun speed_hz(speed) {
+  val shaped = smoothstep(clip(speed, 0.0, 1.0));
+  return 0.01 * exp(6.396929655216146 * shaped);
+}
+
+fun process(speedControl : real, rangeControl : real, offsetControl : real,
+            inputNorm : real, mixControl : real, inputConnected : real,
+            sampleRateIn : real) {
+  mem initialized : bool;
+  mem phase, seed;
+  mem segmentStart, segmentTarget, segmentBend;
+  mem amp, targetAmp;
+  mem jitter, jitterTarget, jitterTimer;
+  mem glitchEnv;
+  mem interferencePhase;
+  mem speedSmooth, rangeSmooth, offsetSmooth, mixSmooth;
+
+  val sampleRate = clip(sampleRateIn, 1000.0, 384000.0);
+  val speedTarget = clip(speedControl, 0.0, 1.0);
+  val rangeTarget = clip(rangeControl, 0.0, 1.0);
+  val offsetTarget = clip(offsetControl, 0.0, 1.0);
+  val mixTarget = clip(mixControl, -1.0, 1.0);
+
+  if (not(initialized)) {
+    initialized = true;
+    seed = 0.374151;
+    phase = 0.0;
+    segmentStart = -0.21;
+    segmentTarget = 0.34;
+    segmentBend = 0.0;
+    amp = 0.82;
+    targetAmp = 0.82;
+    jitter = 0.0;
+    jitterTarget = 0.0;
+    jitterTimer = 0.08;
+    glitchEnv = 0.0;
+    interferencePhase = 0.173;
+    speedSmooth = speedTarget;
+    rangeSmooth = rangeTarget;
+    offsetSmooth = offsetTarget;
+    mixSmooth = mixTarget;
+  } else {
+    speedSmooth = clip(smooth_param(speedTarget, speedSmooth, 0.018, sampleRate), 0.0, 1.0);
+    rangeSmooth = clip(smooth_param(rangeTarget, rangeSmooth, 0.012, sampleRate), 0.0, 1.0);
+    offsetSmooth = clip(smooth_param(offsetTarget, offsetSmooth, 0.012, sampleRate), 0.0, 1.0);
+    mixSmooth = clip(smooth_param(mixTarget, mixSmooth, 0.01, sampleRate), -1.0, 1.0);
+  }
+
+  val rateHz = speed_hz(speedSmooth);
+  phase = phase + rateHz / sampleRate;
+  if (phase >= 1.0) {
+    phase = phase - floor(phase);
+    segmentStart = segmentTarget;
+
+    seed = fract(seed + 0.61803398875 + speedSmooth * 0.071 + segmentTarget * 0.013);
+    val r1 = hash01(seed);
+    seed = fract(seed + 0.38196601125 + r1 * 0.17);
+    val r2 = hash01(seed);
+    seed = fract(seed + 0.75487766625 + r2 * 0.11);
+    val r3 = hash01(seed);
+    seed = fract(seed + 0.56984029 + r3 * 0.19);
+    val r4 = hash01(seed);
+
+    val candidate = clip((r1 * 2.0 - 1.0) * 0.78 + (r2 * 2.0 - 1.0) * 0.32, -1.0, 1.0);
+    segmentTarget = clip(segmentTarget * 0.16 + candidate * 0.84, -1.0, 1.0);
+    segmentBend = (r3 * 2.0 - 1.0) * (0.12 + speedSmooth * 0.18);
+    targetAmp = 0.56 + r4 * 0.44;
+
+    val glitchChance = 0.74 - 0.24 * speedSmooth;
+    if (r4 > glitchChance) {
+      glitchEnv = (r2 * 2.0 - 1.0) * (0.035 + 0.115 * speedSmooth);
+    }
+  }
+
+  jitterTimer = jitterTimer - 1.0 / sampleRate;
+  if (jitterTimer <= 0.0) {
+    seed = fract(seed + 0.2360679775 + jitter * 0.021);
+    val jr = hash01(seed);
+    seed = fract(seed + 0.41421356237 + jr * 0.13);
+    val jt = hash01(seed);
+    jitterTarget = (jr * 2.0 - 1.0) * (0.28 + speedSmooth * 0.52);
+    jitterTimer = (0.035 + jt * 0.23) / (0.45 + speedSmooth * 1.85);
+  }
+
+  amp = clip(smooth_param(targetAmp, amp, 0.24, sampleRate), 0.45, 1.0);
+  jitter = clip(smooth_param(jitterTarget, jitter, 0.08 + 0.15 * (1.0 - speedSmooth), sampleRate), -1.0, 1.0);
+
+  interferencePhase = interferencePhase + (0.017 + rateHz * 0.13 + abs1(jitter) * 0.004) / sampleRate;
+  if (interferencePhase >= 1.0) {
+    interferencePhase = interferencePhase - floor(interferencePhase);
+  }
+
+  val glitchDecay = exp(-1.0 / ((0.006 + 0.028 * (1.0 - speedSmooth)) * sampleRate));
+  glitchEnv = glitchEnv * glitchDecay;
+
+  val glide = smoothstep(phase);
+  val arc = sin(3.141592653589793 * phase) * segmentBend;
+  val slowInterference = sin(6.283185307179586 * interferencePhase + segmentBend * 4.0) * 0.045;
+  val fastInterference = sin(18.84955592153876 * phase + jitter * 2.0) * (0.012 + speedSmooth * 0.015);
+  val fluctuating = (segmentStart + (segmentTarget - segmentStart) * glide + arc) * amp;
+  val randomNorm = clip(fluctuating + slowInterference + fastInterference
+                        + jitter * 0.055 + glitchEnv, -1.25, 1.25);
+
+  val inputAmount = if inputConnected > 0.5 then abs1(mixSmooth) else 0.0;
+  val inputPolarity = if mixSmooth < 0.0 then -1.0 else 1.0;
+  val signalB = clip(inputNorm * inputPolarity, -1.4, 1.4);
+  val mixedNorm = clip(randomNorm * (1.0 - inputAmount) + signalB * inputAmount, -1.4, 1.4);
+
+  val offsetNorm = (offsetSmooth - 0.5) * 2.0;
+  val rangeAmount = smoothstep(rangeSmooth);
+  val outputNorm = clip(offsetNorm + mixedNorm * rangeAmount, -2.0, 2.0);
+  val activity = clip(abs1(glitchEnv) * 5.0 + abs1(jitter) * 0.25, 0.0, 1.0);
+
+  return randomNorm, mixedNorm, outputNorm, activity;
+}
