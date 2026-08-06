@@ -4,7 +4,7 @@
   <rect x="5" y="5" width="650" height="370" rx="4" fill="none" stroke="#111518" stroke-width="2"/>
   <path d="M120 31V169M120 169H16V349H135M335 31V307M475 31V307M600 5V375M645 5V375"
         fill="none" stroke="#cfb170" stroke-width="1.2"/>
-  <path d="M16 169H335M135 307H600M475 215H600"
+  <path d="M16 169H335M135 307H338M382 307H600M475 215H600"
         fill="none" stroke="#d9e2e8" stroke-width="1"/>
 
   <g font-family="Arial,Helvetica,sans-serif" fill="#f0f1ee">
@@ -19,9 +19,10 @@
       <text x="352" y="29">TIME / DECAY</text>
       <text x="490" y="29">FILTER / RESULT</text>
       <text x="16" y="181">AGITATION</text>
+      <text x="343" y="309">RESULT</text>
     </g>
 
-    <g font-size="5.5" text-anchor="middle">
+    <g font-size="6" text-anchor="middle">
       <text x="35" y="70">IN</text>
       <text x="85" y="70">STRENGTH OUT</text>
       <text x="35" y="116">STRENGTH</text>
@@ -31,13 +32,13 @@
 
       <text x="145" y="116">CONSTANT</text>
       <text x="190" y="116">INTERFERENCE</text>
-      <text x="145" y="163">CV AMOUNT</text>
+      <text x="145" y="163">ACT AMT</text>
       <text x="190" y="163">ACT CV</text>
 
       <text x="255" y="87">TONIC</text>
       <text x="310" y="72">FINE</text>
       <text x="310" y="160">TONES</text>
-      <text x="210" y="212">TONIC MOD</text>
+      <text x="210" y="212">TONIC AMT</text>
       <text x="260" y="212">TONES AMT</text>
       <text x="310" y="212">1V/OCT</text>
       <text x="210" y="262">TONIC MOD</text>
@@ -48,8 +49,8 @@
       <text x="390" y="87">TIME</text>
       <text x="455" y="72">FINE</text>
       <text x="455" y="160">DECAY</text>
-      <text x="365" y="212">MOD AMT</text>
-      <text x="410" y="212">TIME AMT</text>
+      <text x="365" y="212">TIME MOD AMT</text>
+      <text x="410" y="212">TIME CV AMT</text>
       <text x="455" y="212">DECAY AMT</text>
       <text x="365" y="262">TIME MOD</text>
       <text x="410" y="262">TIME CV</text>
@@ -57,46 +58,46 @@
       <text x="455" y="303">DECAY CV</text>
 
       <text x="535" y="87">FILTER</text>
-      <text x="500" y="212">CV AMT</text>
+      <text x="500" y="212">FILTER AMT</text>
       <text x="550" y="263">ABSORB</text>
       <text x="500" y="262">FILTER CV</text>
       <text x="550" y="303">ABSORB CV</text>
       <text x="365" y="358">BLEND</text>
       <text x="425" y="358">LEVEL</text>
       <text x="500" y="358">BLEND CV</text>
-      <text x="545" y="358">LINE</text>
-      <text x="580" y="358">OUT</text>
+      <text x="545" y="358">LINE OUT</text>
+      <text x="580" y="358">MOD OUT</text>
 
       <text x="45" y="245">SPEED</text>
       <text x="95" y="245">ANGLE</text>
-      <text x="45" y="291">CV AMT</text>
+      <text x="45" y="291">SPEED AMT</text>
       <text x="95" y="291">SPEED CV</text>
       <text x="45" y="346">BEGIN / END</text>
       <text x="95" y="346">AGITATION</text>
     </g>
   </g>
 
-  <g fill="#cfb170" stroke="#f1dfac" stroke-width=".8">
-    <rect x="139" y="42" width="12" height="12"/>
-    <rect x="249" y="42" width="12" height="12"/>
-    <rect x="384" y="42" width="12" height="12"/>
-    <rect x="449" y="42" width="12" height="12"/>
-    <rect x="529" y="42" width="12" height="12"/>
-    <rect x="544" y="188" width="12" height="12"/>
+  <g fill="#cfb170" stroke="#f1dfac" stroke-width="1.1">
+    <rect x="136" y="39" width="18" height="18" rx="1.5"/>
+    <rect x="246" y="39" width="18" height="18" rx="1.5"/>
+    <rect x="381" y="39" width="18" height="18" rx="1.5"/>
+    <rect x="446" y="39" width="18" height="18" rx="1.5"/>
+    <rect x="526" y="39" width="18" height="18" rx="1.5"/>
+    <rect x="541" y="185" width="18" height="18" rx="1.5"/>
   </g>
-  <g font-family="Arial,Helvetica,sans-serif" font-size="4.5" fill="#d9e2e8" text-anchor="middle">
-    <text x="145" y="39">ACT</text>
-    <text x="255" y="39">TONIC</text>
-    <text x="390" y="39">TIME</text>
-    <text x="455" y="39">DECAY</text>
-    <text x="535" y="39">FILTER</text>
-    <text x="550" y="185">ABSORB</text>
+  <g font-family="Arial,Helvetica,sans-serif" font-size="5.2" fill="#d9e2e8" text-anchor="middle">
+    <text x="145" y="37">ACT</text>
+    <text x="255" y="37">TONIC</text>
+    <text x="390" y="37">TIME</text>
+    <text x="455" y="37">DECAY</text>
+    <text x="535" y="37">FILTER</text>
+    <text x="550" y="183">ABSORB</text>
   </g>
 
   <rect x="600" y="5" width="45" height="370" fill="#15191c" stroke="#cfb170"/>
   <g font-family="Arial,Helvetica,sans-serif" text-anchor="middle">
     <text x="622.5" y="17" font-size="7.5" fill="#cfb170" font-weight="700">CLOUD</text>
-    <g font-size="4.8" fill="#d9e2e8">
+    <g font-size="5.2" fill="#d9e2e8">
       <text x="622.5" y="69">SIZE</text>
       <text x="622.5" y="117">DECAY</text>
       <text x="622.5" y="165">DIFFUSION</text>
