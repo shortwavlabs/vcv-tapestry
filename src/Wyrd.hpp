@@ -156,10 +156,10 @@ struct Wyrd : Module
     configOutput(CV1_OUTPUT, "CV1");
     configOutput(CV2_OUTPUT, "CV2");
     configOutput(AGITATION_OUTPUT, "Agitation");
-      configOutput(TONE_CORE_OUTPUT, "Tone core");
-      configOutput(SUB_HARMONICS_OUTPUT, "Sub harmonics");
-      configOutput(MODULAR_OUTPUT, "Modular result");
-      configOutput(LINE_OUTPUT, "Line result");
+    configOutput(TONE_CORE_OUTPUT, "Tone core");
+    configOutput(SUB_HARMONICS_OUTPUT, "Sub harmonics");
+    configOutput(MODULAR_OUTPUT, "Modular result");
+    configOutput(LINE_OUTPUT, "Line result");
 
     configLight(STRENGTH_LIGHT, "Strength");
     configLight(CV1_LIGHT, "CV1");
@@ -177,10 +177,10 @@ struct Wyrd : Module
         "Sets how much processed external substance is injected into the tone core.";
     getParamQuantity(ACTIVATION_CONSTANT_PARAM)->description =
         "Sets the baseline activation amount for the core and selected tone.";
-      getParamQuantity(TONIC_MOD_AMOUNT_PARAM)->description =
-          "With no cable, sets Time/Filter feedback modulation of Tonic; with a cable, sets patched Tonic modulation depth.";
-      getParamQuantity(ACTIVATION_INTERFERENCE_PARAM)->description =
-          "Sets how much the Time/Filter experiment influences Activation.";
+    getParamQuantity(TONIC_MOD_AMOUNT_PARAM)->description =
+        "With no cable, sets Time/Filter feedback modulation of Tonic; with a cable, sets patched Tonic modulation depth.";
+    getParamQuantity(ACTIVATION_INTERFERENCE_PARAM)->description =
+        "Sets how much the Time/Filter experiment influences Activation.";
     getParamQuantity(ACTIVATION_CV_AMOUNT_PARAM)->description =
         "Attenuverts patched Activation CV.";
     getParamQuantity(TONIC_COARSE_PARAM)->description =
@@ -207,10 +207,10 @@ struct Wyrd : Module
         "Sets Time/Filter feedback brightness and damping.";
     getParamQuantity(FILTER_CV_AMOUNT_PARAM)->description =
         "Attenuverts patched Filter CV.";
-      getParamQuantity(BLEND_PARAM)->description =
-          "Panel blend when Blend CV is unpatched; unipolar attenuator for Blend CV when patched.";
-      getParamQuantity(ABSORB_PARAM)->description =
-          "Panel absorb when Absorb CV is unpatched; unipolar attenuator for Absorb CV when patched.";
+    getParamQuantity(BLEND_PARAM)->description =
+        "Panel blend when Blend CV is unpatched; unipolar attenuator for Blend CV when patched.";
+    getParamQuantity(ABSORB_PARAM)->description =
+        "Panel absorb when Absorb CV is unpatched; unipolar attenuator for Absorb CV when patched.";
     getParamQuantity(LEVEL_PARAM)->description =
         "Sets final Modular and Line output level.";
     getParamQuantity(SPEED_PARAM)->description =
@@ -219,12 +219,12 @@ struct Wyrd : Module
         "Skews agitation rise and fall shape.";
     getParamQuantity(SPEED_CV_AMOUNT_PARAM)->description =
         "Attenuates patched Agitation speed CV.";
-      getParamQuantity(TOUCH_ACTIVATE_PARAM)->description = "Momentary touch bridge: injects a playable activation burst.";
+    getParamQuantity(TOUCH_ACTIVATE_PARAM)->description = "Momentary touch bridge: injects a playable activation burst.";
     getParamQuantity(TOUCH_TIME_PARAM)->description = "Momentary touch bridge: nudges the Time/Filter delay path.";
     getParamQuantity(TOUCH_FILTER_PARAM)->description = "Momentary touch bridge: opens the feedback filter.";
     getParamQuantity(TOUCH_ABSORB_PARAM)->description = "Momentary touch bridge: absorbs and crumbles the feedback tail.";
-      getParamQuantity(TOUCH_TONIC_PARAM)->description = "Momentary touch bridge: routes agitation and feedback to Tonic.";
-      getParamQuantity(TOUCH_DECAY_PARAM)->description = "Momentary touch bridge: pushes Decay toward unstable persistence.";
+    getParamQuantity(TOUCH_TONIC_PARAM)->description = "Momentary touch bridge: routes agitation and feedback to Tonic.";
+    getParamQuantity(TOUCH_DECAY_PARAM)->description = "Momentary touch bridge: pushes Decay toward unstable persistence.";
     getParamQuantity(REVERB_SIZE_PARAM)->description = "Plateau-inspired tank size, from close haze to wide ambient space.";
     getParamQuantity(REVERB_DECAY_PARAM)->description = "Feedback decay time. Higher settings bloom toward long ambient tails.";
     getParamQuantity(REVERB_DIFFUSION_PARAM)->description = "Input and tank diffusion density.";
@@ -233,19 +233,19 @@ struct Wyrd : Module
     getParamQuantity(REVERB_BLEND_PARAM)->description = "Blends the dry result with the ambient reverb on the Modular and Line outputs.";
 
     getInputInfo(EXTERNAL_INPUT)->description = "External audio or CV substance for Strength processing and core injection.";
-      getInputInfo(BEGIN_END_INPUT)->description = "Normalled high. Patch a low gate or dummy cable to stop agitation.";
+    getInputInfo(BEGIN_END_INPUT)->description = "Normalled high. Patch a low gate or dummy cable to stop agitation.";
     getInputInfo(SPEED_CV_INPUT)->description = "0-5 V CV for Agitation speed through the Speed CV amount.";
     getInputInfo(ACTIVATION_CV_INPUT)->description = "Bipolar CV summed into Activation through the Activation CV attenuverter.";
-      getInputInfo(TONIC_MOD_INPUT)->description = "Overrides the normalled Time/Filter feedback modulation of Tonic.";
+    getInputInfo(TONIC_MOD_INPUT)->description = "Overrides the normalled Time/Filter feedback modulation of Tonic.";
     getInputInfo(TONES_CV_INPUT)->description = "Bipolar CV for Tones through the Tones CV attenuverter.";
     getInputInfo(V_OCT_INPUT)->description = "1V/oct pitch CV summed with Tonic coarse and fine controls.";
-      getInputInfo(TIME_MOD_INPUT)->description = "Overrides the normalled subharmonic modulation of Time.";
+    getInputInfo(TIME_MOD_INPUT)->description = "Overrides the normalled subharmonic modulation of Time.";
     getInputInfo(TIME_CV_INPUT)->description = "Bipolar CV for Time through the Time CV attenuverter.";
     getInputInfo(TIME_UNITY_CV_INPUT)->description = "0-10 V unipolar CV added directly to Time.";
     getInputInfo(DECAY_CV_INPUT)->description = "Bipolar CV for Decay through the Decay CV attenuverter.";
-      getInputInfo(BLEND_CV_INPUT)->description = "0-5 V unipolar Blend CV; Blend becomes an attenuator when patched.";
+    getInputInfo(BLEND_CV_INPUT)->description = "0-5 V unipolar Blend CV; Blend becomes an attenuator when patched.";
     getInputInfo(FILTER_CV_INPUT)->description = "Bipolar CV for Filter through the Filter CV attenuverter.";
-      getInputInfo(ABSORB_CV_INPUT)->description = "0-10 V unipolar Absorb CV; Absorb becomes an attenuator when patched.";
+    getInputInfo(ABSORB_CV_INPUT)->description = "0-10 V unipolar Absorb CV; Absorb becomes an attenuator when patched.";
 
     getOutputInfo(STRENGTH_OUTPUT)->description = "Processed external strength signal as audio-rate CV.";
     getOutputInfo(CV1_OUTPUT)->description = "Envelope-followed strength CV, 0-10 V.";
@@ -265,7 +265,7 @@ struct Wyrd : Module
     getLightInfo(ACTIVATION_NEG_LIGHT)->description = "Shows negative activation.";
     getLightInfo(RESULT_LIGHT)->description = "Shows Modular output activity.";
     getLightInfo(REVERB_LIGHT)->description = "Shows the reverb contribution to the main outputs.";
-    }
+  }
 
   void process(const ProcessArgs &args) override;
   void onReset() override;
@@ -278,87 +278,88 @@ struct WyrdWidget : ModuleWidget
   WyrdWidget(Wyrd *module)
   {
     setModule(module);
-    setPanel(createPanel(asset::plugin(pluginInstance, "res/Wyrd.svg")));
+    setPanel(createPanel(asset::plugin(pluginInstance, "res/36HP.svg")));
 
+    // Screws
     addChild(createWidget<ScrewSilver>(Vec(0, 0)));
-    addChild(createWidget<ScrewSilver>(Vec(box.size.x - RACK_GRID_WIDTH, 0)));
-    addChild(createWidget<ScrewSilver>(Vec(0, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-    addChild(createWidget<ScrewSilver>(Vec(box.size.x - RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+    addChild(createWidget<ScrewSilver>(Vec(box.size.x - 1 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-    addParam(createParamCentered<RoundBlackKnob>(Vec(38.f, 54.f), module, Wyrd::STRENGTH_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(88.f, 54.f), module, Wyrd::EXTERNAL_CONSTANT_PARAM));
-    addInput(createInputCentered<PJ301MPort>(Vec(38.f, 96.f), module, Wyrd::EXTERNAL_INPUT));
-    addOutput(createOutputCentered<PJ301MPort>(Vec(88.f, 96.f), module, Wyrd::STRENGTH_OUTPUT));
-    addOutput(createOutputCentered<PJ301MPort>(Vec(38.f, 138.f), module, Wyrd::CV1_OUTPUT));
-    addOutput(createOutputCentered<PJ301MPort>(Vec(88.f, 138.f), module, Wyrd::CV2_OUTPUT));
+    auto controlPosition = [](float x, float y) { return Vec(x, y - 10.f); };
 
-    addParam(createParamCentered<RoundBlackKnob>(Vec(38.f, 214.f), module, Wyrd::SPEED_PARAM));
-    addParam(createParamCentered<RoundSmallBlackKnob>(Vec(88.f, 214.f), module, Wyrd::ANGLE_PARAM));
-    addParam(createParamCentered<Trimpot>(Vec(38.f, 254.f), module, Wyrd::SPEED_CV_AMOUNT_PARAM));
-    addInput(createInputCentered<PJ301MPort>(Vec(88.f, 254.f), module, Wyrd::SPEED_CV_INPUT));
-    addInput(createInputCentered<PJ301MPort>(Vec(38.f, 298.f), module, Wyrd::BEGIN_END_INPUT));
-    addOutput(createOutputCentered<PJ301MPort>(Vec(88.f, 298.f), module, Wyrd::AGITATION_OUTPUT));
+    addParam(createParamCentered<RoundBlackKnob>(controlPosition(38.f, 54.f), module, Wyrd::STRENGTH_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(controlPosition(88.f, 54.f), module, Wyrd::EXTERNAL_CONSTANT_PARAM));
+    addInput(createInputCentered<PJ301MPort>(controlPosition(38.f, 96.f), module, Wyrd::EXTERNAL_INPUT));
+    addOutput(createOutputCentered<PJ301MPort>(controlPosition(88.f, 96.f), module, Wyrd::STRENGTH_OUTPUT));
+    addOutput(createOutputCentered<PJ301MPort>(controlPosition(38.f, 138.f), module, Wyrd::CV1_OUTPUT));
+    addOutput(createOutputCentered<PJ301MPort>(controlPosition(88.f, 138.f), module, Wyrd::CV2_OUTPUT));
 
-    addParam(createParamCentered<RoundBlackKnob>(Vec(154.f, 54.f), module, Wyrd::ACTIVATION_CONSTANT_PARAM));
-    addParam(createParamCentered<RoundSmallBlackKnob>(Vec(204.f, 54.f), module, Wyrd::ACTIVATION_INTERFERENCE_PARAM));
-    addParam(createParamCentered<Trimpot>(Vec(154.f, 96.f), module, Wyrd::ACTIVATION_CV_AMOUNT_PARAM));
-    addInput(createInputCentered<PJ301MPort>(Vec(204.f, 96.f), module, Wyrd::ACTIVATION_CV_INPUT));
-    addParam(createParamCentered<LEDButton>(Vec(146.f, 130.f), module, Wyrd::TOUCH_ACTIVATE_PARAM));
-    addParam(createParamCentered<LEDButton>(Vec(184.f, 130.f), module, Wyrd::TOUCH_TIME_PARAM));
-    addParam(createParamCentered<LEDButton>(Vec(222.f, 130.f), module, Wyrd::TOUCH_FILTER_PARAM));
-    addParam(createParamCentered<LEDButton>(Vec(260.f, 130.f), module, Wyrd::TOUCH_ABSORB_PARAM));
-    addParam(createParamCentered<LEDButton>(Vec(166.f, 156.f), module, Wyrd::TOUCH_TONIC_PARAM));
-    addParam(createParamCentered<LEDButton>(Vec(242.f, 156.f), module, Wyrd::TOUCH_DECAY_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(controlPosition(38.f, 214.f), module, Wyrd::SPEED_PARAM));
+    addParam(createParamCentered<RoundSmallBlackKnob>(controlPosition(88.f, 214.f), module, Wyrd::ANGLE_PARAM));
+    addParam(createParamCentered<Trimpot>(controlPosition(38.f, 254.f), module, Wyrd::SPEED_CV_AMOUNT_PARAM));
+    addInput(createInputCentered<PJ301MPort>(controlPosition(88.f, 254.f), module, Wyrd::SPEED_CV_INPUT));
+    addInput(createInputCentered<PJ301MPort>(controlPosition(38.f, 298.f), module, Wyrd::BEGIN_END_INPUT));
+    addOutput(createOutputCentered<PJ301MPort>(controlPosition(88.f, 298.f), module, Wyrd::AGITATION_OUTPUT));
 
-    addParam(createParamCentered<RoundLargeBlackKnob>(Vec(154.f, 214.f), module, Wyrd::TONIC_COARSE_PARAM));
-    addParam(createParamCentered<Trimpot>(Vec(204.f, 214.f), module, Wyrd::TONIC_FINE_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(254.f, 214.f), module, Wyrd::TONES_PARAM));
-    addParam(createParamCentered<Trimpot>(Vec(154.f, 254.f), module, Wyrd::TONIC_MOD_AMOUNT_PARAM));
-    addParam(createParamCentered<Trimpot>(Vec(204.f, 254.f), module, Wyrd::TONES_CV_AMOUNT_PARAM));
-    addInput(createInputCentered<PJ301MPort>(Vec(254.f, 254.f), module, Wyrd::V_OCT_INPUT));
-    addInput(createInputCentered<PJ301MPort>(Vec(154.f, 298.f), module, Wyrd::TONIC_MOD_INPUT));
-    addInput(createInputCentered<PJ301MPort>(Vec(204.f, 298.f), module, Wyrd::TONES_CV_INPUT));
-    addOutput(createOutputCentered<PJ301MPort>(Vec(254.f, 298.f), module, Wyrd::TONE_CORE_OUTPUT));
-    addOutput(createOutputCentered<PJ301MPort>(Vec(254.f, 340.f), module, Wyrd::SUB_HARMONICS_OUTPUT));
+    addParam(createParamCentered<RoundBlackKnob>(controlPosition(154.f, 54.f), module, Wyrd::ACTIVATION_CONSTANT_PARAM));
+    addParam(createParamCentered<RoundSmallBlackKnob>(controlPosition(204.f, 54.f), module, Wyrd::ACTIVATION_INTERFERENCE_PARAM));
+    addParam(createParamCentered<Trimpot>(controlPosition(154.f, 96.f), module, Wyrd::ACTIVATION_CV_AMOUNT_PARAM));
+    addInput(createInputCentered<PJ301MPort>(controlPosition(204.f, 96.f), module, Wyrd::ACTIVATION_CV_INPUT));
+    addParam(createParamCentered<LEDButton>(controlPosition(146.f, 130.f), module, Wyrd::TOUCH_ACTIVATE_PARAM));
+    addParam(createParamCentered<LEDButton>(controlPosition(184.f, 130.f), module, Wyrd::TOUCH_TIME_PARAM));
+    addParam(createParamCentered<LEDButton>(controlPosition(222.f, 130.f), module, Wyrd::TOUCH_FILTER_PARAM));
+    addParam(createParamCentered<LEDButton>(controlPosition(260.f, 130.f), module, Wyrd::TOUCH_ABSORB_PARAM));
+    addParam(createParamCentered<LEDButton>(controlPosition(166.f, 156.f), module, Wyrd::TOUCH_TONIC_PARAM));
+    addParam(createParamCentered<LEDButton>(controlPosition(242.f, 156.f), module, Wyrd::TOUCH_DECAY_PARAM));
 
-    addParam(createParamCentered<RoundBlackKnob>(Vec(326.f, 54.f), module, Wyrd::TIME_COARSE_PARAM));
-    addParam(createParamCentered<Trimpot>(Vec(376.f, 54.f), module, Wyrd::TIME_FINE_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(426.f, 54.f), module, Wyrd::DECAY_PARAM));
-    addParam(createParamCentered<Trimpot>(Vec(326.f, 96.f), module, Wyrd::TIME_MOD_AMOUNT_PARAM));
-    addParam(createParamCentered<Trimpot>(Vec(376.f, 96.f), module, Wyrd::TIME_CV_AMOUNT_PARAM));
-    addParam(createParamCentered<Trimpot>(Vec(426.f, 96.f), module, Wyrd::DECAY_CV_AMOUNT_PARAM));
-    addInput(createInputCentered<PJ301MPort>(Vec(326.f, 138.f), module, Wyrd::TIME_MOD_INPUT));
-    addInput(createInputCentered<PJ301MPort>(Vec(376.f, 138.f), module, Wyrd::TIME_CV_INPUT));
-    addInput(createInputCentered<PJ301MPort>(Vec(426.f, 138.f), module, Wyrd::TIME_UNITY_CV_INPUT));
-    addInput(createInputCentered<PJ301MPort>(Vec(426.f, 180.f), module, Wyrd::DECAY_CV_INPUT));
+    addParam(createParamCentered<RoundLargeBlackKnob>(controlPosition(154.f, 214.f), module, Wyrd::TONIC_COARSE_PARAM));
+    addParam(createParamCentered<Trimpot>(controlPosition(204.f, 214.f), module, Wyrd::TONIC_FINE_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(controlPosition(254.f, 214.f), module, Wyrd::TONES_PARAM));
+    addParam(createParamCentered<Trimpot>(controlPosition(154.f, 254.f), module, Wyrd::TONIC_MOD_AMOUNT_PARAM));
+    addParam(createParamCentered<Trimpot>(controlPosition(204.f, 254.f), module, Wyrd::TONES_CV_AMOUNT_PARAM));
+    addInput(createInputCentered<PJ301MPort>(controlPosition(254.f, 254.f), module, Wyrd::V_OCT_INPUT));
+    addInput(createInputCentered<PJ301MPort>(controlPosition(154.f, 298.f), module, Wyrd::TONIC_MOD_INPUT));
+    addInput(createInputCentered<PJ301MPort>(controlPosition(204.f, 298.f), module, Wyrd::TONES_CV_INPUT));
+    addOutput(createOutputCentered<PJ301MPort>(controlPosition(254.f, 298.f), module, Wyrd::TONE_CORE_OUTPUT));
+    addOutput(createOutputCentered<PJ301MPort>(controlPosition(254.f, 340.f), module, Wyrd::SUB_HARMONICS_OUTPUT));
 
-    addParam(createParamCentered<RoundBlackKnob>(Vec(326.f, 234.f), module, Wyrd::FILTER_PARAM));
-    addParam(createParamCentered<Trimpot>(Vec(376.f, 234.f), module, Wyrd::FILTER_CV_AMOUNT_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(426.f, 234.f), module, Wyrd::ABSORB_PARAM));
-    addInput(createInputCentered<PJ301MPort>(Vec(326.f, 276.f), module, Wyrd::FILTER_CV_INPUT));
-    addInput(createInputCentered<PJ301MPort>(Vec(376.f, 276.f), module, Wyrd::ABSORB_CV_INPUT));
-    addInput(createInputCentered<PJ301MPort>(Vec(326.f, 302.f), module, Wyrd::BLEND_CV_INPUT));
-    addOutput(createOutputCentered<PJ301MPort>(Vec(376.f, 302.f), module, Wyrd::LINE_OUTPUT));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(326.f, 340.f), module, Wyrd::BLEND_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(376.f, 340.f), module, Wyrd::LEVEL_PARAM));
-    addOutput(createOutputCentered<PJ301MPort>(Vec(426.f, 340.f), module, Wyrd::MODULAR_OUTPUT));
+    addParam(createParamCentered<RoundBlackKnob>(controlPosition(326.f, 54.f), module, Wyrd::TIME_COARSE_PARAM));
+    addParam(createParamCentered<Trimpot>(controlPosition(376.f, 54.f), module, Wyrd::TIME_FINE_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(controlPosition(426.f, 54.f), module, Wyrd::DECAY_PARAM));
+    addParam(createParamCentered<Trimpot>(controlPosition(326.f, 96.f), module, Wyrd::TIME_MOD_AMOUNT_PARAM));
+    addParam(createParamCentered<Trimpot>(controlPosition(376.f, 96.f), module, Wyrd::TIME_CV_AMOUNT_PARAM));
+    addParam(createParamCentered<Trimpot>(controlPosition(426.f, 96.f), module, Wyrd::DECAY_CV_AMOUNT_PARAM));
+    addInput(createInputCentered<PJ301MPort>(controlPosition(326.f, 138.f), module, Wyrd::TIME_MOD_INPUT));
+    addInput(createInputCentered<PJ301MPort>(controlPosition(376.f, 138.f), module, Wyrd::TIME_CV_INPUT));
+    addInput(createInputCentered<PJ301MPort>(controlPosition(426.f, 138.f), module, Wyrd::TIME_UNITY_CV_INPUT));
+    addInput(createInputCentered<PJ301MPort>(controlPosition(426.f, 180.f), module, Wyrd::DECAY_CV_INPUT));
 
-    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(61.f, 96.f), module, Wyrd::STRENGTH_LIGHT));
-    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(61.f, 138.f), module, Wyrd::CV1_LIGHT));
-    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(111.f, 138.f), module, Wyrd::CV2_POS_LIGHT));
-    addChild(createLightCentered<SmallLight<RedLight>>(Vec(116.f, 138.f), module, Wyrd::CV2_NEG_LIGHT));
-    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(111.f, 298.f), module, Wyrd::AGITATION_LIGHT));
-    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(176.f, 138.f), module, Wyrd::ACTIVATION_POS_LIGHT));
-    addChild(createLightCentered<SmallLight<RedLight>>(Vec(181.f, 138.f), module, Wyrd::ACTIVATION_NEG_LIGHT));
-    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(450.f, 340.f), module, Wyrd::RESULT_LIGHT));
+    addParam(createParamCentered<RoundBlackKnob>(controlPosition(326.f, 234.f), module, Wyrd::FILTER_PARAM));
+    addParam(createParamCentered<Trimpot>(controlPosition(376.f, 234.f), module, Wyrd::FILTER_CV_AMOUNT_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(controlPosition(426.f, 234.f), module, Wyrd::ABSORB_PARAM));
+    addInput(createInputCentered<PJ301MPort>(controlPosition(326.f, 276.f), module, Wyrd::FILTER_CV_INPUT));
+    addInput(createInputCentered<PJ301MPort>(controlPosition(376.f, 276.f), module, Wyrd::ABSORB_CV_INPUT));
+    addInput(createInputCentered<PJ301MPort>(controlPosition(326.f, 302.f), module, Wyrd::BLEND_CV_INPUT));
+    addOutput(createOutputCentered<PJ301MPort>(controlPosition(376.f, 302.f), module, Wyrd::LINE_OUTPUT));
+    addParam(createParamCentered<RoundBlackKnob>(controlPosition(326.f, 340.f), module, Wyrd::BLEND_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(controlPosition(376.f, 340.f), module, Wyrd::LEVEL_PARAM));
+    addOutput(createOutputCentered<PJ301MPort>(controlPosition(426.f, 340.f), module, Wyrd::MODULAR_OUTPUT));
 
-    addParam(createParamCentered<Trimpot>(Vec(502.5f, 48.f), module, Wyrd::REVERB_SIZE_PARAM));
-    addParam(createParamCentered<Trimpot>(Vec(502.5f, 92.f), module, Wyrd::REVERB_DECAY_PARAM));
-    addParam(createParamCentered<Trimpot>(Vec(502.5f, 136.f), module, Wyrd::REVERB_DIFFUSION_PARAM));
-    addParam(createParamCentered<Trimpot>(Vec(502.5f, 180.f), module, Wyrd::REVERB_TONE_PARAM));
-    addParam(createParamCentered<Trimpot>(Vec(502.5f, 224.f), module, Wyrd::REVERB_MOD_PARAM));
-    addParam(createParamCentered<Trimpot>(Vec(502.5f, 268.f), module, Wyrd::REVERB_BLEND_PARAM));
-    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(502.5f, 326.f), module, Wyrd::REVERB_LIGHT));
+    addChild(createLightCentered<SmallLight<GreenLight>>(controlPosition(61.f, 96.f), module, Wyrd::STRENGTH_LIGHT));
+    addChild(createLightCentered<SmallLight<GreenLight>>(controlPosition(61.f, 138.f), module, Wyrd::CV1_LIGHT));
+    addChild(createLightCentered<SmallLight<GreenLight>>(controlPosition(111.f, 138.f), module, Wyrd::CV2_POS_LIGHT));
+    addChild(createLightCentered<SmallLight<RedLight>>(controlPosition(116.f, 138.f), module, Wyrd::CV2_NEG_LIGHT));
+    addChild(createLightCentered<SmallLight<GreenLight>>(controlPosition(111.f, 298.f), module, Wyrd::AGITATION_LIGHT));
+    addChild(createLightCentered<SmallLight<GreenLight>>(controlPosition(176.f, 138.f), module, Wyrd::ACTIVATION_POS_LIGHT));
+    addChild(createLightCentered<SmallLight<RedLight>>(controlPosition(181.f, 138.f), module, Wyrd::ACTIVATION_NEG_LIGHT));
+    addChild(createLightCentered<SmallLight<GreenLight>>(controlPosition(450.f, 340.f), module, Wyrd::RESULT_LIGHT));
+
+    addParam(createParamCentered<Trimpot>(controlPosition(502.5f, 48.f), module, Wyrd::REVERB_SIZE_PARAM));
+    addParam(createParamCentered<Trimpot>(controlPosition(502.5f, 92.f), module, Wyrd::REVERB_DECAY_PARAM));
+    addParam(createParamCentered<Trimpot>(controlPosition(502.5f, 136.f), module, Wyrd::REVERB_DIFFUSION_PARAM));
+    addParam(createParamCentered<Trimpot>(controlPosition(502.5f, 180.f), module, Wyrd::REVERB_TONE_PARAM));
+    addParam(createParamCentered<Trimpot>(controlPosition(502.5f, 224.f), module, Wyrd::REVERB_MOD_PARAM));
+    addParam(createParamCentered<Trimpot>(controlPosition(502.5f, 268.f), module, Wyrd::REVERB_BLEND_PARAM));
+    addChild(createLightCentered<SmallLight<GreenLight>>(controlPosition(502.5f, 326.f), module, Wyrd::REVERB_LIGHT));
   }
 
   void appendContextMenu(Menu* menu) override
