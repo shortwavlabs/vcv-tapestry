@@ -26,6 +26,8 @@ RACK_SDK_DIR="${RACK_DIR:-dep/Rack-SDK}"
 TESTS=(
   "src/tests/test_tapestry.cpp:build_test_tapestry"
   "src/tests/test_korupt.cpp:build_test_korupt"
+  "src/tests/test_drift.cpp:build_test_drift"
+  "src/tests/test_wyrd.cpp:build_test_wyrd"
 )
 
 echo "Running tests..."
@@ -33,7 +35,7 @@ for entry in "${TESTS[@]}"; do
   src="${entry%%:*}"
   bin="${entry##*:}"
   out_bin="${OUT_DIR}/${bin}"
-  "$CXX" -std=c++17 -O2 -Wall -Isrc -I"${RACK_SDK_DIR}/include" -I"${RACK_SDK_DIR}/dep/include" -DSHORTWAV_DSP_RUN_TESTS -o "$out_bin" "$src"
+  "$CXX" -std=c++17 -O2 -Wall -Isrc -I"${RACK_SDK_DIR}/include" -I"${RACK_SDK_DIR}/dep/include" -DSHORTWAV_DSP_RUN_TESTS -o "$out_bin" "$src" src/dsp/generated/*.cpp
   "$out_bin"
 done
 
