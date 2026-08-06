@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 380" width="480" height="380">
-  <rect width="480" height="380" fill="#ece7de"/>
-  <rect x="0" y="0" width="480" height="26" fill="#171513"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 525 380" width="525" height="380">
+  <rect width="525" height="380" fill="#ece7de"/>
+  <rect x="0" y="0" width="525" height="26" fill="#171513"/>
   <text x="16" y="18" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#ece7de" font-weight="700">WYRD</text>
   <text x="395" y="18" font-family="Arial, Helvetica, sans-serif" font-size="9" fill="#ece7de">SHORTWAV</text>
 
@@ -11,6 +11,8 @@
   <rect x="132" y="192" width="146" height="172" rx="5" fill="#f6f2e9" stroke="#cfc5b5"/>
   <rect x="304" y="32" width="146" height="170" rx="5" fill="#eef1f5" stroke="#bac6d0"/>
   <rect x="304" y="216" width="146" height="148" rx="5" fill="#f3ece5" stroke="#d0beb1"/>
+  <rect x="480" y="0" width="45" height="380" fill="#111111"/>
+  <rect x="483" y="3" width="39" height="374" fill="#191919" stroke="#c6a65a" stroke-width="1"/>
 
   <g font-family="Arial, Helvetica, sans-serif" fill="#24211f">
     <text x="23" y="40" font-size="7" font-weight="700">EXTERNAL</text>
@@ -79,5 +81,19 @@
     <text x="326" y="362">BLEND</text>
     <text x="376" y="362">LEVEL</text>
     <text x="426" y="362">OUT</text>
+  </g>
+
+  <g text-anchor="middle" font-family="Helvetica,Arial,sans-serif">
+    <text x="502.5" y="22" font-size="8" fill="#d8c07a">WYRD</text>
+    <text x="502.5" y="32" font-size="6" fill="#d8d8d8">CLOUD</text>
+    <text x="502.5" y="73" font-size="5" fill="#d8d8d8">SIZE</text>
+    <text x="502.5" y="117" font-size="5" fill="#d8d8d8">DECAY</text>
+    <text x="502.5" y="161" font-size="5" fill="#d8d8d8">DIFF</text>
+    <text x="502.5" y="205" font-size="5" fill="#d8d8d8">TONE</text>
+    <text x="502.5" y="249" font-size="5" fill="#d8d8d8">MOD</text>
+    <text x="502.5" y="293" font-size="5" fill="#d8d8d8">LEVEL</text>
+    <circle cx="502.5" cy="326" r="12" fill="none" stroke="#4a4a4a" stroke-width="1"/>
+    <text x="502.5" y="348" font-size="5" fill="#d8d8d8">WET</text>
+    <text x="502.5" y="370" font-size="4.5" fill="#9f9f9f">SEND OUT</text>
   </g>
 </svg>

@@ -32,7 +32,7 @@
     {
       "slug": "Wyrd",
       "name": "Wyrd",
-      "description": "Patchable tone source and external processor with activation, agitation, and nonlinear time/filter feedback.",
+      "description": "Patchable tone source and external processor with activation, agitation, nonlinear time/filter feedback, and an integrated ambient reverb send.",
       "tags": [
         "Synth Voice",
         "Delay",
@@ -41,16 +41,6 @@
         "VCO",
         "Waveshaper",
         "Envelope generator"
-      ]
-    },
-    {
-      "slug": "Wyrdexpander",
-      "name": "Wyrd Expander",
-      "description": "Right-side expander for Wyrd with a Plateau-inspired ambient reverb output.",
-      "tags": [
-        "Reverb",
-        "Effect",
-        "Expander"
       ]
     },
     {

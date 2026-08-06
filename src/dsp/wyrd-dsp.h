@@ -235,12 +235,6 @@ struct WyrdReverbResult {
   float mono = 0.f;
 };
 
-struct WyrdReverbExpanderMessage {
-  float modularVolts = 0.f;
-  float cv2Volts = 0.f;
-  bool active = false;
-};
-
 struct WyrdAmbientReverb {
   DelayAllpass inputDiffuserA;
   DelayAllpass inputDiffuserB;

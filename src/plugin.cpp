@@ -12,7 +12,6 @@ void init(Plugin *p) {
 	p->addModel(modelTapestryExpander);
 	p->addModel(modelKorupt);
 	p->addModel(modelDrift);
-	p->addModel(modelWyrdexpander);
 	p->addModel(modelWyrd);
 
 	// Any other plugin initialization may go here.
