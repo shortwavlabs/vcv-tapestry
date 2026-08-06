@@ -42,7 +42,7 @@ struct Wyrd : Module
     REVERB_DIFFUSION_PARAM,
     REVERB_TONE_PARAM,
     REVERB_MOD_PARAM,
-    REVERB_LEVEL_PARAM,
+    REVERB_BLEND_PARAM,
     NUM_PARAMS
   };
 
@@ -75,7 +75,6 @@ struct Wyrd : Module
     SUB_HARMONICS_OUTPUT,
     MODULAR_OUTPUT,
     LINE_OUTPUT,
-    REVERB_OUTPUT,
     NUM_OUTPUTS
   };
 
@@ -136,7 +135,7 @@ struct Wyrd : Module
     configParam(REVERB_DIFFUSION_PARAM, 0.f, 1.f, 0.82f, "Reverb diffusion", "%", 0.f, 100.f);
     configParam(REVERB_TONE_PARAM, 0.f, 1.f, 0.55f, "Reverb tone", "%", 0.f, 100.f);
     configParam(REVERB_MOD_PARAM, 0.f, 1.f, 0.34f, "Reverb modulation", "%", 0.f, 100.f);
-    configParam(REVERB_LEVEL_PARAM, 0.f, 1.f, 0.82f, "Reverb send level", "%", 0.f, 100.f);
+    configParam(REVERB_BLEND_PARAM, 0.f, 1.f, 0.25f, "Reverb blend", "%", 0.f, 100.f);
 
     configInput(EXTERNAL_INPUT, "External substance");
     configInput(BEGIN_END_INPUT, "Begin and End agitation");
@@ -161,7 +160,6 @@ struct Wyrd : Module
       configOutput(SUB_HARMONICS_OUTPUT, "Sub harmonics");
       configOutput(MODULAR_OUTPUT, "Modular result");
       configOutput(LINE_OUTPUT, "Line result");
-      configOutput(REVERB_OUTPUT, "Reverb send");
 
     configLight(STRENGTH_LIGHT, "Strength");
     configLight(CV1_LIGHT, "CV1");
@@ -171,7 +169,7 @@ struct Wyrd : Module
     configLight(ACTIVATION_POS_LIGHT, "Activation positive");
     configLight(ACTIVATION_NEG_LIGHT, "Activation negative");
     configLight(RESULT_LIGHT, "Modular result");
-    configLight(REVERB_LIGHT, "Reverb send");
+    configLight(REVERB_LIGHT, "Reverb");
 
     getParamQuantity(STRENGTH_PARAM)->description =
         "Sets external input gain and saturation before Wyrd's internal CV extraction.";
@@ -232,7 +230,7 @@ struct Wyrd : Module
     getParamQuantity(REVERB_DIFFUSION_PARAM)->description = "Input and tank diffusion density.";
     getParamQuantity(REVERB_TONE_PARAM)->description = "Reverb damping brightness.";
     getParamQuantity(REVERB_MOD_PARAM)->description = "Slow delay-line modulation depth and rate.";
-    getParamQuantity(REVERB_LEVEL_PARAM)->description = "Wet-only reverb send output level.";
+    getParamQuantity(REVERB_BLEND_PARAM)->description = "Blends the dry result with the ambient reverb on the Modular and Line outputs.";
 
     getInputInfo(EXTERNAL_INPUT)->description = "External audio or CV substance for Strength processing and core injection.";
       getInputInfo(BEGIN_END_INPUT)->description = "Normalled high. Patch a low gate or dummy cable to stop agitation.";
@@ -255,9 +253,8 @@ struct Wyrd : Module
     getOutputInfo(AGITATION_OUTPUT)->description = "Internal agitation gesture, 0-6 V.";
     getOutputInfo(TONE_CORE_OUTPUT)->description = "Raw tone core output before Time/Filter blend.";
     getOutputInfo(SUB_HARMONICS_OUTPUT)->description = "Subharmonic output from the tone core.";
-    getOutputInfo(MODULAR_OUTPUT)->description = "Main modular-level output.";
-    getOutputInfo(LINE_OUTPUT)->description = "Lower-level copy of the blended result.";
-    getOutputInfo(REVERB_OUTPUT)->description = "Wet-only ambient reverb send from Wyrd's Modular output.";
+    getOutputInfo(MODULAR_OUTPUT)->description = "Main modular-level output with integrated ambient reverb.";
+    getOutputInfo(LINE_OUTPUT)->description = "Lower-level copy of the result with integrated ambient reverb.";
 
     getLightInfo(STRENGTH_LIGHT)->description = "Shows Strength output activity.";
     getLightInfo(CV1_LIGHT)->description = "Shows CV1 envelope level.";
@@ -267,7 +264,7 @@ struct Wyrd : Module
     getLightInfo(ACTIVATION_POS_LIGHT)->description = "Shows positive activation.";
     getLightInfo(ACTIVATION_NEG_LIGHT)->description = "Shows negative activation.";
     getLightInfo(RESULT_LIGHT)->description = "Shows Modular output activity.";
-    getLightInfo(REVERB_LIGHT)->description = "Shows wet reverb send activity.";
+    getLightInfo(REVERB_LIGHT)->description = "Shows the reverb contribution to the main outputs.";
     }
 
   void process(const ProcessArgs &args) override;
@@ -360,9 +357,8 @@ struct WyrdWidget : ModuleWidget
     addParam(createParamCentered<Trimpot>(Vec(502.5f, 136.f), module, Wyrd::REVERB_DIFFUSION_PARAM));
     addParam(createParamCentered<Trimpot>(Vec(502.5f, 180.f), module, Wyrd::REVERB_TONE_PARAM));
     addParam(createParamCentered<Trimpot>(Vec(502.5f, 224.f), module, Wyrd::REVERB_MOD_PARAM));
-    addParam(createParamCentered<Trimpot>(Vec(502.5f, 268.f), module, Wyrd::REVERB_LEVEL_PARAM));
-    addOutput(createOutputCentered<PJ301MPort>(Vec(502.5f, 326.f), module, Wyrd::REVERB_OUTPUT));
-    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(502.5f, 356.f), module, Wyrd::REVERB_LIGHT));
+    addParam(createParamCentered<Trimpot>(Vec(502.5f, 268.f), module, Wyrd::REVERB_BLEND_PARAM));
+    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(502.5f, 326.f), module, Wyrd::REVERB_LIGHT));
   }
 
   void appendContextMenu(Menu* menu) override

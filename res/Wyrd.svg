@@ -91,9 +91,9 @@
     <text x="502.5" y="161" font-size="5" fill="#d8d8d8">DIFF</text>
     <text x="502.5" y="205" font-size="5" fill="#d8d8d8">TONE</text>
     <text x="502.5" y="249" font-size="5" fill="#d8d8d8">MOD</text>
-    <text x="502.5" y="293" font-size="5" fill="#d8d8d8">LEVEL</text>
-    <circle cx="502.5" cy="326" r="12" fill="none" stroke="#4a4a4a" stroke-width="1"/>
+    <text x="502.5" y="293" font-size="5" fill="#d8d8d8">BLEND</text>
+    <circle cx="502.5" cy="326" r="4.5" fill="none" stroke="#4a4a4a" stroke-width="1"/>
     <text x="502.5" y="348" font-size="5" fill="#d8d8d8">WET</text>
-    <text x="502.5" y="370" font-size="4.5" fill="#9f9f9f">SEND OUT</text>
+    <text x="502.5" y="370" font-size="4.5" fill="#9f9f9f">MAIN MIX</text>
   </g>
 </svg>

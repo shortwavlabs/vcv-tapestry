@@ -770,7 +770,7 @@ namespace TestSuite
     T_ASSERT(ctx, late > 0.12f);
   }
 
-  static void test_wyrd_ambient_reverb_send_dsp(TestContext &ctx)
+  static void test_wyrd_ambient_reverb_dsp(TestContext &ctx)
   {
     WyrdAmbientReverb lowDecay;
     WyrdAmbientReverb highDecay;
@@ -907,7 +907,7 @@ namespace TestSuite
     test_touch_source_value_variants(ctx);
     test_delay_wrap_and_core_recovery_edges(ctx);
     test_listening_calibration_landmarks(ctx);
-    test_wyrd_ambient_reverb_send_dsp(ctx);
+    test_wyrd_ambient_reverb_dsp(ctx);
     test_extreme_engine_stability(ctx);
 
     std::printf("\n");

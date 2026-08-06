@@ -88,8 +88,6 @@ void Wyrd::process(const ProcessArgs &args)
   outputs[AGITATION_OUTPUT].setVoltage(safeVoltage(out.agitationVolts, 0.f, 6.f));
   outputs[TONE_CORE_OUTPUT].setVoltage(safeVoltage(out.toneCoreVolts, -5.2f, 5.2f));
   outputs[SUB_HARMONICS_OUTPUT].setVoltage(safeVoltage(out.subHarmonicsVolts, -5.2f, 5.2f));
-  outputs[MODULAR_OUTPUT].setVoltage(safeVoltage(out.modularVolts, -5.2f, 5.2f));
-  outputs[LINE_OUTPUT].setVoltage(safeVoltage(out.lineVolts, -1.6f, 1.6f));
 
   const float cv2Motion = clamp(std::fabs(out.cv2Volts) / 5.f, 0.f, 1.f);
   const float reverbDecay = clamp(params[REVERB_DECAY_PARAM].getValue() + 0.06f * cv2Motion, 0.f, 1.f);
@@ -102,11 +100,14 @@ void Wyrd::process(const ProcessArgs &args)
                                   reverbTone,
                                   reverbMod,
                                   args.sampleRate);
-  const float reverbLevel = params[REVERB_LEVEL_PARAM].getValue();
-  const float reverbVolts = safeVoltage(
-    shortwav::wyrd::softClip(wet.mono * 1.7f * reverbLevel) * 5.f,
-    -5.5f, 5.5f);
-  outputs[REVERB_OUTPUT].setVoltage(reverbVolts);
+  const float reverbBlend = params[REVERB_BLEND_PARAM].getValue();
+  const float wetResult = shortwav::wyrd::softClip(wet.mono * 1.7f);
+  const float blendedResult = shortwav::wyrd::equalPowerFade(
+    out.modularVolts / 5.f, wetResult, reverbBlend);
+  const float modularVolts = safeVoltage(blendedResult * 5.f, -5.2f, 5.2f);
+  const float lineVolts = safeVoltage(blendedResult * 1.5f, -1.6f, 1.6f);
+  outputs[MODULAR_OUTPUT].setVoltage(modularVolts);
+  outputs[LINE_OUTPUT].setVoltage(lineVolts);
 
   lights[STRENGTH_LIGHT].setBrightnessSmooth(std::fabs(out.strengthVolts) / 10.f, args.sampleTime);
   lights[CV1_LIGHT].setBrightnessSmooth(out.cv1Volts / 10.f, args.sampleTime);
@@ -115,8 +116,8 @@ void Wyrd::process(const ProcessArgs &args)
   lights[AGITATION_LIGHT].setBrightnessSmooth(out.agitationVolts / 6.f, args.sampleTime);
   lights[ACTIVATION_POS_LIGHT].setBrightnessSmooth(std::max(0.f, out.activation), args.sampleTime);
   lights[ACTIVATION_NEG_LIGHT].setBrightnessSmooth(std::max(0.f, -out.activation), args.sampleTime);
-  lights[RESULT_LIGHT].setBrightnessSmooth(std::fabs(out.modularVolts) / 5.f, args.sampleTime);
-  lights[REVERB_LIGHT].setBrightnessSmooth(std::fabs(reverbVolts) / 5.f, args.sampleTime);
+  lights[RESULT_LIGHT].setBrightnessSmooth(std::fabs(modularVolts) / 5.f, args.sampleTime);
+  lights[REVERB_LIGHT].setBrightnessSmooth(std::fabs(wetResult) * reverbBlend, args.sampleTime);
 }
 
 void Wyrd::onReset()
