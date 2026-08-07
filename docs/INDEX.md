@@ -11,6 +11,8 @@
 - **[README.md](../README.md)** - Main overview, features, installation, and quick reference
 - **[Quick Start Guide](QUICKSTART.md)** - Get up and running in minutes
 - **[Korupt User Manual](KORUPT.md)** - PLL harmonizer/fuzz controls, patching, presets, and tracking tips
+- **[Wyrd User Manual](WYRD.md)** - Tone core, external processing, feedback, touch bridges, reverb, and patch recipes
+- **[Drift User Manual](DRIFT.md)** - Fluctuating random CV, Signal B blending, voltage ranges, and patch recipes
 - **[API Reference](API_REFERENCE.md)** - Complete technical documentation
 - **[Advanced Usage](ADVANCED_USAGE.md)** - Expert techniques and workflows
 - **[FAQ](FAQ.md)** - Common questions and solutions
@@ -58,6 +60,16 @@
 #### Use Korupt
 → [Korupt User Manual](KORUPT.md)  
 → [Korupt Presets](KORUPT.md#factory-presets)
+
+#### Use Wyrd
+- [Wyrd User Manual](WYRD.md)
+- [Wyrd First Patch](WYRD.md#first-patch)
+- [Wyrd Factory Presets](WYRD.md#factory-presets)
+
+#### Use Drift
+- [Drift User Manual](DRIFT.md)
+- [Drift First Patch](DRIFT.md#first-patch)
+- [Drift Patch Recipes](DRIFT.md#patch-recipes)
 
 #### Understand the Technical Details
 → [API Reference](API_REFERENCE.md)  
@@ -136,6 +148,19 @@
 - [Korupt Factory Presets](KORUPT.md#factory-presets)
 - [Korupt Tracking Tips](KORUPT.md#tracking-tips)
 
+### Wyrd Tone and Feedback
+- [Wyrd User Manual](WYRD.md)
+- [Wyrd Signal Flow](WYRD.md#signal-flow)
+- [Wyrd Touch Bridges](WYRD.md#touch-bridges)
+- [Wyrd Factory Presets](WYRD.md#factory-presets)
+- [Wyrd Troubleshooting](WYRD.md#troubleshooting)
+
+### Drift Random CV
+- [Drift User Manual](DRIFT.md)
+- [Drift Controls](DRIFT.md#controls)
+- [Drift Patch Recipes](DRIFT.md#patch-recipes)
+- [Drift Troubleshooting](DRIFT.md#troubleshooting)
+
 ### CV Modulation
 - [Quick Start: CV Inputs](QUICKSTART.md#cv-voltage-standards)
 - [Advanced: CV Modulation Recipes](ADVANCED_USAGE.md#cv-modulation-recipes)
@@ -167,6 +192,24 @@
 **Audience**: All users  
 **Length**: ~400 lines  
 **Topics**: Controls, inputs, outputs, presets, patch recipes, tracking, troubleshooting
+
+### WYRD.md
+**Purpose**: User manual for the Wyrd tone source and nonlinear feedback processor
+
+**Audience**: All users
+
+**Length**: ~450 lines
+
+**Topics**: Signal flow, controls, CV, touch bridges, reverb, presets, patch recipes, troubleshooting
+
+### DRIFT.md
+**Purpose**: User manual for the Drift fluctuating random LFO
+
+**Audience**: All users
+
+**Length**: ~250 lines
+
+**Topics**: Controls, Signal B blending, voltage ranges, patch recipes, troubleshooting
 
 ### API_REFERENCE.md
 **Purpose**: Complete technical reference  
@@ -212,7 +255,9 @@
 1. [Quick Start Guide](QUICKSTART.md) - Review basics
 2. [Example 2: Granular Textures](examples/02_granular_textures.md)
 3. [Example 3: Rhythmic Processing](examples/03_rhythmic_processing.md)
-4. [Advanced Usage](ADVANCED_USAGE.md) - Techniques
+4. [Wyrd User Manual](WYRD.md) - Feedback instrument and sound design
+5. [Drift User Manual](DRIFT.md) - Organic CV movement
+6. [Advanced Usage](ADVANCED_USAGE.md) - Techniques
 
 ### Technical Users
 1. [API Reference](API_REFERENCE.md) - Technical details
@@ -224,8 +269,8 @@
 
 ## 📊 Documentation Statistics
 
-- **Total Pages**: 11 major documents
-- **Total Length**: ~4,900 lines
+- **Total Pages**: 13 major documents
+- **Total Length**: ~5,600 lines
 - **Examples**: 4+ detailed tutorials
 - **Code Samples**: 50+ snippets
 - **Reference Tables**: 20+ tables
@@ -282,4 +327,4 @@ See [LICENSE](../LICENSE.md) for details.
 
 **Happy patching! 🎵**
 
-*Last Updated: July 16, 2026*
+*Last Updated: August 7, 2026*

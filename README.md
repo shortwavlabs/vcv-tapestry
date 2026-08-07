@@ -4,19 +4,21 @@
 ![License](https://img.shields.io/badge/license-GPL--3.0--or--later-green)
 ![VCV Rack](https://img.shields.io/badge/VCV%20Rack-2.0+-orange)
 
-**Granular microsound, tape-style processing, and PLL harmonizer/fuzz modules for VCV Rack**
+**Granular microsound, nonlinear feedback, fluctuating random CV, and PLL harmonizer/fuzz for VCV Rack**
 
-Tapestry brings tape music manipulation, granular synthesis, and circuit-inspired pitch corruption to your modular patches. Record, splice, and morph audio with the main Tapestry module, add dedicated processing with Tapestry Expander, or turn monophonic sources into octave fuzz, subharmonics, and unstable PLL harmonies with Korupt.
+Tapestry brings tape music manipulation, granular synthesis, circuit-inspired pitch corruption, unstable feedback, and organic modulation to your modular patches. Record, splice, and morph audio with Tapestry, add dedicated processing with Tapestry Expander, build nonlinear drones and echoes with Wyrd, create wandering control voltage with Drift, or turn monophonic sources into octave fuzz and unstable PLL harmonies with Korupt.
 
 ---
 
 ## 🎵 Overview
 
-Tapestry is a VCV Rack plugin from Shortwav Labs with three modules:
+Tapestry is a VCV Rack plugin from Shortwav Labs with five modules:
 
 - **Tapestry**: Record up to 2.9 minutes of stereo audio, place up to 300 markers, and reshape reels with granular playback.
 - **Tapestry Expander**: Add voltage-controlled bit crushing and Moog-style lowpass filtering to Tapestry.
 - **Korupt**: Process monophonic audio with a PLL harmonizer, square-wave fuzz voice, and subharmonic divider.
+- **Wyrd**: Generate or process sound through an interactive tone core, nonlinear time/filter feedback, touch bridges, and ambient reverb.
+- **Drift**: Create smooth fluctuating random CV with offset, range, jitter, voltage slips, and a Signal B crossfader.
 
 ---
 
@@ -48,6 +50,23 @@ Tapestry is a VCV Rack plugin from Shortwav Labs with three modules:
 - 🎚️ **Three Voice Outputs**: Separate Square, Subharmonic, and Oscillator outputs for external mixing
 - 📊 **Tracking Feedback**: Lock CV plus tracking, lock, and glitch lights
 - 🔌 **Polyphonic Processing**: Processes each input channel independently as a monophonic voice
+
+### Wyrd
+
+- 🎛️ **Standalone or External Voice**: Use the internal tone core, process an external signal, or combine both
+- 🔁 **Nonlinear Time/Filter Network**: Multi-tap delay, diffusion, damping, saturation, wow, and feedback
+- 🖐️ **Playable Touch Bridges**: Momentarily animate Activation, Tonic, Time, Decay, Filter, and Absorb
+- 🌊 **Internal Modulation**: Strength CV extraction, bipolar feedback CV, subharmonics, and 0-6V Agitation
+- 🌌 **Ambient Reverb**: Integrated size, decay, diffusion, tone, modulation, and blend controls
+- 🎚️ **Extensive CV Control**: 1V/oct pitch plus modulation for the main synthesis and feedback parameters
+
+### Drift
+
+- 🎲 **Fluctuating Random LFO**: Smooth, curved movement between changing targets
+- ⚡ **Organic Irregularity**: Subtle jitter, interference, amplitude variation, and occasional voltage slips
+- ↕️ **Offset and Range**: Center and scale the result from fixed voltage to wide bipolar motion
+- 🔀 **Signal B Crossfader**: Blend toward another CV or its inverted form
+- 💡 **Clear Feedback**: Positive, negative, and internal activity lights in a compact 3HP module
 
 ---
 
@@ -124,6 +143,25 @@ make install
 
 For stable tracking, use a strong single-note source around normal Rack audio level. For chaotic divider artifacts, feed Korupt drums, chords, or fast program CV.
 
+### Wyrd Standalone Voice
+
+1. **Add Wyrd** to your patch
+2. Patch **Modular** to your mixer
+3. Raise **Level** to about 40%
+4. Raise **Activation Constant** until the tone appears
+5. Adjust **Tonic**, **Tones**, **Time**, **Decay**, **Filter**, and **Blend**
+6. Add **Reverb Blend** and hold the touch bridges to animate the sound
+
+High Decay, Filter, and Absorb settings can create persistent or self-sustaining feedback. Start with moderate Level.
+
+### Drift Random CV
+
+1. **Add Drift** to your patch
+2. Patch **CV** to an attenuated modulation destination
+3. Center **Offset**
+4. Start with low **Range** and set **Speed** to taste
+5. Optionally patch another CV to **Signal B** and turn its attenuverter away from center
+
 For detailed tutorials, see the [Quick Start Guide](docs/QUICKSTART.md).
 
 ---
@@ -132,6 +170,8 @@ For detailed tutorials, see the [Quick Start Guide](docs/QUICKSTART.md).
 
 - **[Quick Start Guide](docs/QUICKSTART.md)** - Get up and running quickly
 - **[Korupt User Manual](docs/KORUPT.md)** - PLL harmonizer/fuzz controls, presets, and patching tips
+- **[Wyrd User Manual](docs/WYRD.md)** - Tone core, feedback network, touch bridges, reverb, presets, and patch recipes
+- **[Drift User Manual](docs/DRIFT.md)** - Random CV controls, Signal B blending, patch recipes, and voltage ranges
 - **[API Reference](docs/API_REFERENCE.md)** - Complete technical documentation
 - **[Advanced Usage](docs/ADVANCED_USAGE.md)** - In-depth techniques and workflows
 - **[Examples](docs/examples/)** - Real-world patch examples
@@ -210,6 +250,45 @@ For detailed tutorials, see the [Quick Start Guide](docs/QUICKSTART.md).
 - **LOCK**: 0-10V PLL lock-confidence output
 - **SQ CV / SUB CV / OSC CV / RATE / SUB P / OSC P**: Additive CV inputs for voice levels, rate, and program selection
 
+### Wyrd
+
+#### Main Controls
+
+| Section | Controls | Function |
+|---------|----------|----------|
+| **External** | Strength, External Constant | Conditions an input signal, extracts CV, and injects it into the sound engine |
+| **Agitation** | Speed, Angle, Speed CV Amount | Generates an internal 0-6V gesture |
+| **Activation** | Constant, Interference, CV Attenuverter | Opens and drives the selected tone |
+| **Tone Core** | Tonic Coarse/Fine, Tonic Mod, Tones | Sets pitch and morphs the oscillator palette |
+| **Time/Filter** | Time Coarse/Fine, Time Mod, Decay, Filter, Absorb | Shapes the nonlinear delay and feedback network |
+| **Output** | Blend, Level | Crossfades dry/time paths and sets output gain |
+| **Reverb** | Size, Decay, Diffusion, Tone, Mod, Blend | Shapes the integrated ambient reverb |
+
+#### Inputs/Outputs
+
+- **External / Strength / CV1**: External processing path, bipolar processed output, and 0-10V envelope
+- **Begin and End / Speed CV / Agitation**: Gate and modulate the internal gesture generator
+- **1V/oct / Tonic Mod / Tones CV**: Pitch and timbre modulation
+- **Time Mod / Time CV / Time Unity / Decay CV / Filter CV / Absorb CV / Blend CV**: Feedback-network modulation
+- **CV2 / Tone Core / Sub Harmonics**: Bipolar feedback CV and direct oscillator outputs
+- **Modular / Line**: Main reverb-equipped result at modular and lower line levels
+
+### Drift
+
+#### Controls
+
+| Control | Function | Range |
+|---------|----------|-------|
+| **Offset** | Adds a fixed voltage after Range | -5V to +5V |
+| **Speed** | Sets the random target rate | approximately 0.01-6Hz |
+| **Range** | Sets bipolar modulation depth | 0-10Vpp nominal |
+| **Signal B Attenuverter** | Crossfades toward Signal B or inverted Signal B | -100% to +100% |
+
+#### Input/Output
+
+- **Signal B**: Alternate CV or audio source for the bipolar crossfade
+- **CV**: Monophonic fluctuating random output, limited to ±10V
+
 ---
 
 ## 🔧 Technical Specifications
@@ -221,6 +300,10 @@ For detailed tutorials, see the [Quick Start Guide](docs/QUICKSTART.md).
 - **Grain Voices**: Up to 4 simultaneous
 - **File Format**: WAV (32-bit float)
 - **Korupt Channels**: Up to 16 polyphonic channels, processed independently
+- **Wyrd Channels**: Monophonic tone and processing path
+- **Wyrd Time Range**: Approximately 3ms-2.45s in the feedback network
+- **Drift Rate**: Approximately 0.01-6Hz
+- **Drift Output**: Monophonic CV, limited to ±10V
 - **CPU Usage**: Optimized for real-time performance
 
 ---
@@ -234,6 +317,8 @@ For detailed tutorials, see the [Quick Start Guide](docs/QUICKSTART.md).
 - **Rhythmic Effects**: Clock-synced time stretching and stuttering
 - **Experimental Music**: Explore musique concrète techniques
 - **PLL Fuzz and Harmonies**: Create octave fuzz, divider basses, and unstable upper harmonics with Korupt
+- **Feedback Instrument**: Build drones, resonators, unstable echoes, and externally excited textures with Wyrd
+- **Organic Modulation**: Add slow uncertainty, jitter, and rare voltage slips with Drift
 
 ---
 
