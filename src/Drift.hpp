@@ -74,7 +74,7 @@ struct DriftWidget : ModuleWidget
   DriftWidget(Drift *module)
   {
     setModule(module);
-    setPanel(createPanel(asset::plugin(pluginInstance, "res/3HP.svg")));
+    setPanel(createPanel(asset::plugin(pluginInstance, "res/DRIFT_PANEL.svg")));
 
     addChild(createWidget<ScrewSilver>(Vec(0, 0)));
     addChild(createWidget<ScrewSilver>(Vec(box.size.x - 1 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
@@ -90,6 +90,6 @@ struct DriftWidget : ModuleWidget
     addChild(createLightCentered<SmallLight<GreenLight>>(controlPosition(17.5f, 304.f), module, Drift::OUTPUT_POS_LIGHT));
     addChild(createLightCentered<SmallLight<RedLight>>(controlPosition(27.5f, 304.f), module, Drift::OUTPUT_NEG_LIGHT));
     addChild(createLightCentered<SmallLight<YellowLight>>(controlPosition(22.5f, 318.f), module, Drift::ACTIVITY_LIGHT));
-    addOutput(createOutputCentered<PJ301MPort>(controlPosition(22.5f, 344.f), module, Drift::CV_OUTPUT));
+    addOutput(createOutputCentered<DarkPJ301MPort>(controlPosition(22.5f, 344.f), module, Drift::CV_OUTPUT));
   }
 };
