@@ -808,6 +808,73 @@ namespace TestSuite
     T_ASSERT(ctx, activeSamples > 1800);
   }
 
+  static void test_reset_replays_fresh_state(TestContext &ctx)
+  {
+    Controls controls = defaultControls();
+    controls.strength = 0.8f;
+    controls.touchActivation = 1.f;
+    controls.touchTime = 1.f;
+    controls.touchSource = static_cast<int>(TouchSource::NOISE);
+
+    Frame frame;
+    frame.sampleTime = 1.f / 48000.f;
+    frame.externalConnected = true;
+
+    WyrdEngine freshEngine;
+    WyrdEngine resetEngine;
+    for (int i = 0; i < 12000; ++i)
+    {
+      frame.externalVolts = 2.f * std::sin(2.f * kPi * 173.f * static_cast<float>(i) / 48000.f);
+      resetEngine.process(frame, controls);
+    }
+    resetEngine.reset();
+
+    float maxEngineDiff = 0.f;
+    for (int i = 0; i < 12000; ++i)
+    {
+      frame.externalVolts = 2.f * std::sin(2.f * kPi * 173.f * static_cast<float>(i) / 48000.f);
+      const Outputs fresh = freshEngine.process(frame, controls);
+      const Outputs reset = resetEngine.process(frame, controls);
+      maxEngineDiff = std::max({
+        maxEngineDiff,
+        std::fabs(fresh.strengthVolts - reset.strengthVolts),
+        std::fabs(fresh.cv1Volts - reset.cv1Volts),
+        std::fabs(fresh.cv2Volts - reset.cv2Volts),
+        std::fabs(fresh.agitationVolts - reset.agitationVolts),
+        std::fabs(fresh.toneCoreVolts - reset.toneCoreVolts),
+        std::fabs(fresh.subHarmonicsVolts - reset.subHarmonicsVolts),
+        std::fabs(fresh.selectedToneVolts - reset.selectedToneVolts),
+        std::fabs(fresh.activation - reset.activation),
+        std::fabs(fresh.modularVolts - reset.modularVolts),
+        std::fabs(fresh.lineVolts - reset.lineVolts)
+      });
+    }
+    T_ASSERT_NEAR(ctx, maxEngineDiff, 0.f, 1e-7f);
+
+    WyrdAmbientReverb freshReverb;
+    WyrdAmbientReverb resetReverb;
+    for (int i = 0; i < 12000; ++i)
+    {
+      resetReverb.process(i == 0 ? 1.f : 0.f, 0.7f, 0.8f, 0.6f, 0.5f, 0.4f, 48000.f);
+    }
+    resetReverb.reset();
+
+    float maxReverbDiff = 0.f;
+    for (int i = 0; i < 12000; ++i)
+    {
+      const float input = i == 0 ? 1.f : 0.f;
+      const WyrdReverbResult fresh = freshReverb.process(input, 0.7f, 0.8f, 0.6f, 0.5f, 0.4f, 48000.f);
+      const WyrdReverbResult reset = resetReverb.process(input, 0.7f, 0.8f, 0.6f, 0.5f, 0.4f, 48000.f);
+      maxReverbDiff = std::max({
+        maxReverbDiff,
+        std::fabs(fresh.left - reset.left),
+        std::fabs(fresh.right - reset.right),
+        std::fabs(fresh.mono - reset.mono)
+      });
+    }
+    T_ASSERT_NEAR(ctx, maxReverbDiff, 0.f, 1e-7f);
+  }
+
   static void test_extreme_engine_stability(TestContext &ctx)
   {
     WyrdEngine engine;
@@ -908,6 +975,7 @@ namespace TestSuite
     test_delay_wrap_and_core_recovery_edges(ctx);
     test_listening_calibration_landmarks(ctx);
     test_wyrd_ambient_reverb_dsp(ctx);
+    test_reset_replays_fresh_state(ctx);
     test_extreme_engine_stability(ctx);
 
     std::printf("\n");
