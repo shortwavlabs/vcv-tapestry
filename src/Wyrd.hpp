@@ -284,82 +284,82 @@ struct WyrdWidget : ModuleWidget
     addChild(createWidget<ScrewSilver>(Vec(0, 0)));
     addChild(createWidget<ScrewSilver>(Vec(box.size.x - 1 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-    addInput(createInputCentered<PJ301MPort>(Vec(35.f, 48.f), module, Wyrd::EXTERNAL_INPUT));
-    addOutput(createOutputCentered<DarkPJ301MPort>(Vec(85.f, 48.f), module, Wyrd::STRENGTH_OUTPUT));
-    addParam(createParamCentered<RoundSmallBlackKnob>(Vec(35.f, 92.f), module, Wyrd::STRENGTH_PARAM));
-    addParam(createParamCentered<SynthTechAlco>(Vec(85.f, 92.f), module, Wyrd::EXTERNAL_CONSTANT_PARAM));
-    addOutput(createOutputCentered<DarkPJ301MPort>(Vec(35.f, 136.f), module, Wyrd::CV1_OUTPUT));
-    addOutput(createOutputCentered<DarkPJ301MPort>(Vec(85.f, 136.f), module, Wyrd::CV2_OUTPUT));
+    addInput(createInputCentered<PJ301MPort>(Vec(35.f, 38.f), module, Wyrd::EXTERNAL_INPUT));
+    addOutput(createOutputCentered<DarkPJ301MPort>(Vec(90.f, 38.f), module, Wyrd::STRENGTH_OUTPUT));
+    addParam(createParamCentered<RoundSmallBlackKnob>(Vec(35.f, 90.f), module, Wyrd::STRENGTH_PARAM));
+    addParam(createParamCentered<SynthTechAlco>(Vec(90.f, 90.f), module, Wyrd::EXTERNAL_CONSTANT_PARAM));
+    addOutput(createOutputCentered<DarkPJ301MPort>(Vec(35.f, 143.f), module, Wyrd::CV1_OUTPUT));
+    addOutput(createOutputCentered<DarkPJ301MPort>(Vec(90.f, 143.f), module, Wyrd::CV2_OUTPUT));
 
-    addParam(createParamCentered<SynthTechAlco>(Vec(45.f, 220.f), module, Wyrd::SPEED_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(95.f, 220.f), module, Wyrd::ANGLE_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(45.f, 267.f), module, Wyrd::SPEED_CV_AMOUNT_PARAM));
-    addInput(createInputCentered<PJ301MPort>(Vec(95.f, 267.f), module, Wyrd::SPEED_CV_INPUT));
+    addParam(createParamCentered<SynthTechAlco>(Vec(45.f, 214.f), module, Wyrd::SPEED_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(Vec(100.f, 214.f), module, Wyrd::ANGLE_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(Vec(45.f, 270.f), module, Wyrd::SPEED_CV_AMOUNT_PARAM));
+    addInput(createInputCentered<PJ301MPort>(Vec(100.f, 270.f), module, Wyrd::SPEED_CV_INPUT));
     addInput(createInputCentered<PJ301MPort>(Vec(45.f, 322.f), module, Wyrd::BEGIN_END_INPUT));
-    addOutput(createOutputCentered<DarkPJ301MPort>(Vec(95.f, 322.f), module, Wyrd::AGITATION_OUTPUT));
+    addOutput(createOutputCentered<DarkPJ301MPort>(Vec(100.f, 322.f), module, Wyrd::AGITATION_OUTPUT));
 
-    addParam(createParamCentered<SynthTechAlco>(Vec(145.f, 92.f), module, Wyrd::ACTIVATION_CONSTANT_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(190.f, 92.f), module, Wyrd::ACTIVATION_INTERFERENCE_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(145.f, 139.f), module, Wyrd::ACTIVATION_CV_AMOUNT_PARAM));
-    addInput(createInputCentered<PJ301MPort>(Vec(190.f, 139.f), module, Wyrd::ACTIVATION_CV_INPUT));
-    addParam(createParamCentered<LEDButton>(Vec(145.f, 48.f), module, Wyrd::TOUCH_ACTIVATE_PARAM));
-    addParam(createParamCentered<LEDButton>(Vec(390.f, 48.f), module, Wyrd::TOUCH_TIME_PARAM));
-    addParam(createParamCentered<LEDButton>(Vec(535.f, 48.f), module, Wyrd::TOUCH_FILTER_PARAM));
-    addParam(createParamCentered<LEDButton>(Vec(550.f, 194.f), module, Wyrd::TOUCH_ABSORB_PARAM));
-    addParam(createParamCentered<LEDButton>(Vec(255.f, 48.f), module, Wyrd::TOUCH_TONIC_PARAM));
-    addParam(createParamCentered<LEDButton>(Vec(455.f, 48.f), module, Wyrd::TOUCH_DECAY_PARAM));
+    addParam(createParamCentered<SynthTechAlco>(Vec(150.f, 90.f), module, Wyrd::ACTIVATION_CONSTANT_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(Vec(200.f, 90.f), module, Wyrd::ACTIVATION_INTERFERENCE_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(Vec(150.f, 143.f), module, Wyrd::ACTIVATION_CV_AMOUNT_PARAM));
+    addInput(createInputCentered<PJ301MPort>(Vec(200.f, 143.f), module, Wyrd::ACTIVATION_CV_INPUT));
+    addParam(createParamCentered<LEDButton>(Vec(150.f, 35.f), module, Wyrd::TOUCH_ACTIVATE_PARAM));
+    addParam(createParamCentered<LEDButton>(Vec(405.f, 35.f), module, Wyrd::TOUCH_TIME_PARAM));
+    addParam(createParamCentered<LEDButton>(Vec(560.f, 35.f), module, Wyrd::TOUCH_FILTER_PARAM));
+    addParam(createParamCentered<LEDButton>(Vec(580.f, 194.f), module, Wyrd::TOUCH_ABSORB_PARAM));
+    addParam(createParamCentered<LEDButton>(Vec(260.f, 35.f), module, Wyrd::TOUCH_TONIC_PARAM));
+    addParam(createParamCentered<LEDButton>(Vec(475.f, 35.f), module, Wyrd::TOUCH_DECAY_PARAM));
 
-    addParam(createParamCentered<Davies1900hLargeBlackKnob>(Vec(255.f, 118.f), module, Wyrd::TONIC_COARSE_PARAM));
-    addParam(createParamCentered<RoundSmallBlackKnob>(Vec(310.f, 90.f), module, Wyrd::TONIC_FINE_PARAM));
-    addParam(createParamCentered<SynthTechAlco>(Vec(310.f, 135.f), module, Wyrd::TONES_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(210.f, 190.f), module, Wyrd::TONIC_MOD_AMOUNT_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(260.f, 190.f), module, Wyrd::TONES_CV_AMOUNT_PARAM));
-    addInput(createInputCentered<PJ301MPort>(Vec(310.f, 190.f), module, Wyrd::V_OCT_INPUT));
-    addInput(createInputCentered<PJ301MPort>(Vec(210.f, 238.f), module, Wyrd::TONIC_MOD_INPUT));
-    addInput(createInputCentered<PJ301MPort>(Vec(260.f, 238.f), module, Wyrd::TONES_CV_INPUT));
-    addOutput(createOutputCentered<DarkPJ301MPort>(Vec(310.f, 238.f), module, Wyrd::TONE_CORE_OUTPUT));
-    addOutput(createOutputCentered<DarkPJ301MPort>(Vec(310.f, 284.f), module, Wyrd::SUB_HARMONICS_OUTPUT));
+    addParam(createParamCentered<Davies1900hLargeBlackKnob>(Vec(260.f, 110.f), module, Wyrd::TONIC_COARSE_PARAM));
+    addParam(createParamCentered<RoundSmallBlackKnob>(Vec(320.f, 72.f), module, Wyrd::TONIC_FINE_PARAM));
+    addParam(createParamCentered<SynthTechAlco>(Vec(320.f, 136.f), module, Wyrd::TONES_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(Vec(215.f, 190.f), module, Wyrd::TONIC_MOD_AMOUNT_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(Vec(270.f, 190.f), module, Wyrd::TONES_CV_AMOUNT_PARAM));
+    addInput(createInputCentered<PJ301MPort>(Vec(320.f, 190.f), module, Wyrd::V_OCT_INPUT));
+    addInput(createInputCentered<PJ301MPort>(Vec(215.f, 238.f), module, Wyrd::TONIC_MOD_INPUT));
+    addInput(createInputCentered<PJ301MPort>(Vec(270.f, 238.f), module, Wyrd::TONES_CV_INPUT));
+    addOutput(createOutputCentered<DarkPJ301MPort>(Vec(320.f, 238.f), module, Wyrd::TONE_CORE_OUTPUT));
+    addOutput(createOutputCentered<DarkPJ301MPort>(Vec(320.f, 284.f), module, Wyrd::SUB_HARMONICS_OUTPUT));
 
-    addParam(createParamCentered<Davies1900hLargeBlackKnob>(Vec(390.f, 118.f), module, Wyrd::TIME_COARSE_PARAM));
-    addParam(createParamCentered<RoundSmallBlackKnob>(Vec(455.f, 90.f), module, Wyrd::TIME_FINE_PARAM));
-    addParam(createParamCentered<SynthTechAlco>(Vec(455.f, 135.f), module, Wyrd::DECAY_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(365.f, 190.f), module, Wyrd::TIME_MOD_AMOUNT_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(410.f, 190.f), module, Wyrd::TIME_CV_AMOUNT_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(455.f, 190.f), module, Wyrd::DECAY_CV_AMOUNT_PARAM));
-    addInput(createInputCentered<PJ301MPort>(Vec(365.f, 238.f), module, Wyrd::TIME_MOD_INPUT));
-    addInput(createInputCentered<PJ301MPort>(Vec(410.f, 238.f), module, Wyrd::TIME_CV_INPUT));
-    addInput(createInputCentered<PJ301MPort>(Vec(455.f, 238.f), module, Wyrd::TIME_UNITY_CV_INPUT));
-    addInput(createInputCentered<PJ301MPort>(Vec(455.f, 284.f), module, Wyrd::DECAY_CV_INPUT));
+    addParam(createParamCentered<Davies1900hLargeBlackKnob>(Vec(405.f, 110.f), module, Wyrd::TIME_COARSE_PARAM));
+    addParam(createParamCentered<RoundSmallBlackKnob>(Vec(475.f, 72.f), module, Wyrd::TIME_FINE_PARAM));
+    addParam(createParamCentered<SynthTechAlco>(Vec(475.f, 136.f), module, Wyrd::DECAY_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(Vec(375.f, 190.f), module, Wyrd::TIME_MOD_AMOUNT_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(Vec(425.f, 190.f), module, Wyrd::TIME_CV_AMOUNT_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(Vec(475.f, 190.f), module, Wyrd::DECAY_CV_AMOUNT_PARAM));
+    addInput(createInputCentered<PJ301MPort>(Vec(375.f, 238.f), module, Wyrd::TIME_MOD_INPUT));
+    addInput(createInputCentered<PJ301MPort>(Vec(425.f, 238.f), module, Wyrd::TIME_CV_INPUT));
+    addInput(createInputCentered<PJ301MPort>(Vec(475.f, 238.f), module, Wyrd::TIME_UNITY_CV_INPUT));
+    addInput(createInputCentered<PJ301MPort>(Vec(475.f, 284.f), module, Wyrd::DECAY_CV_INPUT));
 
-    addParam(createParamCentered<Davies1900hLargeBlackKnob>(Vec(535.f, 118.f), module, Wyrd::FILTER_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(500.f, 190.f), module, Wyrd::FILTER_CV_AMOUNT_PARAM));
-    addParam(createParamCentered<SynthTechAlco>(Vec(550.f, 238.f), module, Wyrd::ABSORB_PARAM));
-    addInput(createInputCentered<PJ301MPort>(Vec(500.f, 238.f), module, Wyrd::FILTER_CV_INPUT));
-    addInput(createInputCentered<PJ301MPort>(Vec(550.f, 284.f), module, Wyrd::ABSORB_CV_INPUT));
-    addInput(createInputCentered<PJ301MPort>(Vec(500.f, 331.f), module, Wyrd::BLEND_CV_INPUT));
-    addOutput(createOutputCentered<DarkPJ301MPort>(Vec(545.f, 331.f), module, Wyrd::LINE_OUTPUT));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(365.f, 331.f), module, Wyrd::BLEND_PARAM));
-    addParam(createParamCentered<RoundSmallBlackKnob>(Vec(425.f, 331.f), module, Wyrd::LEVEL_PARAM));
-    addOutput(createOutputCentered<DarkPJ301MPort>(Vec(580.f, 331.f), module, Wyrd::MODULAR_OUTPUT));
+    addParam(createParamCentered<Davies1900hLargeBlackKnob>(Vec(560.f, 110.f), module, Wyrd::FILTER_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(Vec(525.f, 190.f), module, Wyrd::FILTER_CV_AMOUNT_PARAM));
+    addParam(createParamCentered<SynthTechAlco>(Vec(580.f, 232.f), module, Wyrd::ABSORB_PARAM));
+    addInput(createInputCentered<PJ301MPort>(Vec(525.f, 238.f), module, Wyrd::FILTER_CV_INPUT));
+    addInput(createInputCentered<PJ301MPort>(Vec(580.f, 284.f), module, Wyrd::ABSORB_CV_INPUT));
+    addInput(createInputCentered<PJ301MPort>(Vec(525.f, 331.f), module, Wyrd::BLEND_CV_INPUT));
+    addOutput(createOutputCentered<DarkPJ301MPort>(Vec(575.f, 331.f), module, Wyrd::LINE_OUTPUT));
+    addParam(createParamCentered<RoundBlackKnob>(Vec(375.f, 331.f), module, Wyrd::BLEND_PARAM));
+    addParam(createParamCentered<RoundSmallBlackKnob>(Vec(435.f, 331.f), module, Wyrd::LEVEL_PARAM));
+    addOutput(createOutputCentered<DarkPJ301MPort>(Vec(610.f, 331.f), module, Wyrd::MODULAR_OUTPUT));
 
     // LIGHTS
-    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(60.f, 48.f), module, Wyrd::STRENGTH_LIGHT));
-    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(60.f, 136.f), module, Wyrd::CV1_LIGHT));
-    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(105.f, 132.f), module, Wyrd::CV2_POS_LIGHT));
-    addChild(createLightCentered<SmallLight<RedLight>>(Vec(105.f, 140.f), module, Wyrd::CV2_NEG_LIGHT));
-    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(115.f, 322.f), module, Wyrd::AGITATION_LIGHT));
-    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(165.f, 67.f), module, Wyrd::ACTIVATION_POS_LIGHT));
-    addChild(createLightCentered<SmallLight<RedLight>>(Vec(173.f, 67.f), module, Wyrd::ACTIVATION_NEG_LIGHT));
-    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(580.f, 307.f), module, Wyrd::RESULT_LIGHT));
-    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(622.5f, 333.f), module, Wyrd::REVERB_LIGHT));
+    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(62.5f, 38.f), module, Wyrd::STRENGTH_LIGHT));
+    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(62.5f, 143.f), module, Wyrd::CV1_LIGHT));
+    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(112.f, 139.f), module, Wyrd::CV2_POS_LIGHT));
+    addChild(createLightCentered<SmallLight<RedLight>>(Vec(112.f, 147.f), module, Wyrd::CV2_NEG_LIGHT));
+    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(120.f, 322.f), module, Wyrd::AGITATION_LIGHT));
+    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(172.f, 70.f), module, Wyrd::ACTIVATION_POS_LIGHT));
+    addChild(createLightCentered<SmallLight<RedLight>>(Vec(180.f, 70.f), module, Wyrd::ACTIVATION_NEG_LIGHT));
+    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(610.f, 307.f), module, Wyrd::RESULT_LIGHT));
+    addChild(createLightCentered<SmallLight<GreenLight>>(Vec(652.5f, 338.f), module, Wyrd::REVERB_LIGHT));
 
     // REVERB
-    addParam(createParamCentered<RoundBlackKnob>(Vec(622.5f, 47.f), module, Wyrd::REVERB_SIZE_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(622.5f, 95.f), module, Wyrd::REVERB_DECAY_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(622.5f, 143.f), module, Wyrd::REVERB_DIFFUSION_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(622.5f, 191.f), module, Wyrd::REVERB_TONE_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(622.5f, 239.f), module, Wyrd::REVERB_MOD_PARAM));
-    addParam(createParamCentered<RoundBlackKnob>(Vec(622.5f, 287.f), module, Wyrd::REVERB_BLEND_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(Vec(652.5f, 38.f), module, Wyrd::REVERB_SIZE_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(Vec(652.5f, 90.f), module, Wyrd::REVERB_DECAY_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(Vec(652.5f, 142.f), module, Wyrd::REVERB_DIFFUSION_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(Vec(652.5f, 194.f), module, Wyrd::REVERB_TONE_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(Vec(652.5f, 246.f), module, Wyrd::REVERB_MOD_PARAM));
+    addParam(createParamCentered<RoundBlackKnob>(Vec(652.5f, 298.f), module, Wyrd::REVERB_BLEND_PARAM));
   }
 
   void appendContextMenu(Menu* menu) override
@@ -380,7 +380,7 @@ struct WyrdWidget : ModuleWidget
     ));
 
     menu->addChild(createIndexSubmenuItem("Strength calibration",
-      {"Strega", "Line gentle", "Modular hot"},
+      {"Factory", "Line gentle", "Modular hot"},
       [=]() {
         return module ? module->strengthCalibration : static_cast<int>(shortwav::wyrd::StrengthCalibration::STREGA);
       },
